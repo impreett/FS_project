@@ -4,7 +4,7 @@ declare global {
 	}
 }
 
-const DEFAULT_API = 'https://majorprojectbackend-production-05da.up.railway.app/api';
+const DEFAULT_API = 'https://fs-project-6fl1.onrender.com/api';
 const LOCAL_API = 'http://localhost:5000/api';
 
 const runtimeApi = (typeof window !== 'undefined' && (window as any).__env && (window as any).__env.API_BASE)
