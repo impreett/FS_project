@@ -1,0 +1,82 @@
+<aside class="sidebar" *ngIf="user">
+  <nav>
+    <ng-container *ngIf="isAdmin; else clientLinks">
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item-link"
+      >
+        <img src="/assets/home_icon.png" alt="Home" />
+        <span>Home</span>
+      </a>
+      <a routerLink="/admin/add-case" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/add_icon.png" alt="Add Case" />
+        <span>Add Case</span>
+      </a>
+      <a routerLink="/search" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/search_icon.png" alt="Search Case" />
+        <span>Search Case</span>
+      </a>
+      <a routerLink="/admin/update-case" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/update_icon.png" alt="Update Case" />
+        <span>Update Case</span>
+      </a>
+      <a routerLink="/admin/pending-updates" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/pending_update_case_icon.png" alt="Pending update Case" />
+        <span>Pending update Case</span>
+      </a>
+      <a routerLink="/admin/remove-case" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/remove_case.png" alt="Remove Case" />
+        <span>Remove Case</span>
+      </a>
+      <a routerLink="/admin/AdminRemovedCasesPage" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/removed_case_icon.png" alt="Removed Case" />
+        <span>Removed Case</span>
+      </a>
+      <a routerLink="/admin/pending-cases" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/pending_case_icon.png" alt="Pending Case" />
+        <span>Pending Case</span>
+      </a>
+      <a routerLink="/admin/pending-users" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/pending_user_icon.png" alt="Pending User" />
+        <span>Pending User</span>
+      </a>
+      <a routerLink="/admin/active-users" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/active_users_icon.png" alt="Active Users" />
+        <span>Active Users</span>
+      </a>
+      <a routerLink="/admin/reports" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/reports.png" alt="Reports" />
+        <span>Reports</span>
+      </a>
+    </ng-container>
+    <ng-template #clientLinks>
+      <a
+        routerLink="/"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+        class="nav-item-link"
+      >
+        <img src="/assets/home_icon.png" alt="Home" />
+        <span>Home</span>
+      </a>
+      <a routerLink="/add" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/add_icon.png" alt="Add Case" />
+        <span>Add Case</span>
+      </a>
+      <a routerLink="/search" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/search_icon.png" alt="Search Case" />
+        <span>Search Case</span>
+      </a>
+      <a routerLink="/update" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/update_icon.png" alt="Update Case" />
+        <span>Update Case</span>
+      </a>
+      <a routerLink="/report" routerLinkActive="active" class="nav-item-link">
+        <img src="/assets/reports.png" alt="Report" />
+        <span>Report</span>
+      </a>
+    </ng-template>
+  </nav>
+</aside>

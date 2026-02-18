@@ -1,0 +1,66 @@
+<div class="container mt-4">
+  <div *ngIf="loading">Loading details...</div>
+  <div *ngIf="error" class="text-danger">{{ error }}</div>
+  <div *ngIf="!loading && !error && !caseItem">Case not found.</div>
+
+  <ng-container *ngIf="caseItem">
+    <ng-container *ngIf="user?.isAdmin; else clientView">
+      <h2 class="mb-4">Case Details</h2>
+      <div
+        *ngIf="successMessage"
+        class="alert alert-success alert-dismissible fade show text-center"
+        role="alert"
+      >
+        {{ successMessage }}
+        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+      </div>
+      <article
+        style="border: 1px solid #ccc; border-radius: 5px; padding: 20px; background: #fff; margin-bottom: 30px"
+      >
+        <h3>{{ caseItem.case_title }}</h3>
+        <p><b>Case ID:</b> {{ caseItem._id }}</p>
+        <p><b>Type:</b> {{ caseItem.case_type }}</p>
+        <p><b>Handler:</b> {{ caseItem.case_handler }}</p>
+        <p><b>Victim:</b> {{ caseItem.victim || 'N/A' }}</p>
+        <p><b>Suspects:</b> {{ caseItem.suspects || 'N/A' }}</p>
+        <p><b>Guilty Name:</b> {{ caseItem.guilty_name || 'N/A' }}</p>
+        <p><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
+        <p><b>Status:</b> {{ caseItem.status }}</p>
+        <p><b>Approval:</b> {{ caseItem.isApproved ? 'Approved' : 'Pending' }}</p>
+        <p class="desc-box">
+          <b>Description:</b><br />
+          <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
+        </p>
+
+        <div *ngIf="!caseItem.isApproved; else approved">
+          <button class="btn btn-success me-2" (click)="handleApprove()">Approve</button>
+          <button class="btn btn-danger" (click)="handleDeny()">Deny</button>
+        </div>
+        <ng-template #approved>
+          <p class="alert alert-success mt-3">This case is approved.</p>
+        </ng-template>
+      </article>
+    </ng-container>
+
+    <ng-template #clientView>
+      <h2 class="mb-4">Case Details</h2>
+      <article
+        style="border: 1px solid #ccc; border-radius: 5px; padding: 20px; background: #fff; margin-bottom: 30px"
+      >
+        <h3>{{ caseItem.case_title }}</h3>
+        <p><b>Case ID:</b> {{ caseItem._id }}</p>
+        <p><b>Type:</b> {{ caseItem.case_type }}</p>
+        <p><b>Handler:</b> {{ caseItem.case_handler }}</p>
+        <p><b>Victim:</b> {{ caseItem.victim || 'N/A' }}</p>
+        <p><b>Suspects:</b> {{ caseItem.suspects || 'N/A' }}</p>
+        <p><b>Guilty Name:</b> {{ caseItem.guilty_name || 'N/A' }}</p>
+        <p><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
+        <p><b>Status:</b> {{ caseItem.status }}</p>
+        <p class="desc-box">
+          <b>Description:</b><br />
+          <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
+        </p>
+      </article>
+    </ng-template>
+  </ng-container>
+</div>

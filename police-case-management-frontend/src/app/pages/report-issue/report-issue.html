@@ -1,0 +1,32 @@
+<div class="container mt-4">
+  <div class="col-md-6 mx-auto">
+    <h3 class="text-center mb-4">Report an Issue</h3>
+    <div *ngIf="tokenError" class="alert alert-danger">
+      Your login session is outdated. Please log out and log in again to use this feature.
+    </div>
+    <form (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-control" [value]="userEmail" readonly />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Report</label>
+        <textarea
+          class="form-control"
+          [class.is-invalid]="errors.reportText"
+          rows="6"
+          placeholder="Please describe your issue here..."
+          [(ngModel)]="reportText"
+          name="reportText"
+          (input)="errors = {}"
+        ></textarea>
+        <div *ngIf="errors.reportText" class="text-danger" style="font-size: 0.875em; margin-top: 0.25rem">
+          {{ errors.reportText }}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-dark w-100 mt-3" [disabled]="tokenError">
+        Submit Report
+      </button>
+    </form>
+  </div>
+</div>

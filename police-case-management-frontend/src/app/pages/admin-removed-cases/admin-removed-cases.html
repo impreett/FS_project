@@ -1,0 +1,23 @@
+<div class="container mt-4" style="margin-bottom: 30px">
+  <h2 class="mb-4">Removed Cases</h2>
+  <div *ngIf="message" class="alert alert-info">{{ message }}</div>
+  <div *ngIf="loading">Loading cases...</div>
+  <ng-container *ngIf="!loading">
+    <ng-container *ngIf="cases.length > 0; else empty">
+      <article *ngFor="let caseItem of cases" class="card mb-3 bg-light">
+        <div class="card-body">
+          <h3 class="card-title">
+            <a [routerLink]="['/case', caseItem._id]">{{ caseItem.case_title }}</a>
+          </h3>
+          <p class="card-text mb-1"><b>Handler:</b> {{ caseItem.case_handler }}</p>
+          <p class="card-text mb-1"><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
+          <p class="card-text">{{ caseItem.case_description?.substring(0, 150) }}...</p>
+          <button class="btn btn-success mt-2" (click)="handleRestore(caseItem._id)">Restore Case</button>
+        </div>
+      </article>
+    </ng-container>
+    <ng-template #empty>
+      <p class="alert alert-warning">No removed cases found.</p>
+    </ng-template>
+  </ng-container>
+</div>

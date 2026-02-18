@@ -1,0 +1,82 @@
+<div class="container mt-4">
+  <h2 class="mb-4">Pending Case Updates</h2>
+  <div
+    *ngIf="successMessage"
+    class="alert alert-success alert-dismissible fade show text-center"
+    role="alert"
+  >
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+  <div
+    *ngIf="infoMessage"
+    class="alert alert-info alert-dismissible fade show text-center"
+    role="alert"
+  >
+    {{ infoMessage }}
+    <button type="button" class="btn-close" (click)="infoMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="loading">Loading...</div>
+
+  <ng-container *ngIf="!loading">
+    <ng-container *ngIf="updates.length > 0; else empty">
+      <div *ngFor="let update of updates" class="card mb-4 shadow-sm">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <strong>Case ID: {{ update.originalCaseId }}</strong>
+          <div>
+            <button class="btn btn-success btn-sm me-2" (click)="handleApprove(update._id)">
+              Approve
+            </button>
+            <button class="btn btn-danger btn-sm" (click)="handleDeny(update._id)">Cancel</button>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <h5 class="text-muted">Original</h5>
+              <table class="table table-sm table-striped">
+                <tbody>
+                  <tr><th>Title</th><td>{{ originals[update.originalCaseId]?.case_title || '' }}</td></tr>
+                  <tr><th>Type</th><td>{{ originals[update.originalCaseId]?.case_type || '' }}</td></tr>
+                  <tr>
+                    <th>Description</th>
+                    <td><span style="white-space: pre-wrap">{{ originals[update.originalCaseId]?.case_description || '' }}</span></td>
+                  </tr>
+                  <tr><th>Suspects</th><td>{{ originals[update.originalCaseId]?.suspects || '' }}</td></tr>
+                  <tr><th>Victim</th><td>{{ originals[update.originalCaseId]?.victim || '' }}</td></tr>
+                  <tr><th>Guilty</th><td>{{ originals[update.originalCaseId]?.guilty_name || '' }}</td></tr>
+                  <tr><th>Date</th><td>{{ originals[update.originalCaseId]?.case_date || '' }}</td></tr>
+                  <tr><th>Handler</th><td>{{ originals[update.originalCaseId]?.case_handler || '' }}</td></tr>
+                  <tr><th>Status</th><td>{{ originals[update.originalCaseId]?.status || originals[update.originalCaseId]?.active_close || '' }}</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="col-md-6">
+              <h5 class="text-muted">Update Request</h5>
+              <table class="table table-sm table-striped">
+                <tbody>
+                  <tr><th>Title</th><td>{{ update.case_title }}</td></tr>
+                  <tr><th>Type</th><td>{{ update.case_type }}</td></tr>
+                  <tr>
+                    <th>Description</th>
+                    <td><span style="white-space: pre-wrap">{{ update.case_description }}</span></td>
+                  </tr>
+                  <tr><th>Suspects</th><td>{{ update.suspects }}</td></tr>
+                  <tr><th>Victim</th><td>{{ update.victim }}</td></tr>
+                  <tr><th>Guilty</th><td>{{ update.guilty_name }}</td></tr>
+                  <tr><th>Date</th><td>{{ update.case_date }}</td></tr>
+                  <tr><th>Handler</th><td>{{ update.case_handler }}</td></tr>
+                  <tr><th>Status</th><td>{{ update.status }}</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+    <ng-template #empty>
+      <div class="alert alert-info">No pending case updates found.</div>
+    </ng-template>
+  </ng-container>
+</div>

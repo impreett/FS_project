@@ -1,0 +1,54 @@
+:root {
+  --header-h: 110px;
+}
+
+header.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 15px;
+  background: #000;
+  color: #fff;
+  margin: 0;
+}
+
+#header-spacer {
+  height: var(--header-h);
+}
+
+header.site-header h1 {
+  flex: 1;
+  text-align: center;
+  margin: 0;
+}
+
+.site-logo {
+  height: 80px;
+  width: 65px;
+  margin-right: 15px;
+}
+
+.user-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-name {
+  color: #fff;
+  font-weight: 500;
+  opacity: 0.6;
+}
+
+.user-divider {
+  display: inline-block;
+  width: 1px;
+  height: 20px;
+  background: #fff;
+  opacity: 0.35;
+}

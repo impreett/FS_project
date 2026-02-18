@@ -1,0 +1,16 @@
+:root {
+  --footer-h: 60px;
+}
+
+#footer-spacer {
+  height: var(--footer-h);
+}
+
+footer.site-footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1001;
+  width: 100%;
+}

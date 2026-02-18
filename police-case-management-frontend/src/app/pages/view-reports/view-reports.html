@@ -1,0 +1,22 @@
+<div class="container mt-4">
+  <div *ngIf="loading">Loading reports...</div>
+
+  <ng-container *ngIf="!loading">
+    <h2 class="mb-4">All Reports</h2>
+    <ng-container *ngIf="reports.length > 0; else empty">
+      <article *ngFor="let report of reports" class="card mb-3">
+        <div class="card-body">
+          <p class="card-text mb-2"><b>From:</b> {{ report.email }}</p>
+          <p class="card-text mb-2"><b>Date:</b> {{ report.date | date: 'medium' }}</p>
+          <p class="card-text mt-2" style="white-space: pre-wrap">
+            <b>Report: </b>{{ report.reportText }}
+          </p>
+          <button class="btn btn-danger" (click)="handleMarkAsRead(report._id)">Mark as Read</button>
+        </div>
+      </article>
+    </ng-container>
+    <ng-template #empty>
+      <div class="alert alert-info">No reports found.</div>
+    </ng-template>
+  </ng-container>
+</div>

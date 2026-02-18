@@ -1,0 +1,35 @@
+<div class="container mt-4" style="margin-bottom: 30px">
+  <h2 class="mb-4">Pending Cases</h2>
+  <div
+    *ngIf="successMessage"
+    class="alert alert-success alert-dismissible fade show text-center"
+    role="alert"
+  >
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+  <div *ngIf="loading">Loading...</div>
+  <ng-container *ngIf="!loading">
+    <ng-container *ngIf="cases.length > 0; else empty">
+      <article *ngFor="let caseItem of cases" class="card mb-3">
+        <div class="card-body">
+          <h3 class="card-title">
+            <a [routerLink]="['/case', caseItem._id]" class="text-dark text-decoration-none">
+              {{ caseItem.case_title }}
+            </a>
+          </h3>
+          <p class="card-text mb-1"><b>Handler:</b> {{ caseItem.case_handler }}</p>
+          <p class="card-text mb-1"><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
+          <p class="card-text">{{ caseItem.case_description?.substring(0, 150) }}...</p>
+          <div class="mt-3">
+            <button class="btn btn-success me-2" (click)="handleApprove(caseItem._id)">Approve</button>
+            <button class="btn btn-danger" (click)="handleDeny(caseItem._id)">Deny</button>
+          </div>
+        </div>
+      </article>
+    </ng-container>
+    <ng-template #empty>
+      <p class="alert alert-info">No pending cases found.</p>
+    </ng-template>
+  </ng-container>
+</div>

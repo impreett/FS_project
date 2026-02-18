@@ -1,0 +1,26 @@
+<div class="container mt-4" *ngIf="loading">
+  <p>Loading admin dashboard...</p>
+</div>
+
+<div class="container mt-4" *ngIf="!loading">
+  <h2 class="mb-4">All Cases</h2>
+  <article *ngFor="let caseItem of cases" class="card mb-3">
+    <div class="card-body">
+      <h3 class="card-title">
+        <a [routerLink]="['/case', caseItem._id]" style="color: black; text-decoration: none">
+          {{ caseItem.case_title }}
+        </a>
+      </h3>
+      <p
+        class="card-text mb-1 fw-bold"
+        [class.text-success]="caseItem.isApproved"
+        [class.text-danger]="!caseItem.isApproved"
+      >
+        <b>Approval:</b> {{ caseItem.isApproved ? 'Approved' : 'Pending' }}
+      </p>
+      <p class="card-text mb-1"><b>Handler:</b> {{ caseItem.case_handler }}</p>
+      <p class="card-text mb-1"><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
+      <p class="card-text">{{ caseItem.case_description?.substring(0, 150) }}...</p>
+    </div>
+  </article>
+</div>

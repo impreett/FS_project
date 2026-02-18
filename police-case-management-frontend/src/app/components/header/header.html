@@ -1,0 +1,15 @@
+<header class="site-header">
+  <img src="/assets/logo.png" alt="Logo" class="site-logo" />
+  <h1>Police Case Management</h1>
+  <div class="user-meta">
+    <span class="user-name">{{ userName }}</span>
+    <span class="user-divider"></span>
+    <button *ngIf="user; else loginLink" class="btn btn-danger" (click)="logout()">
+      Logout
+    </button>
+    <ng-template #loginLink>
+      <a routerLink="/login" class="btn btn-success">Login</a>
+    </ng-template>
+  </div>
+</header>
+<div id="header-spacer"></div>

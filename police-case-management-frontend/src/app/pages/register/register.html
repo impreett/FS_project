@@ -1,0 +1,147 @@
+<header
+  class="d-flex align-items-center justify-content-center p-3"
+  style="background-color: #000; color: white"
+>
+  <img src="/assets/logo.png" alt="Logo" style="height: 100px; width: 100px; margin-right: 15px" />
+  <h1>Police Registration Portal</h1>
+</header>
+<div class="container mt-5">
+  <div class="col-md-6 mx-auto">
+    <h3 class="text-center">User Register</h3>
+    <form (ngSubmit)="onSubmit()" novalidate>
+      <div class="mb-3">
+        <label class="form-label">Full Name</label>
+        <input
+          type="text"
+          name="fullname"
+          class="form-control"
+          [class.is-invalid]="errors.fullname"
+          [ngModel]="formData.fullname"
+          (ngModelChange)="onChangeName($event)"
+          style="text-transform: uppercase"
+          placeholder="Enter your full name"
+        />
+        <div *ngIf="errors.fullname" class="invalid-feedback">{{ errors.fullname }}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Police ID Number</label>
+        <input
+          type="text"
+          name="police_id"
+          class="form-control"
+          [class.is-invalid]="errors.police_id"
+          [(ngModel)]="formData.police_id"
+          placeholder="Enter your Police ID Number"
+        />
+        <div *ngIf="errors.police_id" class="invalid-feedback">{{ errors.police_id }}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Contact Number</label>
+        <input
+          type="text"
+          name="contact"
+          class="form-control"
+          [class.is-invalid]="errors.contact"
+          [(ngModel)]="formData.contact"
+          placeholder="Enter your contact number"
+        />
+        <div *ngIf="errors.contact" class="invalid-feedback">{{ errors.contact }}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input
+          type="email"
+          name="email"
+          class="form-control"
+          [class.is-invalid]="errors.email"
+          [(ngModel)]="formData.email"
+          placeholder="Enter your email"
+        />
+        <div *ngIf="errors.email" class="invalid-feedback">{{ errors.email }}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">City / District</label>
+        <select
+          name="city"
+          class="form-select"
+          [class.is-invalid]="errors.city"
+          [(ngModel)]="formData.city"
+        >
+          <option value="">Select your city/district</option>
+          <option>Ahmedabad</option>
+          <option>Amreli</option>
+          <option>Anand</option>
+          <option>Aravalli</option>
+          <option>Banaskantha</option>
+          <option>Bharuch</option>
+          <option>Bhavnagar</option>
+          <option>Botad</option>
+          <option>Chhota Udaipur</option>
+          <option>Dahod</option>
+          <option>Dang</option>
+          <option>Devbhoomi Dwarka</option>
+          <option>Gandhinagar</option>
+          <option>Gir Somnath</option>
+          <option>Jamnagar</option>
+          <option>Junagadh</option>
+          <option>Kheda</option>
+          <option>Kutch</option>
+          <option>Mahisagar</option>
+          <option>Mehsana</option>
+          <option>Morbi</option>
+          <option>Narmada</option>
+          <option>Navsari</option>
+          <option>Panchmahal</option>
+          <option>Patan</option>
+          <option>Porbandar</option>
+          <option>Rajkot</option>
+          <option>Sabarkantha</option>
+          <option>Surat</option>
+          <option>Surendranagar</option>
+          <option>Tapi</option>
+          <option>Vadodara</option>
+          <option>Valsad</option>
+        </select>
+        <div *ngIf="errors.city" class="invalid-feedback">{{ errors.city }}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input
+          type="password"
+          name="password"
+          class="form-control"
+          [class.is-invalid]="errors.password"
+          [(ngModel)]="formData.password"
+          placeholder="Create a password"
+        />
+        <div *ngIf="errors.password" class="invalid-feedback">{{ errors.password }}</div>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Confirm Password</label>
+        <input
+          type="password"
+          name="conf_password"
+          class="form-control"
+          [class.is-invalid]="errors.conf_password"
+          [(ngModel)]="formData.conf_password"
+          placeholder="Confirm your password"
+        />
+        <div *ngIf="errors.conf_password" class="invalid-feedback">
+          {{ errors.conf_password }}
+        </div>
+      </div>
+      <div class="mb-3 form-check">
+        <input type="checkbox" name="term_of_use" class="form-check-input" required />
+        <label class="form-check-label"
+          >I accept the <a routerLink="/terms">Terms and Conditions</a></label
+        >
+      </div>
+      <p>Already have an account? <a routerLink="/login">Login here</a>.</p>
+      <button type="submit" class="btn btn-dark w-100 mt-3" [disabled]="loading">
+        Register
+      </button>
+    </form>
+  </div>
+</div>
+<div style="height: 24px"></div>
+<app-footer></app-footer>

@@ -1,0 +1,33 @@
+<div class="container mt-4" style="margin-bottom: 30px">
+  <h2 class="mb-4">Users Pending Approval</h2>
+  <div
+    *ngIf="successMessage"
+    class="alert alert-success alert-dismissible fade show text-center"
+    role="alert"
+  >
+    {{ successMessage }}
+    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+  </div>
+
+  <div *ngIf="loading">Loading...</div>
+
+  <ng-container *ngIf="!loading">
+    <ng-container *ngIf="users.length > 0; else empty">
+      <article *ngFor="let user of users" class="card mb-3">
+        <div class="card-body">
+          <h5 class="card-title">{{ user.fullname }}</h5>
+          <p class="card-text mb-1"><b>Email:</b> {{ user.email }}</p>
+          <p class="card-text mb-1"><b>Police ID:</b> {{ user.police_id }}</p>
+          <p class="card-text"><b>City:</b> {{ user.city }}</p>
+          <div>
+            <button class="btn btn-success me-2" (click)="handleApprove(user._id)">Approve</button>
+            <button class="btn btn-danger" (click)="handleDeny(user._id)">Deny</button>
+          </div>
+        </div>
+      </article>
+    </ng-container>
+    <ng-template #empty>
+      <div class="alert alert-info">No users are currently pending approval.</div>
+    </ng-template>
+  </ng-container>
+</div>

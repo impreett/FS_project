@@ -1,0 +1,45 @@
+<header
+  class="d-flex align-items-center justify-content-center p-3"
+  style="background-color: #000; color: white"
+>
+  <img src="/assets/logo.png" alt="Logo" style="height: 100px; width: 100px; margin-right: 15px" />
+  <h1>Police Login Portal</h1>
+</header>
+<div class="container mt-5">
+  <div class="col-md-6 mx-auto">
+    <h3 class="text-center">Report an Issue</h3>
+    <form (ngSubmit)="onSubmit()" novalidate>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input
+          type="text"
+          name="email"
+          class="form-control"
+          [class.error]="errors.email"
+          placeholder="Enter your Email"
+          [(ngModel)]="formData.email"
+          [attr.aria-invalid]="errors.email ? 'true' : 'false'"
+        />
+        <label *ngIf="errors.email" class="error">{{ errors.email }}</label>
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Report</label>
+        <textarea
+          name="reportText"
+          class="form-control"
+          [class.error]="errors.reportText"
+          rows="6"
+          placeholder="Describe your issue here (min 50 characters)..."
+          [(ngModel)]="formData.reportText"
+          [attr.aria-invalid]="errors.reportText ? 'true' : 'false'"
+        ></textarea>
+        <label *ngIf="errors.reportText" class="error">{{ errors.reportText }}</label>
+      </div>
+      <button type="submit" class="btn btn-dark w-100 mt-3">Submit Report</button>
+    </form>
+    <div class="text-center mt-3">
+      <a href="#" (click)="$event.preventDefault(); goBack()" class="text-decoration-none">Back</a>
+    </div>
+  </div>
+</div>
+<app-footer></app-footer>
