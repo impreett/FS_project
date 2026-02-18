@@ -7,7 +7,8 @@ const User = require('./models/User');
 const Case = require('./models/Case');
 const Report = require('./models/Report');
 
-const MONGO_URI = process.env.MONGO_URI || "mongodb://localhost:27017/";
+const DEFAULT_MONGO_SRV = "mongodb+srv://pritchotaliya206gmailcom:123123123@cluster0.ylfbtmd.mongodb.net/?appName=Cluster0";
+const MONGO_URI = DEFAULT_MONGO_SRV || process.env.MONGO_URI || "mongodb://localhost:27017/";
 const MONGO_DB = process.env.MONGO_DB || "police_info";
 
 /* MongoDB connection function */
