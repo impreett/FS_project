@@ -8,6 +8,8 @@ header.site-header {
   left: 0;
   right: 0;
   z-index: 1000;
+  box-sizing: border-box;
+  height: var(--header-h);
   display: flex;
   align-items: center;
   justify-content: space-between;

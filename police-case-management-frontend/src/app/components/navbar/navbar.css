@@ -7,7 +7,7 @@
 
 aside.sidebar {
   position: fixed;
-  top: var(--header-h);
+  top: calc(var(--header-h) - 4px);
   bottom: var(--footer-h);
   left: 0;
   background: #f8f9fa;
