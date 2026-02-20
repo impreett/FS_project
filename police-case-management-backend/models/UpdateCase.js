@@ -20,7 +20,7 @@ const updateCaseSchema = new mongoose.Schema({
     case_date: { type: Date, required: true },
     case_handler: { type: String, required: true },
     status: { type: String, required: true, enum: ['ACTIVE', 'CLOSE'] },
-    requestedAt: { type: Date, default: Date.now }
+    requestedAt: { type: Date, required: true, default: Date.now }
 });
 
 const UpdateCase = mongoose.model('UpdateCase', updateCaseSchema);

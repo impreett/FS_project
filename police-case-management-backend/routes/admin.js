@@ -102,6 +102,9 @@ router.get('/pending-updates', adminAuth, async (req, res) => {
         const updates = await UpdateCase.find().sort({ requestedAt: -1 });
         const normalizedUpdates = updates.map((u) => {
             const obj = u.toObject();
+            if (!obj.requestedAt && obj._id && typeof obj._id.getTimestamp === 'function') {
+                obj.requestedAt = obj._id.getTimestamp();
+            }
             obj.suspects = formatPeopleField(obj.suspects);
             obj.victim = formatPeopleField(obj.victim);
             obj.guilty_name = formatPeopleField(obj.guilty_name);

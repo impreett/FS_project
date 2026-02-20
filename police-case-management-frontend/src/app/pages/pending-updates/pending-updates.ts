@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
 import { CaseService } from '../../services/case';
 
 @Component({
   selector: 'app-pending-updates',
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   templateUrl: './pending-updates.html',
   styleUrl: './pending-updates.css',
 })
@@ -16,6 +17,11 @@ export class PendingUpdates implements OnInit {
   loading = true;
   successMessage = '';
   infoMessage = '';
+  sortOrder: 'latest' | 'oldest' = 'latest';
+  private readonly monthYearFormatter = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: 'numeric',
+  });
 
   constructor(private adminService: AdminService, private caseService: CaseService) {}
 
@@ -75,5 +81,35 @@ export class PendingUpdates implements OnInit {
     } catch {
       alert('Error denying update.');
     }
+  }
+
+  setSortOrder(order: 'latest' | 'oldest') {
+    this.sortOrder = order;
+  }
+
+  get sortedUpdates() {
+    return [...this.updates].sort((a, b) => {
+      const aTime = new Date(a?.requestedAt || 0).getTime();
+      const bTime = new Date(b?.requestedAt || 0).getTime();
+      return this.sortOrder === 'latest' ? bTime - aTime : aTime - bTime;
+    });
+  }
+
+  get groupedUpdates() {
+    const groups: Array<{ label: string; items: any[] }> = [];
+    for (const updateItem of this.sortedUpdates) {
+      const dateObj = new Date(updateItem?.requestedAt || 0);
+      const label = Number.isNaN(dateObj.getTime())
+        ? 'Unknown Date'
+        : this.monthYearFormatter.format(dateObj);
+
+      const currentGroup = groups[groups.length - 1];
+      if (!currentGroup || currentGroup.label !== label) {
+        groups.push({ label, items: [updateItem] });
+      } else {
+        currentGroup.items.push(updateItem);
+      }
+    }
+    return groups;
   }
 }

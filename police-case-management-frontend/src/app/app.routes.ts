@@ -21,6 +21,7 @@ import { ActiveUsers } from './pages/active-users/active-users';
 import { ViewReports } from './pages/view-reports/view-reports';
 import { PendingCases } from './pages/pending-cases/pending-cases';
 import { PendingUpdates } from './pages/pending-updates/pending-updates';
+import { CheckSideBySide } from './pages/check-side-by-side/check-side-by-side';
 import { AdminUpdateCase } from './pages/admin-update-case/admin-update-case';
 import { AdminUpdateForm } from './pages/admin-update-form/admin-update-form';
 import { AdminRemoveCase } from './pages/admin-remove-case/admin-remove-case';
@@ -49,6 +50,11 @@ export const routes: Routes = [
       { path: 'admin/reports', component: ViewReports, canActivate: [adminGuard] },
       { path: 'admin/pending-cases', component: PendingCases, canActivate: [adminGuard] },
       { path: 'admin/pending-updates', component: PendingUpdates, canActivate: [adminGuard] },
+      {
+        path: 'admin/check-side-by-side/:updateId',
+        component: CheckSideBySide,
+        canActivate: [adminGuard],
+      },
       { path: 'admin/add-case', component: AddCase, canActivate: [adminGuard] },
       { path: 'admin/update-case', component: AdminUpdateCase, canActivate: [adminGuard] },
       { path: 'admin/update-form/:id', component: AdminUpdateForm, canActivate: [adminGuard] },

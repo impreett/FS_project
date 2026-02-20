@@ -111,40 +111,83 @@
 
   <ng-container *ngIf="!loading">
     <ng-container *ngIf="cases.length > 0; else noCases">
-      <article *ngFor="let caseItem of cases" class="card mb-3 shadow-sm">
-        <div class="card-body">
-          <h3 class="card-title">
-            <a
-              [routerLink]="['/case', caseItem._id]"
-              [innerHTML]="highlightText(caseItem.case_title, 'Untitled')"
-            ></a>
-          </h3>
-          <p><b>Case ID:</b> <span [innerHTML]="highlightText(caseItem._id, 'N/A')"></span></p>
-          <p><b>Type:</b> <span [innerHTML]="highlightText(caseItem.case_type, 'N/A')"></span></p>
-          <p>
-            <b>Handler:</b> <span [innerHTML]="highlightText(caseItem.case_handler, 'N/A')"></span>
-          </p>
-          <p><b>Victim:</b> <span [innerHTML]="highlightText(caseItem.victim, 'N/A')"></span></p>
-          <p><b>Suspects:</b> <span [innerHTML]="highlightText(caseItem.suspects, 'N/A')"></span></p>
-          <p>
-            <b>Guilty Name:</b> <span [innerHTML]="highlightText(caseItem.guilty_name, 'N/A')"></span>
-          </p>
-          <p><b>Date:</b> <span [innerHTML]="highlightText(displayDate(caseItem.case_date), 'N/A')"></span></p>
-          <p><b>Status:</b> <span [innerHTML]="highlightText(caseItem.status, 'N/A')"></span></p>
-          <p
-            *ngIf="user?.isAdmin"
-            class="fw-bold"
+      <article *ngFor="let caseItem of cases" class="case-details-card">
+        <h2 class="mb-4" [innerHTML]="highlightText(caseItem.case_title, 'Untitled')"></h2>
+        <p class="detail-row">
+          <span class="detail-label"><b>Case ID:</b></span>
+          <span class="detail-value" [innerHTML]="highlightText(caseItem._id, 'N/A')"></span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Type:</b></span>
+          <span class="detail-value" [innerHTML]="highlightText(caseItem.case_type, 'N/A')"></span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Handler:</b></span>
+          <span class="detail-value" [innerHTML]="highlightText(caseItem.case_handler, 'N/A')"></span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Victim:</b></span>
+          <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(caseItem)">
+            <ng-container *ngIf="peopleForCaseField(caseItem, 'victim') as victimPeople">
+              <ng-container *ngIf="victimPeople.length; else noVictim">
+                <span class="person-line" *ngFor="let person of victimPeople">
+                  <span class="person-name-part" [innerHTML]="highlightText('Name: ' + person.name)"></span>
+                  <span class="person-age-part" [innerHTML]="highlightText('Age: ' + person.age)"></span>
+                </span>
+              </ng-container>
+            </ng-container>
+            <ng-template #noVictim>No victim added.</ng-template>
+          </span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Suspects:</b></span>
+          <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(caseItem)">
+            <ng-container *ngIf="peopleForCaseField(caseItem, 'suspects') as suspectPeople">
+              <ng-container *ngIf="suspectPeople.length; else noSuspects">
+                <span class="person-line" *ngFor="let person of suspectPeople">
+                  <span class="person-name-part" [innerHTML]="highlightText('Name: ' + person.name)"></span>
+                  <span class="person-age-part" [innerHTML]="highlightText('Age: ' + person.age)"></span>
+                </span>
+              </ng-container>
+            </ng-container>
+            <ng-template #noSuspects>No suspect added.</ng-template>
+          </span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Guilty Name:</b></span>
+          <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(caseItem)">
+            <ng-container *ngIf="peopleForCaseField(caseItem, 'guilty_name') as guiltyPeople">
+              <ng-container *ngIf="guiltyPeople.length; else noGuilty">
+                <span class="person-line" *ngFor="let person of guiltyPeople">
+                  <span class="person-name-part" [innerHTML]="highlightText('Name: ' + person.name)"></span>
+                  <span class="person-age-part" [innerHTML]="highlightText('Age: ' + person.age)"></span>
+                </span>
+              </ng-container>
+            </ng-container>
+            <ng-template #noGuilty>No guilty person added.</ng-template>
+          </span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Date:</b></span>
+          <span class="detail-value" [innerHTML]="highlightText(displayDate(caseItem.case_date), 'N/A')"></span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Status:</b></span>
+          <span class="detail-value" [innerHTML]="highlightText(caseItem.status, 'N/A')"></span>
+        </p>
+        <p class="detail-row" *ngIf="user?.isAdmin">
+          <span class="detail-label"><b>Approval:</b></span>
+          <span
+            class="detail-value"
             [class.text-success]="caseItem.isApproved"
             [class.text-danger]="!caseItem.isApproved"
-          >
-            <b>Approval:</b>
-            <span [innerHTML]="highlightText(displayApproval(caseItem.isApproved), 'N/A')"></span>
-          </p>
-          <p>
-            <b>Description:</b><br />
-            <span style="white-space: pre-wrap" [innerHTML]="highlightText(caseItem.case_description)"></span>
-          </p>
-        </div>
+            [innerHTML]="highlightText(displayApproval(caseItem.isApproved), 'N/A')"
+          ></span>
+        </p>
+        <p class="desc-box">
+          <b>Description:</b><br />
+          <span style="white-space: pre-wrap" [innerHTML]="highlightText(caseItem.case_description)"></span>
+        </p>
       </article>
     </ng-container>
     <ng-template #noCases>

@@ -1,5 +1,28 @@
 <div class="container mt-4">
-  <h2 class="mb-4">Pending Case Updates</h2>
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
+    <h2 class="mb-0">Pending Case Updates</h2>
+    <div class="d-flex justify-content-end align-items-center gap-2" *ngIf="updates.length > 1">
+      <span class="fw-semibold">Sort:</span>
+      <div class="btn-group" role="group" aria-label="Sort cases">
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          [class.active]="sortOrder === 'latest'"
+          (click)="setSortOrder('latest')"
+        >
+          Latest
+        </button>
+        <button
+          type="button"
+          class="btn btn-outline-secondary btn-sm"
+          [class.active]="sortOrder === 'oldest'"
+          (click)="setSortOrder('oldest')"
+        >
+          Oldest
+        </button>
+      </div>
+    </div>
+  </div>
   <div
     *ngIf="successMessage"
     class="alert alert-success alert-dismissible fade show text-center"
@@ -21,59 +44,39 @@
 
   <ng-container *ngIf="!loading">
     <ng-container *ngIf="updates.length > 0; else empty">
-      <div *ngFor="let update of updates" class="card mb-4 shadow-sm">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <strong>Case ID: {{ update.originalCaseId }}</strong>
-          <div>
-            <button class="btn btn-success btn-sm me-2" (click)="handleApprove(update._id)">
-              Approve
-            </button>
-            <button class="btn btn-danger btn-sm" (click)="handleDeny(update._id)">Cancel</button>
-          </div>
-        </div>
-        <div class="card-body">
-          <div class="row g-3">
-            <div class="col-md-6">
-              <h5 class="text-muted">Original</h5>
-              <table class="table table-sm table-striped">
-                <tbody>
-                  <tr><th>Title</th><td>{{ originals[update.originalCaseId]?.case_title || '' }}</td></tr>
-                  <tr><th>Type</th><td>{{ originals[update.originalCaseId]?.case_type || '' }}</td></tr>
-                  <tr>
-                    <th>Description</th>
-                    <td><span style="white-space: pre-wrap">{{ originals[update.originalCaseId]?.case_description || '' }}</span></td>
-                  </tr>
-                  <tr><th>Suspects</th><td>{{ originals[update.originalCaseId]?.suspects || '' }}</td></tr>
-                  <tr><th>Victim</th><td>{{ originals[update.originalCaseId]?.victim || '' }}</td></tr>
-                  <tr><th>Guilty</th><td>{{ originals[update.originalCaseId]?.guilty_name || '' }}</td></tr>
-                  <tr><th>Date</th><td>{{ originals[update.originalCaseId]?.case_date || '' }}</td></tr>
-                  <tr><th>Handler</th><td>{{ originals[update.originalCaseId]?.case_handler || '' }}</td></tr>
-                  <tr><th>Status</th><td>{{ originals[update.originalCaseId]?.status || originals[update.originalCaseId]?.active_close || '' }}</td></tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="col-md-6">
-              <h5 class="text-muted">Update Request</h5>
-              <table class="table table-sm table-striped">
-                <tbody>
-                  <tr><th>Title</th><td>{{ update.case_title }}</td></tr>
-                  <tr><th>Type</th><td>{{ update.case_type }}</td></tr>
-                  <tr>
-                    <th>Description</th>
-                    <td><span style="white-space: pre-wrap">{{ update.case_description }}</span></td>
-                  </tr>
-                  <tr><th>Suspects</th><td>{{ update.suspects }}</td></tr>
-                  <tr><th>Victim</th><td>{{ update.victim }}</td></tr>
-                  <tr><th>Guilty</th><td>{{ update.guilty_name }}</td></tr>
-                  <tr><th>Date</th><td>{{ update.case_date }}</td></tr>
-                  <tr><th>Handler</th><td>{{ update.case_handler }}</td></tr>
-                  <tr><th>Status</th><td>{{ update.status }}</td></tr>
-                </tbody>
-              </table>
+      <ng-container *ngFor="let group of groupedUpdates">
+        <h5 class="mb-3 text-secondary month-year-heading">{{ group.label }}</h5>
+        <article *ngFor="let update of group.items" class="card mb-3 shadow-sm">
+          <div class="card-body">
+            <h4 class="mb-2 pending-update-title">
+              {{ update.case_title || originals[update.originalCaseId]?.case_title || 'N/A' }}
+            </h4>
+            <p class="mb-1">
+              <b>Case Handler:</b>
+              {{ update.case_handler || originals[update.originalCaseId]?.case_handler || 'N/A' }}
+            </p>
+            <p class="mb-3">
+              <b>Update Received:</b>
+              {{ update.requestedAt ? (update.requestedAt | date: 'dd-MM-yyyy HH:mm') : 'N/A' }}
+            </p>
+
+            <div class="d-flex gap-2 pending-update-actions">
+              <button class="btn btn-success btn-sm flex-fill" (click)="handleApprove(update._id)">
+                Approve
+              </button>
+              <button class="btn btn-danger btn-sm flex-fill" (click)="handleDeny(update._id)">
+                Reject
+              </button>
+              <a
+                class="btn btn-outline-primary btn-sm flex-fill"
+                [routerLink]="['/admin/check-side-by-side', update._id]"
+              >
+                Check Side by Side
+              </a>
             </div>
           </div>
-        </div>
-      </div>
+        </article>
+      </ng-container>
     </ng-container>
     <ng-template #empty>
       <div class="alert alert-info">No pending case updates found.</div>

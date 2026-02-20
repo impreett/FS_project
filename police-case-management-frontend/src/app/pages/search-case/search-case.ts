@@ -1,15 +1,19 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
 import { AdminService } from '../../services/admin';
 import { CaseService } from '../../services/case';
 
+type PersonDisplay = {
+  name: string;
+  age: string;
+};
+
 @Component({
   selector: 'app-search-case',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './search-case.html',
   styleUrl: './search-case.css',
 })
@@ -66,6 +70,23 @@ export class SearchCase implements OnInit {
     this.fetchCases();
   }
 
+  peopleForCaseField(caseItem: any, field: 'victim' | 'suspects' | 'guilty_name'): PersonDisplay[] {
+    return this.parsePeople(caseItem?.[field]);
+  }
+
+  peopleNameColumnWidthFor(caseItem: any): string {
+    const people = [
+      ...this.peopleForCaseField(caseItem, 'victim'),
+      ...this.peopleForCaseField(caseItem, 'suspects'),
+      ...this.peopleForCaseField(caseItem, 'guilty_name'),
+    ];
+    const longest = people.reduce((max, person) => {
+      const displayLength = `Name: ${person.name}`.length;
+      return displayLength > max ? displayLength : max;
+    }, 10);
+    return `${longest}ch`;
+  }
+
   highlightText(value: unknown, fallback = ''): string {
     const plainText = this.toDisplayText(value).trim() || fallback;
     return this.applyHighlight(plainText);
@@ -97,7 +118,7 @@ export class SearchCase implements OnInit {
     if (!safeTermRegex) return safeText;
 
     const regex = new RegExp(`(${safeTermRegex})`, 'gi');
-    return safeText.replace(regex, '<mark class="search-highlight">$1</mark>');
+    return safeText.replace(regex, '<span class="search-highlight-inline">$1</span>');
   }
 
   private getHighlightTerm(): string {
@@ -143,6 +164,59 @@ export class SearchCase implements OnInit {
     }
 
     return String(value);
+  }
+
+  private normalizeText(value: unknown): string {
+    if (value === null || value === undefined) return '';
+    return String(value).trim();
+  }
+
+  private parsePeople(value: unknown): PersonDisplay[] {
+    if (Array.isArray(value)) {
+      return value
+        .map((entry: any) => {
+          if (!entry || typeof entry !== 'object') return null;
+          const name = this.normalizeText(entry.name);
+          if (!name) return null;
+          const ageValue =
+            entry.age === null || entry.age === undefined || entry.age === ''
+              ? 'N/A'
+              : String(entry.age);
+          return { name, age: ageValue };
+        })
+        .filter((entry): entry is PersonDisplay => !!entry);
+    }
+
+    const text = this.normalizeText(value);
+    if (!text || text.toUpperCase() === 'N/A') return [];
+
+    return text
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => {
+        const withAge = part.match(/^Name:\s*(.+?)\s+Age:\s*(\d{1,3})$/i);
+        if (withAge) {
+          return {
+            name: this.normalizeText(withAge[1]),
+            age: this.normalizeText(withAge[2]) || 'N/A',
+          };
+        }
+
+        const nameOnly = part.match(/^Name:\s*(.+)$/i);
+        if (nameOnly) {
+          return {
+            name: this.normalizeText(nameOnly[1]),
+            age: 'N/A',
+          };
+        }
+
+        return {
+          name: this.normalizeText(part),
+          age: 'N/A',
+        };
+      })
+      .filter((entry) => !!entry.name);
   }
 
   private escapeRegExp(value: string): string {

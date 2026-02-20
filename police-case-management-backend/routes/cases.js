@@ -106,7 +106,11 @@ router.post('/request-update', userAuth, async (req, res) => {
         if (caseDateError) {
             return res.status(400).json({ msg: caseDateError });
         }
-        const updateRequest = new UpdateCase(normalizedBody);
+        // Always stamp request time from server, not client payload.
+        const updateRequest = new UpdateCase({
+            ...normalizedBody,
+            requestedAt: new Date(),
+        });
         await updateRequest.save();
         res.status(201).json({ msg: 'Update request submitted successfully. It will be reviewed by an admin.' });
     } catch (err) { 

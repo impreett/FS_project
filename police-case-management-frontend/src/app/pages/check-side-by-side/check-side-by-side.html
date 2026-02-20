@@ -1,0 +1,148 @@
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Check Side by Side</h2>
+    <a routerLink="/admin/pending-updates" class="btn btn-outline-secondary btn-sm">Back</a>
+  </div>
+
+  <div *ngIf="loading">Loading...</div>
+  <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
+
+  <ng-container *ngIf="!loading && !error && update">
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header"><strong>Case ID: {{ update.originalCaseId }}</strong></div>
+      <div class="card-body">
+        <div class="row g-3">
+          <div class="col-md-6 d-flex flex-column">
+            <h5 class="text-muted">Original</h5>
+            <table class="table table-sm table-striped mb-2">
+              <tbody>
+                <tr><th>Title</th><td>{{ original?.case_title || '' }}</td></tr>
+                <tr><th>Type</th><td>{{ original?.case_type || '' }}</td></tr>
+                <tr>
+                  <th>Description</th>
+                  <td><span style="white-space: pre-wrap">{{ original?.case_description || '' }}</span></td>
+                </tr>
+                <tr>
+                  <th>Suspects</th>
+                  <td>
+                    <ng-container *ngIf="peopleFor(original?.suspects) as originalSuspects">
+                      <ng-container *ngIf="originalSuspects.length; else noOriginalSuspects">
+                        <span class="people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(original)">
+                          <span class="person-line" *ngFor="let person of originalSuspects">
+                            <span class="person-name-part">Name: {{ person.name }}</span>
+                            <span class="person-age-part">Age: {{ person.age }}</span>
+                          </span>
+                        </span>
+                      </ng-container>
+                    </ng-container>
+                    <ng-template #noOriginalSuspects>No suspect added.</ng-template>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Victim</th>
+                  <td>
+                    <ng-container *ngIf="peopleFor(original?.victim) as originalVictims">
+                      <ng-container *ngIf="originalVictims.length; else noOriginalVictims">
+                        <span class="people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(original)">
+                          <span class="person-line" *ngFor="let person of originalVictims">
+                            <span class="person-name-part">Name: {{ person.name }}</span>
+                            <span class="person-age-part">Age: {{ person.age }}</span>
+                          </span>
+                        </span>
+                      </ng-container>
+                    </ng-container>
+                    <ng-template #noOriginalVictims>No victim added.</ng-template>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Guilty</th>
+                  <td>
+                    <ng-container *ngIf="peopleFor(original?.guilty_name) as originalGuiltyPeople">
+                      <ng-container *ngIf="originalGuiltyPeople.length; else noOriginalGuilty">
+                        <span class="people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(original)">
+                          <span class="person-line" *ngFor="let person of originalGuiltyPeople">
+                            <span class="person-name-part">Name: {{ person.name }}</span>
+                            <span class="person-age-part">Age: {{ person.age }}</span>
+                          </span>
+                        </span>
+                      </ng-container>
+                    </ng-container>
+                    <ng-template #noOriginalGuilty>No guilty person added.</ng-template>
+                  </td>
+                </tr>
+                <tr><th>Date</th><td>{{ original?.case_date || '' }}</td></tr>
+                <tr><th>Handler</th><td>{{ original?.case_handler || '' }}</td></tr>
+                <tr><th>Status</th><td>{{ original?.status || original?.active_close || '' }}</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="col-md-6 d-flex flex-column">
+            <h5 class="text-muted">Update Request</h5>
+            <table class="table table-sm table-striped mb-2">
+              <tbody>
+                <tr><th>Title</th><td>{{ update.case_title }}</td></tr>
+                <tr><th>Type</th><td>{{ update.case_type }}</td></tr>
+                <tr>
+                  <th>Description</th>
+                  <td><span style="white-space: pre-wrap">{{ update.case_description }}</span></td>
+                </tr>
+                <tr>
+                  <th>Suspects</th>
+                  <td>
+                    <ng-container *ngIf="peopleFor(update.suspects) as updateSuspects">
+                      <ng-container *ngIf="updateSuspects.length; else noUpdateSuspects">
+                        <span class="people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(update)">
+                          <span class="person-line" *ngFor="let person of updateSuspects">
+                            <span class="person-name-part">Name: {{ person.name }}</span>
+                            <span class="person-age-part">Age: {{ person.age }}</span>
+                          </span>
+                        </span>
+                      </ng-container>
+                    </ng-container>
+                    <ng-template #noUpdateSuspects>No suspect added.</ng-template>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Victim</th>
+                  <td>
+                    <ng-container *ngIf="peopleFor(update.victim) as updateVictims">
+                      <ng-container *ngIf="updateVictims.length; else noUpdateVictims">
+                        <span class="people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(update)">
+                          <span class="person-line" *ngFor="let person of updateVictims">
+                            <span class="person-name-part">Name: {{ person.name }}</span>
+                            <span class="person-age-part">Age: {{ person.age }}</span>
+                          </span>
+                        </span>
+                      </ng-container>
+                    </ng-container>
+                    <ng-template #noUpdateVictims>No victim added.</ng-template>
+                  </td>
+                </tr>
+                <tr>
+                  <th>Guilty</th>
+                  <td>
+                    <ng-container *ngIf="peopleFor(update.guilty_name) as updateGuiltyPeople">
+                      <ng-container *ngIf="updateGuiltyPeople.length; else noUpdateGuilty">
+                        <span class="people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(update)">
+                          <span class="person-line" *ngFor="let person of updateGuiltyPeople">
+                            <span class="person-name-part">Name: {{ person.name }}</span>
+                            <span class="person-age-part">Age: {{ person.age }}</span>
+                          </span>
+                        </span>
+                      </ng-container>
+                    </ng-container>
+                    <ng-template #noUpdateGuilty>No guilty person added.</ng-template>
+                  </td>
+                </tr>
+                <tr><th>Date</th><td>{{ update.case_date }}</td></tr>
+                <tr><th>Handler</th><td>{{ update.case_handler }}</td></tr>
+                <tr><th>Status</th><td>{{ update.status }}</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

@@ -1,0 +1,31 @@
+.people-lines {
+  display: grid;
+  grid-template-columns: var(--people-name-col, max-content) max-content;
+  column-gap: 12px;
+  row-gap: 2px;
+  align-items: baseline;
+}
+
+.person-line {
+  display: contents;
+}
+
+.person-name-part {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.person-age-part {
+  white-space: nowrap;
+}
+
+.table td,
+.table th {
+  vertical-align: top;
+}
+
+@media (max-width: 576px) {
+  .people-lines {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

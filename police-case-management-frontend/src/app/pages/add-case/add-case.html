@@ -124,9 +124,16 @@
                     ></button>
                   </li>
                 </ul>
-                <button type="button" class="btn btn-outline-primary btn-sm mt-2" (click)="addPersonForRole('suspects')">
-                  + Add
-                </button>
+                <div class="person-add-row">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm person-add-btn"
+                    (click)="addPersonForRole('suspects')"
+                  >
+                    + Add
+                  </button>
+                  <span class="btn-close person-add-placeholder" aria-hidden="true"></span>
+                </div>
               </div>
             </div>
             <div class="col-md-4 people-col-divider">
@@ -171,13 +178,16 @@
                     ></button>
                   </li>
                 </ul>
-                <button
-                  type="button"
-                  class="btn btn-outline-primary btn-sm mt-2"
-                  (click)="addPersonForRole('guilty_name')"
-                >
-                  + Add
-                </button>
+                <div class="person-add-row">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm person-add-btn"
+                    (click)="addPersonForRole('guilty_name')"
+                  >
+                    + Add
+                  </button>
+                  <span class="btn-close person-add-placeholder" aria-hidden="true"></span>
+                </div>
               </div>
             </div>
             <div class="col-md-4">
@@ -222,9 +232,16 @@
                     ></button>
                   </li>
                 </ul>
-                <button type="button" class="btn btn-outline-primary btn-sm mt-2" (click)="addPersonForRole('victim')">
-                  + Add
-                </button>
+                <div class="person-add-row">
+                  <button
+                    type="button"
+                    class="btn btn-outline-primary btn-sm person-add-btn"
+                    (click)="addPersonForRole('victim')"
+                  >
+                    + Add
+                  </button>
+                  <span class="btn-close person-add-placeholder" aria-hidden="true"></span>
+                </div>
               </div>
             </div>
           </div>
