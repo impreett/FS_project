@@ -9,10 +9,11 @@ const Report = require('./models/Report');
 const { normalizePeopleField } = require('./utils/people');
 
 const isProduction = process.env.NODE_ENV === 'production';
-const LOCAL_MONGO_URI = process.env.MONGO_URI_LOCAL || 'mongodb://127.0.0.1:27017/';
-const PROD_MONGO_URI = process.env.MONGO_URI_PROD || process.env.MONGO_URI || '';
-const MONGO_URI = isProduction ? (PROD_MONGO_URI || LOCAL_MONGO_URI) : LOCAL_MONGO_URI;
-const MONGO_DB = process.env.MONGO_DB || "police_info";
+const LOCAL_MONGO_URI = 'mongodb://127.0.0.1:27017/';
+const PROD_MONGO_URI =
+    'mongodb+srv://pritchotaliya206gmailcom:123123123@cluster0.ylfbtmd.mongodb.net/?appName=Cluster0';
+const MONGO_URI = isProduction ? PROD_MONGO_URI : LOCAL_MONGO_URI;
+const MONGO_DB = 'police_info';
 
 /* MongoDB connection function */
 const connectDB = async () => {
