@@ -7,18 +7,22 @@
 
 aside.sidebar {
   position: fixed;
-  top: calc(var(--header-h) - 4px);
-  bottom: var(--footer-h);
+  top: var(--header-h);
+  bottom: 0;
   left: 0;
   background: #f8f9fa;
   border-right: 1px solid #e5e5e5;
-  padding: 4px 0 12px;
+  padding: 0;
   width: var(--sidebar-collapsed);
-  transition: width 200ms ease;
+  transition: width 200ms ease, top 220ms ease;
   overflow-x: hidden;
   overflow-y: auto;
   z-index: 999;
   box-sizing: border-box;
+}
+
+body.header-hidden aside.sidebar {
+  top: 0;
 }
 
 aside.sidebar:hover {
@@ -66,12 +70,12 @@ a.nav-item-link img {
   align-self: center;
 }
 
-main {
+.layout-main {
   margin-left: var(--sidebar-collapsed);
   transition: margin-left 200ms ease;
 }
 
-aside.sidebar:hover ~ main {
+app-navbar:hover + .layout-main {
   margin-left: var(--sidebar-expanded);
 }
 

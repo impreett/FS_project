@@ -1,0 +1,45 @@
+.case-details-card p {
+  font-size: 1.05rem;
+}
+
+.detail-row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: baseline;
+}
+
+.detail-label {
+  white-space: nowrap;
+}
+
+.detail-value {
+  word-break: break-word;
+}
+
+.people-lines {
+  display: grid;
+  grid-template-columns: var(--people-name-col, max-content) max-content;
+  column-gap: 10px;
+  row-gap: 2px;
+  align-items: baseline;
+}
+
+.person-line {
+  display: contents;
+}
+
+.person-name-part {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.person-age-part {
+  white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+  .people-lines {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

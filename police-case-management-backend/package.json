@@ -8,7 +8,9 @@
     "start": "node server.js",
     "dev": "nodemon server.js",
     "data:import": "node seeder -i",
-    "data:delete": "node seeder -d"
+    "data:delete": "node seeder -d",
+    "seed:feature": "node scripts/seed-feature-data.js",
+    "seed:feature:preview": "node scripts/seed-feature-data.js --preview"
   },
   "keywords": [],
   "author": "",

@@ -13,6 +13,11 @@ import { AdminService } from '../../services/admin';
 export class AdminHome implements OnInit {
   cases: any[] = [];
   loading = true;
+  sortOrder: 'latest' | 'oldest' = 'latest';
+  private readonly monthYearFormatter = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: 'numeric',
+  });
 
   constructor(private adminService: AdminService) {}
 
@@ -25,5 +30,35 @@ export class AdminHome implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  setSortOrder(order: 'latest' | 'oldest') {
+    this.sortOrder = order;
+  }
+
+  get sortedCases() {
+    return [...this.cases].sort((a, b) => {
+      const aTime = new Date(a?.case_date || 0).getTime();
+      const bTime = new Date(b?.case_date || 0).getTime();
+      return this.sortOrder === 'latest' ? bTime - aTime : aTime - bTime;
+    });
+  }
+
+  get groupedCases() {
+    const groups: Array<{ label: string; items: any[] }> = [];
+    for (const caseItem of this.sortedCases) {
+      const dateObj = new Date(caseItem?.case_date || 0);
+      const label = Number.isNaN(dateObj.getTime())
+        ? 'Unknown Date'
+        : this.monthYearFormatter.format(dateObj);
+
+      const currentGroup = groups[groups.length - 1];
+      if (!currentGroup || currentGroup.label !== label) {
+        groups.push({ label, items: [caseItem] });
+      } else {
+        currentGroup.items.push(caseItem);
+      }
+    }
+    return groups;
   }
 }

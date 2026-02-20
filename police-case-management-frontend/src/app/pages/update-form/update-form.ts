@@ -3,17 +3,15 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { AdminService } from '../../services/admin';
 import { CaseService } from '../../services/case';
 
-type AdminUpdateFormErrors = {
+type UpdateFormErrors = {
   case_title?: string;
   case_type?: string;
   case_description?: string;
   involvedPeople?: string;
   case_date?: string;
   status?: string;
-  case_handler?: string;
 };
 
 type PersonRole = 'suspects' | 'victim' | 'guilty_name' | '';
@@ -31,24 +29,23 @@ type RoleListItem = {
 };
 
 @Component({
-  selector: 'app-admin-update-form',
+  selector: 'app-update-form',
   imports: [CommonModule, FormsModule, RouterLink],
-  templateUrl: './admin-update-form.html',
-  styleUrl: './admin-update-form.css',
+  templateUrl: './update-form.html',
+  styleUrl: './update-form.css',
 })
-export class AdminUpdateForm implements OnInit {
+export class UpdateForm implements OnInit {
+  id = '';
+  loading = true;
+  error = '';
   formData: any = {};
   involvedPeople: InvolvedPerson[] = [];
-  officers: string[] = [];
-  loading = true;
-  errors: AdminUpdateFormErrors = {};
+  errors: UpdateFormErrors = {};
   todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
-  id = '';
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private adminService: AdminService,
     private caseService: CaseService
   ) {}
 
@@ -63,29 +60,11 @@ export class AdminUpdateForm implements OnInit {
         ...this.parsePeopleField(caseRes?.guilty_name, 'guilty_name'),
         ...this.parsePeopleField(caseRes?.victim, 'victim'),
       ];
-
-      const officersRes = await firstValueFrom(this.adminService.getActiveUsers());
-      const names = (officersRes || []).map((o: any) => o.fullname || o);
-      const currentHandler = caseRes.case_handler;
-      if (currentHandler && !names.includes(currentHandler)) {
-        names.unshift(currentHandler);
-      }
-      this.officers = names;
-    } catch (err) {
-      console.error(err);
-      alert('Failed to load data. You may not be authorized.');
+    } catch {
+      this.error = 'Failed to load case details.';
     } finally {
       this.loading = false;
     }
-  }
-
-  onChange(name: string, value: string) {
-    if (name === 'case_date') {
-      const clamped = value && value > this.todayStr ? this.todayStr : value;
-      this.formData = { ...this.formData, [name]: clamped };
-      return;
-    }
-    this.formData = { ...this.formData, [name]: value };
   }
 
   private normalizeText(value: unknown): string {
@@ -227,7 +206,7 @@ export class AdminUpdateForm implements OnInit {
   }
 
   validate() {
-    const errs: AdminUpdateFormErrors = {};
+    const errs: UpdateFormErrors = {};
     const nameRegex = /^[A-Za-z ]+$/;
 
     if (!this.formData.case_title || (this.formData.case_title || '').length < 5) {
@@ -264,9 +243,6 @@ export class AdminUpdateForm implements OnInit {
     if (!this.formData.status) {
       errs.status = 'Please select a case status';
     }
-    if (!this.formData.case_handler) {
-      errs.case_handler = 'Please select a case handler';
-    }
 
     this.errors = errs;
     return Object.keys(errs).length === 0;
@@ -275,13 +251,19 @@ export class AdminUpdateForm implements OnInit {
   async onSubmit() {
     try {
       if (!this.validate()) return;
+      const { _id, __v, isApproved, is_removed, createdAt, updatedAt, ...cleanFormData } =
+        this.formData || {};
       const peoplePayload = this.buildPeoplePayload();
-      const payload = { ...this.formData, ...peoplePayload };
-      await firstValueFrom(this.caseService.updateCase(this.id, payload));
-      alert('Case updated successfully!');
-      this.router.navigate(['/admin/update-case']);
-    } catch {
-      alert('Error updating case.');
+      const updateRequestData = {
+        ...cleanFormData,
+        ...peoplePayload,
+        originalCaseId: this.id,
+      };
+      await firstValueFrom(this.caseService.requestUpdate(updateRequestData));
+      alert('Update request submitted successfully!');
+      this.router.navigate(['/update']);
+    } catch (err: any) {
+      alert('Error submitting update request: ' + (err?.error?.error || err?.error?.msg || err?.message));
     }
   }
 }

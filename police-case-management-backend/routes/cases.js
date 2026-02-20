@@ -4,6 +4,14 @@ const Case = require('../models/Case');
 const UpdateCase = require('../models/UpdateCase');
 const jwt = require('jsonwebtoken');
 const adminAuth = require('../middleware/auth');
+const {
+    normalizeCasePeoplePayload,
+    serializeCaseForClient,
+    serializeCasesForClient,
+    buildPeopleSearchOr,
+    buildPeopleForAllSearchOr,
+} = require('../utils/people');
+const { validateCaseDateNotFuture } = require('../utils/caseDate');
 
 // Verify any logged-in user (non-admin)
 const userAuth = (req, res, next) => {
@@ -25,9 +33,9 @@ router.get('/', async (req, res) => {
         if (field === "for-all") {
             searchFilter.$or = [
                 { case_title: { $regex: query, $options: 'i' } }, { case_type: { $regex: query, $options: 'i' } },
-                { case_description: { $regex: query, $options: 'i' } }, { suspects: { $regex: query, $options: 'i' } },
-                { victim: { $regex: query, $options: 'i' } }, { guilty_name: { $regex: query, $options: 'i' } },
+                { case_description: { $regex: query, $options: 'i' } },
                 { case_handler: { $regex: query, $options: 'i' } },
+                ...buildPeopleForAllSearchOr(query),
             ];
         } else if (field === "status") {
             searchFilter.status = query.toUpperCase();
@@ -40,13 +48,15 @@ router.get('/', async (req, res) => {
                 $gte: searchDate,
                 $lt: nextDay
             };
+        } else if (['suspects', 'victim', 'guilty_name'].includes(field)) {
+            searchFilter.$or = buildPeopleSearchOr(field, query);
         } else {
             searchFilter[field] = { $regex: query, $options: 'i' };
         }
     }
     try {
         const cases = await Case.find(searchFilter).sort({ case_date: -1 });
-        res.json(cases);
+        res.json(serializeCasesForClient(cases));
     } catch (err) { res.status(500).send('Server Error'); }
 });
 
@@ -55,7 +65,7 @@ router.get('/me/assigned', userAuth, async (req, res) => {
     try {
         const handler = req.user.fullname;
         const cases = await Case.find({ case_handler: handler, isApproved: true, is_removed: { $ne: true } }).sort({ case_date: -1 });
-        res.json(cases);
+        res.json(serializeCasesForClient(cases));
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -67,16 +77,21 @@ router.get('/:id', userAuth, async (req, res) => {
     try {
         const caseItem = await Case.findOne({ _id: req.params.id, is_removed: { $ne: true } });
         if (!caseItem) return res.status(404).json({ msg: 'Case not found' });
-        res.json(caseItem);
+        res.json(serializeCaseForClient(caseItem));
     } catch (err) { res.status(500).send('Server Error'); }
 });
 
 // Create a new case (clients; admins auto-approve)
 router.post('/', userAuth, async (req, res) => {
     try {
-        const newCase = new Case({ ...req.body, isApproved: req.user.isAdmin }); // Admins auto-approve
+        const normalizedBody = normalizeCasePeoplePayload(req.body);
+        const caseDateError = validateCaseDateNotFuture(normalizedBody.case_date);
+        if (caseDateError) {
+            return res.status(400).json({ msg: caseDateError });
+        }
+        const newCase = new Case({ ...normalizedBody, isApproved: req.user.isAdmin }); // Admins auto-approve
         await newCase.save();
-        res.status(201).json(newCase);
+        res.status(201).json(serializeCaseForClient(newCase));
     } catch (err) { 
         console.error('Error creating case:', err.message);
         res.status(500).json({ msg: 'Server Error', error: err.message }); 
@@ -86,7 +101,12 @@ router.post('/', userAuth, async (req, res) => {
 // Submit an update request (clients)
 router.post('/request-update', userAuth, async (req, res) => {
     try {
-        const updateRequest = new UpdateCase(req.body);
+        const normalizedBody = normalizeCasePeoplePayload(req.body);
+        const caseDateError = validateCaseDateNotFuture(normalizedBody.case_date);
+        if (caseDateError) {
+            return res.status(400).json({ msg: caseDateError });
+        }
+        const updateRequest = new UpdateCase(normalizedBody);
         await updateRequest.save();
         res.status(201).json({ msg: 'Update request submitted successfully. It will be reviewed by an admin.' });
     } catch (err) { 
@@ -98,11 +118,20 @@ router.post('/request-update', userAuth, async (req, res) => {
 // Update a case by id (admin only)
 router.put('/:id', adminAuth, async (req, res) => {
     try {
-        const caseItem = await Case.findOneAndUpdate({ _id: req.params.id, is_removed: { $ne: true } }, { $set: req.body }, { new: true });
+        const normalizedBody = normalizeCasePeoplePayload(req.body);
+        const caseDateError = validateCaseDateNotFuture(normalizedBody.case_date);
+        if (caseDateError) {
+            return res.status(400).json({ msg: caseDateError });
+        }
+        const caseItem = await Case.findOneAndUpdate(
+            { _id: req.params.id, is_removed: { $ne: true } },
+            { $set: normalizedBody },
+            { new: true }
+        );
         if (!caseItem) {
             return res.status(404).json({ msg: 'Case not found' });
         }
-        res.json(caseItem);
+        res.json(serializeCaseForClient(caseItem));
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');
@@ -146,7 +175,7 @@ router.get('/me/assigned', userAuth, async (req, res) => {
     try {
         const handler = req.user.fullname;
         const cases = await Case.find({ case_handler: handler, isApproved: true, is_removed: { $ne: true } }).sort({ case_date: -1 });
-        res.json(cases);
+        res.json(serializeCasesForClient(cases));
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

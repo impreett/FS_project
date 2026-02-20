@@ -9,12 +9,24 @@ type AddCaseErrors = {
   case_title?: string;
   case_type?: string;
   case_description?: string;
-  suspects?: string;
-  victim?: string;
-  guilty_name?: string;
+  involvedPeople?: string;
   case_date?: string;
   case_handler?: string;
   status?: string;
+};
+
+type PersonRole = 'suspects' | 'victim' | 'guilty_name' | '';
+
+type InvolvedPerson = {
+  name: string;
+  age: string | number;
+  role: PersonRole;
+};
+
+type RoleListItem = {
+  index: number;
+  name: string;
+  age: string;
 };
 
 @Component({
@@ -30,18 +42,21 @@ export class AddCase implements OnInit {
     case_title: '',
     case_type: '',
     case_description: '',
-    suspects: '',
-    victim: '',
-    guilty_name: '',
     case_date: '',
     status: 'ACTIVE',
     case_handler: '',
   };
+  involvedPeople: InvolvedPerson[] = [];
   errors: AddCaseErrors = {};
   successMessage = '';
-  todayStr = new Date().toISOString().split('T')[0];
+  todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
 
   constructor(private auth: AuthService, private caseService: CaseService) {}
+
+  private normalizeText(value: unknown): string {
+    if (value === null || value === undefined) return '';
+    return String(value).trim();
+  }
 
   async ngOnInit() {
     this.user = this.auth.getUser();
@@ -57,10 +72,93 @@ export class AddCase implements OnInit {
     }
   }
 
+  addPersonForRole(role: Exclude<PersonRole, ''>) {
+    this.involvedPeople.push({
+      name: '',
+      age: '',
+      role,
+    });
+  }
+
+  private getPeopleByRole(role: Exclude<PersonRole, ''>): RoleListItem[] {
+    return this.involvedPeople
+      .map((person, index) => ({ person, index }))
+      .filter((entry) => entry.person.role === role)
+      .map((entry) => ({
+        index: entry.index,
+        name: this.normalizeText(entry.person.name),
+        age: this.normalizeText(entry.person.age),
+      }));
+  }
+
+  get suspectPeople() {
+    return this.getPeopleByRole('suspects');
+  }
+
+  get guiltyPeople() {
+    return this.getPeopleByRole('guilty_name');
+  }
+
+  get victimPeople() {
+    return this.getPeopleByRole('victim');
+  }
+
+  removePerson(index: number) {
+    this.involvedPeople.splice(index, 1);
+  }
+
+  trackByIndex(_index: number, item: RoleListItem) {
+    return item.index;
+  }
+
+  onPersonNameChange(index: number, value: string) {
+    if (!this.involvedPeople[index]) return;
+    this.involvedPeople[index].name = value;
+  }
+
+  onPersonAgeChange(index: number, value: string) {
+    if (!this.involvedPeople[index]) return;
+    const trimmed = this.normalizeText(value);
+    if (!trimmed) {
+      this.involvedPeople[index].age = '';
+      return;
+    }
+    if (!/^\d{0,3}$/.test(trimmed)) {
+      return;
+    }
+    const numeric = Number(trimmed);
+    this.involvedPeople[index].age = numeric > 120 ? '120' : trimmed;
+  }
+
+  private buildPeoplePayload() {
+    const grouped: {
+      suspects: Array<{ name: string; age: number }>;
+      victim: Array<{ name: string; age: number }>;
+      guilty_name: Array<{ name: string; age: number }>;
+    } = {
+      suspects: [],
+      victim: [],
+      guilty_name: [],
+    };
+
+    for (const person of this.involvedPeople) {
+      const name = this.normalizeText(person.name);
+      const age = this.normalizeText(person.age);
+      const role = person.role;
+      if (!name || !age || !role) continue;
+      grouped[role].push({ name, age: Number(age) });
+    }
+
+    return {
+      suspects: grouped.suspects,
+      victim: grouped.victim,
+      guilty_name: grouped.guilty_name,
+    };
+  }
+
   validate() {
     const tempErrors: AddCaseErrors = {};
-    const namesListRegex =
-      /^\s*[A-Za-z]+(?:\s+[A-Za-z]+)*(?:\s*,\s*[A-Za-z]+(?:\s+[A-Za-z]+)*)*\s*$/;
+    const nameRegex = /^[A-Za-z ]+$/;
 
     if (!this.formData.case_title || this.formData.case_title.length < 5) {
       tempErrors.case_title = 'Title must be at least 5 characters.';
@@ -71,26 +169,36 @@ export class AddCase implements OnInit {
     if (!this.formData.case_description || this.formData.case_description.length < 20) {
       tempErrors.case_description = 'Description must be at least 20 characters.';
     }
-    if (!this.formData.case_date) {
+    const caseDateValue = String(this.formData.case_date || '');
+    if (!caseDateValue) {
       tempErrors.case_date = 'Case date is required.';
+    } else if (caseDateValue > this.todayStr) {
+      tempErrors.case_date = 'Case date cannot be in the future.';
     }
     if (this.user?.isAdmin && !this.formData.case_handler) {
       tempErrors.case_handler = 'Please select a case handler.';
     }
 
-    const checkNamesField = (val: string) => {
-      const v = (val || '').trim();
-      if (!v) return 'If there is no person, enter N/A.';
-      if (v.toUpperCase() === 'N/A') return '';
-      return namesListRegex.test(v) ? '' : "Enter names like 'Name, Name, Name'.";
-    };
+    if (this.involvedPeople.length === 0) {
+      tempErrors.involvedPeople = 'Add at least one person with name, age, and role.';
+    } else {
+      for (const person of this.involvedPeople) {
+        const name = this.normalizeText(person.name);
+        const ageText = this.normalizeText(person.age);
+        const role = person.role;
+        const letters = name.replace(/\s/g, '').length;
 
-    const sErr = checkNamesField(this.formData.suspects);
-    if (sErr) tempErrors.suspects = sErr;
-    const vErr = checkNamesField(this.formData.victim);
-    if (vErr) tempErrors.victim = vErr;
-    const gErr = checkNamesField(this.formData.guilty_name);
-    if (gErr) tempErrors.guilty_name = gErr;
+        if (!role || !name || letters < 3 || letters > 20 || !nameRegex.test(name)) {
+          tempErrors.involvedPeople = 'Each name must be 3-20 letters (alphabets and spaces only).';
+          break;
+        }
+
+        if (!ageText || !/^\d{1,3}$/.test(ageText) || Number(ageText) > 120) {
+          tempErrors.involvedPeople = 'Each age must be between 0 and 120.';
+          break;
+        }
+      }
+    }
 
     this.errors = tempErrors;
     return Object.values(tempErrors).every((x) => !x);
@@ -99,20 +207,23 @@ export class AddCase implements OnInit {
   async onSubmit() {
     if (!this.validate()) return;
     try {
-      const payload = { ...this.formData, isApproved: !!this.user?.isAdmin };
+      const peoplePayload = this.buildPeoplePayload();
+      const payload = {
+        ...this.formData,
+        ...peoplePayload,
+        isApproved: !!this.user?.isAdmin,
+      };
       await firstValueFrom(this.caseService.addCase(payload));
       this.successMessage = 'Case added successfully!';
       this.formData = {
         case_title: '',
         case_type: '',
         case_description: '',
-        suspects: '',
-        victim: '',
-        guilty_name: '',
         case_date: '',
         status: 'ACTIVE',
         case_handler: this.user?.isAdmin ? '' : this.user?.fullname || '',
       };
+      this.involvedPeople = [];
       window.scrollTo(0, 0);
     } catch (err: any) {
       console.error('Error details:', err?.error || err);

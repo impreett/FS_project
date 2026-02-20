@@ -13,7 +13,7 @@
             <th>Email</th>
             <th>Contact</th>
             <th>City</th>
-            <th>Action</th>
+            <th class="text-center">Action</th>
           </tr>
         </thead>
         <tbody>
@@ -23,7 +23,7 @@
             <td>{{ user.email }}</td>
             <td>{{ user.contact }}</td>
             <td>{{ user.city }}</td>
-            <td>
+            <td class="text-center align-middle">
               <button class="btn btn-danger btn-sm" (click)="handleDisable(user._id)">Disable</button>
             </td>
           </tr>

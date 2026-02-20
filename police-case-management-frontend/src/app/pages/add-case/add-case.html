@@ -75,37 +75,160 @@
         </div>
       </div>
       <div class="mb-3">
-        <label class="form-label">Suspects</label>
-        <input
-          type="text"
-          name="suspects"
-          class="form-control"
-          [class.is-invalid]="errors.suspects"
-          [(ngModel)]="formData.suspects"
-        />
-        <div *ngIf="errors.suspects" class="invalid-feedback">{{ errors.suspects }}</div>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Victim</label>
-        <input
-          type="text"
-          name="victim"
-          class="form-control"
-          [class.is-invalid]="errors.victim"
-          [(ngModel)]="formData.victim"
-        />
-        <div *ngIf="errors.victim" class="invalid-feedback">{{ errors.victim }}</div>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Guilty Name</label>
-        <input
-          type="text"
-          name="guilty_name"
-          class="form-control"
-          [class.is-invalid]="errors.guilty_name"
-          [(ngModel)]="formData.guilty_name"
-        />
-        <div *ngIf="errors.guilty_name" class="invalid-feedback">{{ errors.guilty_name }}</div>
+        <label class="form-label">People Involved</label>
+        <div *ngIf="errors.involvedPeople" class="text-danger small mb-2">
+          {{ errors.involvedPeople }}
+        </div>
+
+        <div class="border rounded p-3 mb-3 people-involved-box">
+          <div class="row g-3 people-roles-row">
+            <div class="col-md-4 people-col-divider">
+              <div class="p-2 h-100">
+                <div class="fw-semibold mb-2">Suspect</div>
+                <ul class="list-group list-group-flush people-role-list">
+                  <li class="list-group-item text-muted small" *ngIf="suspectPeople.length === 0">
+                    No suspect added.
+                  </li>
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center person-list-item"
+                    *ngFor="let person of suspectPeople; trackBy: trackByIndex"
+                  >
+                    <div class="person-edit-entry">
+                      <div class="person-edit-row">
+                        <label class="person-edit-label">Name</label>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          maxlength="20"
+                          [name]="'suspect_name_' + person.index"
+                          [ngModel]="person.name"
+                          (ngModelChange)="onPersonNameChange(person.index, $event)"
+                        />
+                        <label class="person-edit-label">Age</label>
+                        <input
+                          type="number"
+                          class="form-control form-control-sm"
+                          min="0"
+                          max="120"
+                          [name]="'suspect_age_' + person.index"
+                          [ngModel]="person.age"
+                          (ngModelChange)="onPersonAgeChange(person.index, $event)"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      aria-label="Remove suspect"
+                      (click)="removePerson(person.index)"
+                    ></button>
+                  </li>
+                </ul>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2" (click)="addPersonForRole('suspects')">
+                  + Add
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4 people-col-divider">
+              <div class="p-2 h-100">
+                <div class="fw-semibold mb-2">Guilty</div>
+                <ul class="list-group list-group-flush people-role-list">
+                  <li class="list-group-item text-muted small" *ngIf="guiltyPeople.length === 0">
+                    No guilty person added.
+                  </li>
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center person-list-item"
+                    *ngFor="let person of guiltyPeople; trackBy: trackByIndex"
+                  >
+                    <div class="person-edit-entry">
+                      <div class="person-edit-row">
+                        <label class="person-edit-label">Name</label>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          maxlength="20"
+                          [name]="'guilty_name_' + person.index"
+                          [ngModel]="person.name"
+                          (ngModelChange)="onPersonNameChange(person.index, $event)"
+                        />
+                        <label class="person-edit-label">Age</label>
+                        <input
+                          type="number"
+                          class="form-control form-control-sm"
+                          min="0"
+                          max="120"
+                          [name]="'guilty_age_' + person.index"
+                          [ngModel]="person.age"
+                          (ngModelChange)="onPersonAgeChange(person.index, $event)"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      aria-label="Remove guilty person"
+                      (click)="removePerson(person.index)"
+                    ></button>
+                  </li>
+                </ul>
+                <button
+                  type="button"
+                  class="btn btn-outline-primary btn-sm mt-2"
+                  (click)="addPersonForRole('guilty_name')"
+                >
+                  + Add
+                </button>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="p-2 h-100">
+                <div class="fw-semibold mb-2">Victim</div>
+                <ul class="list-group list-group-flush people-role-list">
+                  <li class="list-group-item text-muted small" *ngIf="victimPeople.length === 0">
+                    No victim added.
+                  </li>
+                  <li
+                    class="list-group-item d-flex justify-content-between align-items-center person-list-item"
+                    *ngFor="let person of victimPeople; trackBy: trackByIndex"
+                  >
+                    <div class="person-edit-entry">
+                      <div class="person-edit-row">
+                        <label class="person-edit-label">Name</label>
+                        <input
+                          type="text"
+                          class="form-control form-control-sm"
+                          maxlength="20"
+                          [name]="'victim_name_' + person.index"
+                          [ngModel]="person.name"
+                          (ngModelChange)="onPersonNameChange(person.index, $event)"
+                        />
+                        <label class="person-edit-label">Age</label>
+                        <input
+                          type="number"
+                          class="form-control form-control-sm"
+                          min="0"
+                          max="120"
+                          [name]="'victim_age_' + person.index"
+                          [ngModel]="person.age"
+                          (ngModelChange)="onPersonAgeChange(person.index, $event)"
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      aria-label="Remove victim"
+                      (click)="removePerson(person.index)"
+                    ></button>
+                  </li>
+                </ul>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2" (click)="addPersonForRole('victim')">
+                  + Add
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
       <div class="mb-3">
         <label class="form-label">Case Date</label>

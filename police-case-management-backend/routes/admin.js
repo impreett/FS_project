@@ -4,6 +4,15 @@ const User = require('../models/User');
 const Case = require('../models/Case');
 const UpdateCase = require('../models/UpdateCase');
 const adminAuth = require('../middleware/auth');
+const {
+    normalizeCasePeoplePayload,
+    serializeCaseForClient,
+    serializeCasesForClient,
+    formatPeopleField,
+    buildPeopleSearchOr,
+    buildPeopleForAllSearchOr,
+} = require('../utils/people');
+const { validateCaseDateNotFuture } = require('../utils/caseDate');
 
 // User management
 router.get('/pending-users', adminAuth, async (req, res) => {
@@ -45,14 +54,14 @@ router.delete('/deny-user/:id', adminAuth, async (req, res) => {
 router.get('/all-cases', adminAuth, async (req, res) => {
     try {
         const cases = await Case.find({ is_removed: { $ne: true } }).sort({ case_date: -1 });
-        res.json(cases);
+        res.json(serializeCasesForClient(cases));
     } catch (err) { res.status(500).send('Server Error'); }
 });
 
 router.get('/pending-cases', adminAuth, async (req, res) => {
     try {
         const cases = await Case.find({ isApproved: false, is_removed: { $ne: true } }).sort({ case_date: -1 });
-        res.json(cases);
+        res.json(serializeCasesForClient(cases));
     } catch (err) { res.status(500).send('Server Error'); }
 });
 
@@ -74,7 +83,7 @@ router.delete('/deny-case/:id', adminAuth, async (req, res) => {
 router.get('/removed-cases', adminAuth, async (req, res) => {
     try {
         const cases = await Case.find({ is_removed: true }).sort({ case_date: -1 });
-        res.json(cases);
+        res.json(serializeCasesForClient(cases));
     } catch (err) { res.status(500).send('Server Error'); }
 });
 
@@ -83,7 +92,7 @@ router.get('/case/:id', adminAuth, async (req, res) => {
     try {
         const caseItem = await Case.findById(req.params.id);
         if (!caseItem) return res.status(404).json({ msg: 'Case not found' });
-        res.json(caseItem);
+        res.json(serializeCaseForClient(caseItem));
     } catch (err) { res.status(500).send('Server Error'); }
 });
 
@@ -91,7 +100,14 @@ router.get('/case/:id', adminAuth, async (req, res) => {
 router.get('/pending-updates', adminAuth, async (req, res) => {
     try {
         const updates = await UpdateCase.find().sort({ requestedAt: -1 });
-        res.json(updates);
+        const normalizedUpdates = updates.map((u) => {
+            const obj = u.toObject();
+            obj.suspects = formatPeopleField(obj.suspects);
+            obj.victim = formatPeopleField(obj.victim);
+            obj.guilty_name = formatPeopleField(obj.guilty_name);
+            return obj;
+        });
+        res.json(normalizedUpdates);
     } catch (err) { res.status(500).send('Server Error'); }
 });
 
@@ -102,7 +118,12 @@ router.put('/approve-update/:updateId', adminAuth, async (req, res) => {
             return res.status(404).json({ msg: 'Update request not found' });
         }
         const { _id, __v, originalCaseId, ...updatedData } = updateRequest.toObject();
-        await Case.findByIdAndUpdate(originalCaseId, { $set: updatedData });
+        const normalizedData = normalizeCasePeoplePayload(updatedData);
+        const caseDateError = validateCaseDateNotFuture(normalizedData.case_date);
+        if (caseDateError) {
+            return res.status(400).json({ msg: caseDateError });
+        }
+        await Case.findByIdAndUpdate(originalCaseId, { $set: normalizedData });
         await UpdateCase.findByIdAndDelete(req.params.updateId);
         res.json({ msg: 'Update approved and applied successfully!' });
     } catch (err) { res.status(500).send('Server Error'); }
@@ -126,10 +147,8 @@ router.get('/search-cases', adminAuth, async (req, res) => {
                     { case_title: { $regex: query, $options: 'i' } },
                     { case_type: { $regex: query, $options: 'i' } },
                     { case_description: { $regex: query, $options: 'i' } },
-                    { suspects: { $regex: query, $options: 'i' } },
-                    { victim: { $regex: query, $options: 'i' } },
-                    { guilty_name: { $regex: query, $options: 'i' } },
-                    { case_handler: { $regex: query, $options: 'i' } }
+                    { case_handler: { $regex: query, $options: 'i' } },
+                    ...buildPeopleForAllSearchOr(query),
                 ];
             } else if (field === "isApproved") {
                 searchFilter.isApproved = query === '1';
@@ -144,12 +163,14 @@ router.get('/search-cases', adminAuth, async (req, res) => {
                     $gte: searchDate,
                     $lt: nextDay
                 };
+            } else if (['suspects', 'victim', 'guilty_name'].includes(field)) {
+                searchFilter.$or = buildPeopleSearchOr(field, query);
             } else {
                 searchFilter[field] = { $regex: query, $options: 'i' };
             }
         }
         const cases = await Case.find(searchFilter).sort({ case_date: -1 });
-        res.json(cases);
+        res.json(serializeCasesForClient(cases));
     } catch (err) {
         console.error(err.message);
         res.status(500).send('Server Error');

@@ -65,4 +65,96 @@ export class SearchCase implements OnInit {
     this.searchQuery = value;
     this.fetchCases();
   }
+
+  highlightText(value: unknown, fallback = ''): string {
+    const plainText = this.toDisplayText(value).trim() || fallback;
+    return this.applyHighlight(plainText);
+  }
+
+  displayDate(value: unknown): string {
+    const raw = String(value ?? '').trim();
+    if (!raw) return 'N/A';
+
+    const dateObj = new Date(raw);
+    if (Number.isNaN(dateObj.getTime())) return raw;
+
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    return `${day}-${month}-${year}`;
+  }
+
+  displayApproval(value: unknown): string {
+    return value ? 'Approved' : 'Pending';
+  }
+
+  private applyHighlight(text: string): string {
+    const safeText = this.escapeHtml(text);
+    const term = this.getHighlightTerm();
+    if (!term) return safeText;
+
+    const safeTermRegex = this.escapeRegExp(term);
+    if (!safeTermRegex) return safeText;
+
+    const regex = new RegExp(`(${safeTermRegex})`, 'gi');
+    return safeText.replace(regex, '<mark class="search-highlight">$1</mark>');
+  }
+
+  private getHighlightTerm(): string {
+    const query = String(this.searchQuery ?? '').trim();
+    if (!query) return '';
+
+    if (this.searchField === 'isApproved') {
+      if (query === '1') return 'Approved';
+      if (query === '0') return 'Pending';
+    }
+
+    if (this.searchField === 'case_date') {
+      const match = query.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      if (match) return `${match[3]}-${match[2]}-${match[1]}`;
+    }
+
+    return query;
+  }
+
+  private toDisplayText(value: unknown): string {
+    if (value === null || value === undefined) return '';
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => this.toDisplayText(item))
+        .filter((item) => !!item)
+        .join(', ');
+    }
+
+    if (typeof value === 'object') {
+      const obj = value as Record<string, unknown>;
+      const maybeName = String(obj['name'] ?? '').trim();
+      const maybeAge = String(obj['age'] ?? '').trim();
+      if (maybeName || maybeAge) {
+        const parts = [];
+        if (maybeName) parts.push(`Name: ${maybeName}`);
+        if (maybeAge) parts.push(`Age: ${maybeAge}`);
+        return parts.join(' ');
+      }
+      return Object.values(obj)
+        .map((item) => this.toDisplayText(item))
+        .filter((item) => !!item)
+        .join(' ');
+    }
+
+    return String(value);
+  }
+
+  private escapeRegExp(value: string): string {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  private escapeHtml(value: string): string {
+    return value
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 }

@@ -5,7 +5,7 @@
 
   <ng-container *ngIf="caseItem">
     <ng-container *ngIf="user?.isAdmin; else clientView">
-      <h2 class="mb-4">Case Details</h2>
+      <h2 class="mb-4">{{ caseItem.case_title }}</h2>
       <div
         *ngIf="successMessage"
         class="alert alert-success alert-dismissible fade show text-center"
@@ -15,52 +15,117 @@
         <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
       </div>
       <article
+        class="case-details-card"
         style="border: 1px solid #ccc; border-radius: 5px; padding: 20px; background: #fff; margin-bottom: 30px"
       >
-        <h3>{{ caseItem.case_title }}</h3>
-        <p><b>Case ID:</b> {{ caseItem._id }}</p>
-        <p><b>Type:</b> {{ caseItem.case_type }}</p>
-        <p><b>Handler:</b> {{ caseItem.case_handler }}</p>
-        <p><b>Victim:</b> {{ caseItem.victim || 'N/A' }}</p>
-        <p><b>Suspects:</b> {{ caseItem.suspects || 'N/A' }}</p>
-        <p><b>Guilty Name:</b> {{ caseItem.guilty_name || 'N/A' }}</p>
-        <p><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
-        <p><b>Status:</b> {{ caseItem.status }}</p>
-        <p><b>Approval:</b> {{ caseItem.isApproved ? 'Approved' : 'Pending' }}</p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Case ID:</b></span>
+          <span class="detail-value">{{ caseItem._id }}</span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Type:</b></span>
+          <span class="detail-value">{{ caseItem.case_type }}</span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Handler:</b></span>
+          <span class="detail-value">{{ caseItem.case_handler }}</span>
+        </p>
+        <ng-container *ngTemplateOutlet="peopleInvolvedSection"></ng-container>
+        <p class="detail-row">
+          <span class="detail-label"><b>Date:</b></span>
+          <span class="detail-value">{{ caseItem.case_date | date: 'dd-MM-yyyy' }}</span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Status:</b></span>
+          <span class="detail-value">{{ caseItem.status }}</span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Approval:</b></span>
+          <span class="detail-value">{{ caseItem.isApproved ? 'Approved' : 'Pending' }}</span>
+        </p>
         <p class="desc-box">
           <b>Description:</b><br />
           <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
         </p>
 
-        <div *ngIf="!caseItem.isApproved; else approved">
+        <div *ngIf="!caseItem.isApproved">
           <button class="btn btn-success me-2" (click)="handleApprove()">Approve</button>
           <button class="btn btn-danger" (click)="handleDeny()">Deny</button>
         </div>
-        <ng-template #approved>
-          <p class="alert alert-success mt-3">This case is approved.</p>
-        </ng-template>
       </article>
     </ng-container>
 
     <ng-template #clientView>
-      <h2 class="mb-4">Case Details</h2>
+      <h2 class="mb-4">{{ caseItem.case_title }}</h2>
       <article
+        class="case-details-card"
         style="border: 1px solid #ccc; border-radius: 5px; padding: 20px; background: #fff; margin-bottom: 30px"
       >
-        <h3>{{ caseItem.case_title }}</h3>
-        <p><b>Case ID:</b> {{ caseItem._id }}</p>
-        <p><b>Type:</b> {{ caseItem.case_type }}</p>
-        <p><b>Handler:</b> {{ caseItem.case_handler }}</p>
-        <p><b>Victim:</b> {{ caseItem.victim || 'N/A' }}</p>
-        <p><b>Suspects:</b> {{ caseItem.suspects || 'N/A' }}</p>
-        <p><b>Guilty Name:</b> {{ caseItem.guilty_name || 'N/A' }}</p>
-        <p><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
-        <p><b>Status:</b> {{ caseItem.status }}</p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Case ID:</b></span>
+          <span class="detail-value">{{ caseItem._id }}</span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Type:</b></span>
+          <span class="detail-value">{{ caseItem.case_type }}</span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Handler:</b></span>
+          <span class="detail-value">{{ caseItem.case_handler }}</span>
+        </p>
+        <ng-container *ngTemplateOutlet="peopleInvolvedSection"></ng-container>
+        <p class="detail-row">
+          <span class="detail-label"><b>Date:</b></span>
+          <span class="detail-value">{{ caseItem.case_date | date: 'dd-MM-yyyy' }}</span>
+        </p>
+        <p class="detail-row">
+          <span class="detail-label"><b>Status:</b></span>
+          <span class="detail-value">{{ caseItem.status }}</span>
+        </p>
         <p class="desc-box">
           <b>Description:</b><br />
           <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
         </p>
       </article>
+    </ng-template>
+
+    <ng-template #peopleInvolvedSection>
+      <p class="detail-row">
+        <span class="detail-label"><b>Victim:</b></span>
+        <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidth">
+          <ng-container *ngIf="victimPeople.length; else noVictim">
+            <span class="person-line" *ngFor="let person of victimPeople">
+              <span class="person-name-part">Name: {{ person.name }}</span>
+              <span class="person-age-part">Age: {{ person.age }}</span>
+            </span>
+          </ng-container>
+          <ng-template #noVictim>No victim added.</ng-template>
+        </span>
+      </p>
+      <p class="detail-row">
+        <span class="detail-label"><b>Suspects:</b></span>
+        <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidth">
+          <ng-container *ngIf="suspectPeople.length; else noSuspect">
+            <span class="person-line" *ngFor="let person of suspectPeople">
+              <span class="person-name-part">Name: {{ person.name }}</span>
+              <span class="person-age-part">Age: {{ person.age }}</span>
+            </span>
+          </ng-container>
+          <ng-template #noSuspect>No suspect added.</ng-template>
+        </span>
+      </p>
+      <p class="detail-row">
+        <span class="detail-label"><b>Guilty Name:</b></span>
+        <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidth">
+          <ng-container *ngIf="guiltyPeople.length; else noGuilty">
+            <span class="person-line" *ngFor="let person of guiltyPeople">
+              <span class="person-name-part">Name: {{ person.name }}</span>
+              <span class="person-age-part">Age: {{ person.age }}</span>
+            </span>
+          </ng-container>
+          <ng-template #noGuilty>No guilty person added.</ng-template>
+        </span>
+      </p>
     </ng-template>
   </ng-container>
 </div>

@@ -1,5 +1,9 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
+html {
+  scrollbar-gutter: stable;
+}
+
 body {
   background: #f1f1f1 !important;
   margin: 0;

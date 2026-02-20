@@ -6,6 +6,11 @@ import { AuthService } from '../../services/auth';
 import { AdminService } from '../../services/admin';
 import { CaseService } from '../../services/case';
 
+type PersonDisplay = {
+  name: string;
+  age: string;
+};
+
 @Component({
   selector: 'app-case-details',
   imports: [CommonModule],
@@ -19,6 +24,9 @@ export class CaseDetails implements OnInit {
   user: any = null;
   successMessage = '';
   id = '';
+  victimPeople: PersonDisplay[] = [];
+  suspectPeople: PersonDisplay[] = [];
+  guiltyPeople: PersonDisplay[] = [];
 
   constructor(
     private route: ActivatedRoute,
@@ -39,11 +47,80 @@ export class CaseDetails implements OnInit {
         res = await firstValueFrom(this.caseService.getCaseById(this.id));
       }
       this.caseItem = res;
+      this.victimPeople = this.parsePeople(this.caseItem?.victim);
+      this.suspectPeople = this.parsePeople(this.caseItem?.suspects);
+      this.guiltyPeople = this.parsePeople(this.caseItem?.guilty_name);
     } catch {
       this.error = 'Could not fetch case details.';
     } finally {
       this.loading = false;
     }
+  }
+
+  private normalizeText(value: unknown): string {
+    if (value === null || value === undefined) return '';
+    return String(value).trim();
+  }
+
+  private parsePeople(value: unknown): PersonDisplay[] {
+    if (Array.isArray(value)) {
+      return value
+        .map((entry: any) => {
+          if (!entry || typeof entry !== 'object') return null;
+          const name = this.normalizeText(entry.name);
+          if (!name) return null;
+          const ageValue = entry.age === null || entry.age === undefined || entry.age === '' ? 'N/A' : String(entry.age);
+          return { name, age: ageValue };
+        })
+        .filter((entry): entry is PersonDisplay => !!entry);
+    }
+
+    const text = this.normalizeText(value);
+    if (!text || text.toUpperCase() === 'N/A') return [];
+
+    return text
+      .split(',')
+      .map((part) => part.trim())
+      .filter(Boolean)
+      .map((part) => {
+        const withAge = part.match(/^Name:\s*(.+?)\s+Age:\s*(\d{1,3})$/i);
+        if (withAge) {
+          return {
+            name: this.normalizeText(withAge[1]),
+            age: this.normalizeText(withAge[2]) || 'N/A',
+          };
+        }
+
+        const nameOnly = part.match(/^Name:\s*(.+)$/i);
+        if (nameOnly) {
+          return {
+            name: this.normalizeText(nameOnly[1]),
+            age: 'N/A',
+          };
+        }
+
+        return {
+          name: this.normalizeText(part),
+          age: 'N/A',
+        };
+      })
+      .filter((entry) => !!entry.name);
+  }
+
+  get peopleNameColumnWidth(): string {
+    const people = [...this.victimPeople, ...this.suspectPeople, ...this.guiltyPeople];
+    const longest = people.reduce((max, person) => {
+      const displayLength = `Name: ${person.name}`.length;
+      return displayLength > max ? displayLength : max;
+    }, 10);
+    return `${longest}ch`;
+  }
+
+  formatPeopleDisplay(people: PersonDisplay[], emptyText: string): string {
+    if (!people.length) return emptyText;
+    return people
+      .map((person) => `Name: ${person.name}   Age: ${person.age}`)
+      .join(', ');
   }
 
   async handleApprove() {

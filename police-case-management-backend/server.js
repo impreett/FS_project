@@ -9,8 +9,10 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const DEFAULT_MONGO_SRV = "mongodb+srv://pritchotaliya206gmailcom:123123123@cluster0.ylfbtmd.mongodb.net/?appName=Cluster0";
-const MONGO_URI = DEFAULT_MONGO_SRV || process.env.MONGO_URI || "mongodb://localhost:27017/";
+const isProduction = process.env.NODE_ENV === 'production';
+const LOCAL_MONGO_URI = process.env.MONGO_URI_LOCAL || 'mongodb://127.0.0.1:27017/';
+const PROD_MONGO_URI = process.env.MONGO_URI_PROD || process.env.MONGO_URI || '';
+const MONGO_URI = isProduction ? (PROD_MONGO_URI || LOCAL_MONGO_URI) : LOCAL_MONGO_URI;
 const MONGO_DB = process.env.MONGO_DB || "police_info";
 
 mongoose.connect(MONGO_URI, { dbName: MONGO_DB })

@@ -1,34 +1,77 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { CaseService } from '../../services/case';
 
-type UpdateCaseErrors = {
-  case_title?: string;
-  case_type?: string;
-  case_description?: string;
-  suspects?: string;
-  victim?: string;
-  guilty_name?: string;
-  case_date?: string;
-  status?: string;
-};
+type SearchField =
+  | 'for-all'
+  | 'case_title'
+  | 'case_type'
+  | 'case_description'
+  | 'suspects'
+  | 'victim'
+  | 'guilty_name'
+  | 'case_date'
+  | 'case_handler'
+  | 'status';
 
 @Component({
   selector: 'app-update-case-list',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './update-case-list.html',
   styleUrl: './update-case-list.css',
 })
 export class UpdateCaseList implements OnInit {
   cases: any[] = [];
   loading = true;
-  editingCaseId: string | null = null;
-  formData: any = {};
-  errors: UpdateCaseErrors = {};
-  successMessage = '';
+  sortOrder: 'latest' | 'oldest' = 'latest';
+  searchField: SearchField = 'for-all';
+  searchValue = '';
+  caseTypes: string[] = [
+    'Homicide (Murder)',
+    'Manslaughter',
+    'Rape / Sexual Assault',
+    'Kidnapping / Abduction',
+    'Aggravated Assault',
+    'Simple Assault / Battery',
+    'Robbery',
+    'Burglary / House Breaking',
+    'Theft (Larceny)',
+    'Motor Vehicle Theft',
+    'Vandalism / Criminal Damage',
+    'Extortion / Blackmail',
+    'Cybercrime / Hacking',
+    'Fraud / Cheating',
+    'Forgery / Counterfeiting',
+    'Embezzlement / Breach of Trust',
+    'Money Laundering',
+    'Drug Offense (NDPS)',
+    'Smuggling / Contraband',
+    'Illegal Weapons',
+    'Illegal Gambling',
+    'Public Order / Rioting',
+    'Domestic Violence',
+    'Missing Person Report',
+    'Traffic Accident (Non-Fatal)',
+  ];
   todayStr = new Date().toISOString().split('T')[0];
+  private readonly searchableFields: SearchField[] = [
+    'case_title',
+    'case_type',
+    'case_description',
+    'suspects',
+    'victim',
+    'guilty_name',
+    'case_date',
+    'case_handler',
+    'status',
+  ];
+  private readonly monthYearFormatter = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    year: 'numeric',
+  });
 
   constructor(private caseService: CaseService) {}
 
@@ -43,80 +86,138 @@ export class UpdateCaseList implements OnInit {
     }
   }
 
-  handleEditClick(caseItem: any) {
-    this.editingCaseId = caseItem._id;
-    const formattedDate = new Date(caseItem.case_date).toISOString().split('T')[0];
-    this.formData = { ...caseItem, case_date: formattedDate };
-    this.successMessage = '';
+  setSortOrder(order: 'latest' | 'oldest') {
+    this.sortOrder = order;
   }
 
-  handleCancel() {
-    this.editingCaseId = null;
-    this.formData = {};
-    this.errors = {};
+  onSearchFieldChange(value: string) {
+    this.searchField = (value as SearchField) || 'for-all';
+    this.searchValue = '';
   }
 
-  validate() {
-    const errs: UpdateCaseErrors = {};
-    const namesListRegex =
-      /^\s*[A-Za-z]+(?:\s+[A-Za-z]+)*(?:\s*,\s*[A-Za-z]+(?:\s+[A-Za-z]+)*)*\s*$/;
-
-    if (!this.formData.case_title || (this.formData.case_title || '').length < 5) {
-      errs.case_title = !this.formData.case_title
-        ? 'Please enter the case title'
-        : 'At least 5 characters';
-    }
-    if (!this.formData.case_type) {
-      errs.case_type = 'Please select a case type';
-    }
-    if (!this.formData.case_description || (this.formData.case_description || '').length < 20) {
-      errs.case_description = !this.formData.case_description
-        ? 'Please provide a description'
-        : 'At least 20 characters';
-    }
-    const checkNamesField = (val: string) => {
-      const v = (val || '').trim();
-      if (!v) return 'If there is no person, enter N/A.';
-      if (v.toUpperCase() === 'N/A') return '';
-      return namesListRegex.test(v) ? '' : "Enter names like 'Name, Name, Name'.";
-    };
-
-    const sErr = checkNamesField(this.formData.suspects);
-    if (sErr) errs.suspects = sErr;
-    const vErr = checkNamesField(this.formData.victim);
-    if (vErr) errs.victim = vErr;
-    const gErr = checkNamesField(this.formData.guilty_name);
-    if (gErr) errs.guilty_name = gErr;
-    if (!this.formData.case_date) {
-      errs.case_date = 'Please select a case date';
-    }
-    if (!this.formData.status) {
-      errs.status = 'Please select a case status';
-    }
-
-    this.errors = errs;
-    return Object.keys(errs).length === 0;
+  onSearchValueChange(value: string) {
+    this.searchValue = value || '';
   }
 
-  async onSubmit() {
-    if (!this.validate()) return;
-    try {
-      const { _id, __v, isApproved, is_removed, createdAt, updatedAt, ...cleanFormData } =
-        this.formData || {};
-      const updateRequestData = {
-        ...cleanFormData,
-        originalCaseId: this.editingCaseId,
-      };
-      await firstValueFrom(this.caseService.requestUpdate(updateRequestData));
-      this.successMessage = 'Update request submitted successfully!';
-      this.editingCaseId = null;
-      this.formData = {};
-      this.errors = {};
-      window.scrollTo(0, 0);
-    } catch (err: any) {
-      console.error('Error details:', err?.error || err);
-      this.successMessage = '';
-      alert('Error submitting update request: ' + (err?.error?.error || err?.error?.msg || err?.message));
+  get officers() {
+    const names = this.cases
+      .map((caseItem) => String(caseItem?.case_handler ?? '').trim())
+      .filter((name) => !!name);
+    return [...new Set(names)].sort((a, b) => a.localeCompare(b));
+  }
+
+  get filteredCases() {
+    const query = this.searchValue;
+    const normalizedQuery = this.normalize(query);
+    if (!normalizedQuery) return this.cases;
+
+    return this.cases.filter((caseItem) => {
+      if (this.searchField === 'for-all') {
+        return this.searchableFields.some((field) =>
+          this.normalize(this.getFieldValue(caseItem, field)).includes(normalizedQuery)
+        );
+      }
+
+      if (
+        this.searchField === 'case_type' ||
+        this.searchField === 'case_handler' ||
+        this.searchField === 'status'
+      ) {
+        return this.normalize(caseItem?.[this.searchField]) === normalizedQuery;
+      }
+
+      if (this.searchField === 'case_date') {
+        return this.getDateValue(caseItem?.case_date) === query;
+      }
+
+      return this.normalize(this.getFieldValue(caseItem, this.searchField)).includes(normalizedQuery);
+    });
+  }
+
+  get sortedCases() {
+    return [...this.filteredCases].sort((a, b) => {
+      const aTime = new Date(a?.case_date || 0).getTime();
+      const bTime = new Date(b?.case_date || 0).getTime();
+      return this.sortOrder === 'latest' ? bTime - aTime : aTime - bTime;
+    });
+  }
+
+  get groupedCases() {
+    const groups: Array<{ label: string; items: any[] }> = [];
+    for (const caseItem of this.sortedCases) {
+      const dateObj = new Date(caseItem?.case_date || 0);
+      const label = Number.isNaN(dateObj.getTime())
+        ? 'Unknown Date'
+        : this.monthYearFormatter.format(dateObj);
+
+      const currentGroup = groups[groups.length - 1];
+      if (!currentGroup || currentGroup.label !== label) {
+        groups.push({ label, items: [caseItem] });
+      } else {
+        currentGroup.items.push(caseItem);
+      }
     }
+    return groups;
+  }
+
+  private getFieldValue(caseItem: any, field: SearchField): string {
+    switch (field) {
+      case 'suspects':
+        return this.peopleToText(caseItem?.suspects);
+      case 'victim':
+        return this.peopleToText(caseItem?.victim);
+      case 'guilty_name':
+        return this.peopleToText(caseItem?.guilty_name);
+      case 'case_date':
+        return this.getDateSearchText(caseItem?.case_date);
+      default:
+        return String(caseItem?.[field] ?? '');
+    }
+  }
+
+  private peopleToText(value: unknown): string {
+    if (Array.isArray(value)) {
+      return value
+        .map((person) => this.personToText(person))
+        .filter((text) => !!text)
+        .join(' ');
+    }
+    return this.personToText(value);
+  }
+
+  private personToText(value: unknown): string {
+    if (value && typeof value === 'object') {
+      const person = value as { name?: unknown; age?: unknown };
+      return `${String(person.name ?? '')} ${String(person.age ?? '')}`.trim();
+    }
+    return String(value ?? '');
+  }
+
+  private getDateSearchText(value: unknown): string {
+    const raw = String(value ?? '');
+    const dateObj = new Date(raw);
+    if (Number.isNaN(dateObj.getTime())) return raw;
+
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    return `${raw} ${day}-${month}-${year}`;
+  }
+
+  private getDateValue(value: unknown): string {
+    const raw = String(value ?? '');
+    const rawDateMatch = raw.match(/^(\d{4}-\d{2}-\d{2})/);
+    if (rawDateMatch?.[1]) return rawDateMatch[1];
+
+    const dateObj = new Date(raw);
+    if (Number.isNaN(dateObj.getTime())) return '';
+    const year = dateObj.getFullYear();
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private normalize(value: unknown): string {
+    return String(value ?? '').toLowerCase().trim();
   }
 }

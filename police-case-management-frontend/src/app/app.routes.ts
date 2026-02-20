@@ -8,6 +8,7 @@ import { Home } from './pages/home/home';
 import { AdminHome } from './pages/admin-home/admin-home';
 import { AddCase } from './pages/add-case/add-case';
 import { UpdateCaseList } from './pages/update-case-list/update-case-list';
+import { UpdateForm } from './pages/update-form/update-form';
 import { CaseDetails } from './pages/case-details/case-details';
 import { SearchCase } from './pages/search-case/search-case';
 import { ReportIssue } from './pages/report-issue/report-issue';
@@ -38,6 +39,7 @@ export const routes: Routes = [
       { path: '', component: Home },
       { path: 'add', component: AddCase },
       { path: 'update', component: UpdateCaseList },
+      { path: 'update-form/:id', component: UpdateForm },
       { path: 'case/:id', component: CaseDetails },
       { path: 'search', component: SearchCase },
       { path: 'report', component: ReportIssue },

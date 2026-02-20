@@ -2,15 +2,9 @@
   --footer-h: 60px;
 }
 
-#footer-spacer {
-  height: var(--footer-h);
-}
-
 footer.site-footer {
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 1001;
+  position: relative;
+  z-index: 1005;
   width: 100%;
+  min-height: var(--footer-h);
 }

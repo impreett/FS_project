@@ -6,9 +6,12 @@ const mongoose = require('mongoose');
 const User = require('./models/User');
 const Case = require('./models/Case');
 const Report = require('./models/Report');
+const { normalizePeopleField } = require('./utils/people');
 
-const DEFAULT_MONGO_SRV = "mongodb+srv://pritchotaliya206gmailcom:123123123@cluster0.ylfbtmd.mongodb.net/?appName=Cluster0";
-const MONGO_URI = DEFAULT_MONGO_SRV || process.env.MONGO_URI || "mongodb://localhost:27017/";
+const isProduction = process.env.NODE_ENV === 'production';
+const LOCAL_MONGO_URI = process.env.MONGO_URI_LOCAL || 'mongodb://127.0.0.1:27017/';
+const PROD_MONGO_URI = process.env.MONGO_URI_PROD || process.env.MONGO_URI || '';
+const MONGO_URI = isProduction ? (PROD_MONGO_URI || LOCAL_MONGO_URI) : LOCAL_MONGO_URI;
 const MONGO_DB = process.env.MONGO_DB || "police_info";
 
 /* MongoDB connection function */
@@ -82,7 +85,9 @@ const importData = async () => {
         const parsedCases = parseSqlInsert(sqlFile, 'cases');
         const casesToCreate = parsedCases.map(caseRow => ({
             case_title: caseRow[1], case_type: caseRow[2], case_description: caseRow[3],
-            suspects: caseRow[4], victim: caseRow[5], guilty_name: caseRow[6],
+            suspects: normalizePeopleField(caseRow[4]),
+            victim: normalizePeopleField(caseRow[5]),
+            guilty_name: normalizePeopleField(caseRow[6]),
             case_date: new Date(caseRow[7]), case_handler: caseRow[8],
             status: caseRow[9].toUpperCase(), isApproved: caseRow[10] === "b'1'",
         }));

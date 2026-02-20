@@ -114,22 +114,35 @@
       <article *ngFor="let caseItem of cases" class="card mb-3 shadow-sm">
         <div class="card-body">
           <h3 class="card-title">
-            <a [routerLink]="['/case', caseItem._id]">{{ caseItem.case_title }}</a>
+            <a
+              [routerLink]="['/case', caseItem._id]"
+              [innerHTML]="highlightText(caseItem.case_title, 'Untitled')"
+            ></a>
           </h3>
-          <p><b>Case ID:</b> {{ caseItem._id }}</p>
-          <p><b>Type:</b> {{ caseItem.case_type }}</p>
-          <p><b>Handler:</b> {{ caseItem.case_handler }}</p>
-          <p><b>Victim:</b> {{ caseItem.victim || 'N/A' }}</p>
-          <p><b>Suspects:</b> {{ caseItem.suspects || 'N/A' }}</p>
-          <p><b>Guilty Name:</b> {{ caseItem.guilty_name || 'N/A' }}</p>
-          <p><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
-          <p><b>Status:</b> {{ caseItem.status }}</p>
-          <p *ngIf="user?.isAdmin" class="fw-bold" [class.text-success]="caseItem.isApproved" [class.text-danger]="!caseItem.isApproved">
-            <b>Approval:</b> {{ caseItem.isApproved ? 'Approved' : 'Pending' }}
+          <p><b>Case ID:</b> <span [innerHTML]="highlightText(caseItem._id, 'N/A')"></span></p>
+          <p><b>Type:</b> <span [innerHTML]="highlightText(caseItem.case_type, 'N/A')"></span></p>
+          <p>
+            <b>Handler:</b> <span [innerHTML]="highlightText(caseItem.case_handler, 'N/A')"></span>
+          </p>
+          <p><b>Victim:</b> <span [innerHTML]="highlightText(caseItem.victim, 'N/A')"></span></p>
+          <p><b>Suspects:</b> <span [innerHTML]="highlightText(caseItem.suspects, 'N/A')"></span></p>
+          <p>
+            <b>Guilty Name:</b> <span [innerHTML]="highlightText(caseItem.guilty_name, 'N/A')"></span>
+          </p>
+          <p><b>Date:</b> <span [innerHTML]="highlightText(displayDate(caseItem.case_date), 'N/A')"></span></p>
+          <p><b>Status:</b> <span [innerHTML]="highlightText(caseItem.status, 'N/A')"></span></p>
+          <p
+            *ngIf="user?.isAdmin"
+            class="fw-bold"
+            [class.text-success]="caseItem.isApproved"
+            [class.text-danger]="!caseItem.isApproved"
+          >
+            <b>Approval:</b>
+            <span [innerHTML]="highlightText(displayApproval(caseItem.isApproved), 'N/A')"></span>
           </p>
           <p>
             <b>Description:</b><br />
-            <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
+            <span style="white-space: pre-wrap" [innerHTML]="highlightText(caseItem.case_description)"></span>
           </p>
         </div>
       </article>
