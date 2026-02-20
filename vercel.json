@@ -3,7 +3,7 @@
   "framework": null,
   "installCommand": "npm ci",
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/police-case-management-frontend",
+  "outputDirectory": "dist/police-case-management-frontend/browser",
   "rewrites": [
     {
       "source": "/(.*)",
