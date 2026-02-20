@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "cd police-case-management-frontend && npm ci",
-  "buildCommand": "cd police-case-management-frontend && npm run build",
-  "outputDirectory": "police-case-management-frontend/dist/police-case-management-frontend",
+  "installCommand": "npm ci",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/police-case-management-frontend",
   "rewrites": [
     {
       "source": "/(.*)",
