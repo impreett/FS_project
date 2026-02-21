@@ -557,10 +557,12 @@ a.case-cancel-btn.neu-button:visited {
   font-weight: 700;
   position: relative;
   min-height: 34px;
+  min-width: 132px;
   box-sizing: border-box;
   overflow: hidden;
   text-decoration: none;
   line-height: 1.15;
+  white-space: nowrap;
 }
 
 .pending-action-btn.pending-approve-btn {
