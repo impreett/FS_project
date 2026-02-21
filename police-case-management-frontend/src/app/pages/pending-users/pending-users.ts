@@ -16,6 +16,10 @@ export class PendingUsers implements OnInit {
 
   constructor(private adminService: AdminService) {}
 
+  get cityCount(): number {
+    return new Set(this.users.map((user) => user.city).filter(Boolean)).size;
+  }
+
   async ngOnInit() {
     await this.fetchPendingUsers();
   }

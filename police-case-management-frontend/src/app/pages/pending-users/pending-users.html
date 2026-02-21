@@ -1,5 +1,12 @@
-﻿<div class="container mt-4" style="margin-bottom: 30px">
-  <h2 class="mb-4">Users pending approval</h2>
+<div class="container mt-4 mb-4 pending-users-page">
+  <section class="pending-users-hero">
+    <div>
+      <h2 class="mb-1">Users pending approval</h2>
+      <p class="pending-users-subtitle mb-0">Review new registrations and decide account access.</p>
+    </div>
+    
+  </section>
+
   <div
     *ngIf="successMessage"
     class="alert alert-success alert-dismissible fade show text-center"
@@ -9,19 +16,32 @@
     <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
   </div>
 
-  <div *ngIf="loading">Loading...</div>
+  <div *ngIf="loading" class="alert alert-light border">Loading pending users...</div>
 
   <ng-container *ngIf="!loading">
-    <ng-container *ngIf="users.length > 0; else empty">
-      <article *ngFor="let user of users" class="card mb-3">
-        <div class="card-body pending-user-layout">
-          <div class="pending-user-meta">
-            <h5 class="card-title">{{ user.fullname }}</h5>
-            <p class="card-text mb-1"><b>Email:</b> {{ user.email }}</p>
-            <p class="card-text mb-1"><b>Police ID:</b> {{ user.police_id }}</p>
-            <p class="card-text mb-0"><b>City:</b> {{ user.city }}</p>
+    <div *ngIf="users.length === 0; else usersList" class="alert alert-info">
+      No users are currently pending approval.
+    </div>
+
+    <ng-template #usersList>
+      <div class="pending-users-grid">
+        <article *ngFor="let user of users" class="pending-user-card">
+          <header class="pending-user-head">
+            <h5 class="pending-user-name mb-0">{{ user.fullname }}</h5>
+            <span class="pending-user-city">{{ user.city }}</span>
+          </header>
+
+          <div class="pending-user-status">
+            <span class="status-dot" aria-hidden="true"></span>
+            Awaiting review
           </div>
-          <div class="d-flex gap-2 pending-user-actions">
+
+          <div class="pending-user-details">
+            <p class="detail-item mb-1"><b>Email:</b> {{ user.email }}</p>
+            <p class="detail-item mb-0"><b>Police ID:</b> {{ user.police_id }}</p>
+          </div>
+
+          <div class="pending-user-actions">
             <button class="pending-action-btn pending-approve-btn neu-button" (click)="handleApprove(user._id)">
               <span class="span-mother" aria-hidden="true">
                 <span>A</span><span>p</span><span>p</span><span>r</span><span>o</span><span>v</span><span>e</span>
@@ -41,12 +61,8 @@
               <span class="visually-hidden">Deny</span>
             </button>
           </div>
-        </div>
-      </article>
-    </ng-container>
-    <ng-template #empty>
-      <div class="alert alert-info">No users are currently pending approval.</div>
+        </article>
+      </div>
     </ng-template>
   </ng-container>
 </div>
-
