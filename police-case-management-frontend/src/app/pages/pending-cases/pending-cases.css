@@ -14,7 +14,7 @@
 
 .pending-case-layout {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-between;
   gap: 12px;
 }
@@ -26,13 +26,17 @@
 
 .pending-case-actions {
   flex: 0 0 clamp(200px, 28%, 280px);
+  align-self: stretch;
   flex-direction: column;
   align-items: stretch;
+  justify-content: stretch;
+  min-height: 100%;
 }
 
 .pending-case-actions > .pending-action-btn {
-  flex: 0 0 auto;
+  flex: 1 1 0;
   min-width: 0;
+  min-height: 42px;
   width: 100%;
   display: inline-flex;
   align-items: center;
@@ -48,5 +52,11 @@
   .pending-case-actions {
     flex: 1 1 auto;
     flex-direction: column;
+    align-self: auto;
+    min-height: auto;
+  }
+
+  .pending-case-actions > .pending-action-btn {
+    flex: 0 0 auto;
   }
 }
