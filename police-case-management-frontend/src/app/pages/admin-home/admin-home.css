@@ -19,15 +19,18 @@
 
 .tabs {
   display: flex;
+  align-items: center;
   position: relative;
   background-color: #e0e0e0;
   border: 2px solid #cecece;
   box-shadow: inset 4px 4px 10px #bcbcbc, inset -4px -4px 10px #ffffff;
-  padding: 0.22rem;
+  padding: var(--segmented-control-pad);
+  min-height: calc(var(--segmented-control-h) + (var(--segmented-control-pad) * 2) + 4px);
   border-radius: 999px;
   overflow: visible;
   width: fit-content;
   gap: 0.14rem;
+  box-sizing: border-box;
 }
 
 .filter-tabs input[type='radio'] {
@@ -38,7 +41,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 32px;
+  height: var(--segmented-control-h);
   width: auto;
   padding: 0 0.95rem;
   font-size: 0.8rem;
@@ -50,6 +53,8 @@
   position: relative;
   z-index: 3;
   white-space: nowrap;
+  line-height: 1;
+  box-sizing: border-box;
 }
 
 .tab:hover {
