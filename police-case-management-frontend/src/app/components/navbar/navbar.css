@@ -1,8 +1,13 @@
 :root {
-  --header-h: 110px;
-  --footer-h: 60px;
-  --sidebar-collapsed: 81px;
-  --sidebar-expanded: 252px;
+  --header-h: calc(110px * var(--ui-scale, 1));
+  --footer-h: calc(60px * var(--ui-scale, 1));
+  --sidebar-collapsed: calc(81px * var(--ui-scale, 1));
+  --sidebar-expanded: calc(252px * var(--ui-scale, 1));
+  --nav-icon-size: calc(22px * var(--ui-scale, 1));
+  --nav-item-h: calc(50px * var(--ui-scale, 1));
+  --nav-pad-y: calc(14px * var(--ui-scale, 1));
+  --nav-pad-x: calc(11px * var(--ui-scale, 1));
+  --nav-gap: calc(7px * var(--ui-scale, 1));
 }
 
 aside.sidebar {
@@ -39,12 +44,12 @@ aside.sidebar nav {
 a.nav-item-link {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 14px 11px;
-  padding-left: calc((81px - 22px) / 2);
+  gap: var(--nav-gap);
+  padding: var(--nav-pad-y) var(--nav-pad-x);
+  padding-left: calc((var(--sidebar-collapsed) - var(--nav-icon-size)) / 2);
   color: #333;
   text-decoration: none;
-  height: 50px;
+  height: var(--nav-item-h);
   box-sizing: border-box;
 }
 
@@ -64,9 +69,9 @@ aside.sidebar:hover a.nav-item-link span {
 a.nav-item-link img {
   display: block;
   margin: 0;
-  flex: 0 0 22px;
-  height: 22px;
-  width: 22px;
+  flex: 0 0 var(--nav-icon-size);
+  height: var(--nav-icon-size);
+  width: var(--nav-icon-size);
   align-self: center;
 }
 

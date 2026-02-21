@@ -1,5 +1,5 @@
 :root {
-  --footer-h: 60px;
+  --footer-h: calc(60px * var(--ui-scale, 1));
 }
 
 footer.site-footer {

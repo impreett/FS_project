@@ -1,8 +1,13 @@
 @import "bootstrap/dist/css/bootstrap.min.css";
 
+:root {
+  --ui-scale: 0.9;
+}
+
 html {
   scrollbar-gutter: stable;
   height: 100%;
+  font-size: 90%;
 }
 
 body {
@@ -85,22 +90,4 @@ label.error {
   border-radius: 0;
   display: inline;
   line-height: inherit;
-}
-
-@media (min-width: 1025px) {
-  html {
-    zoom: 0.9;
-  }
-
-  @supports (-moz-appearance: none) {
-    html {
-      zoom: 1;
-    }
-
-    body {
-      transform: scale(0.9);
-      transform-origin: top left;
-      width: 111.111%;
-    }
-  }
 }
