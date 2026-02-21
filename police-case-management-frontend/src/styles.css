@@ -61,6 +61,13 @@ app-root {
   margin-top: auto;
 }
 
+.public-header-logo {
+  height: 100px;
+  width: 100px;
+  margin-right: 15px;
+  filter: brightness(0) invert(1);
+}
+
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
