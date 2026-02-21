@@ -47,6 +47,7 @@ header.site-header h1 {
   height: calc(80px * var(--ui-scale, 1));
   width: calc(65px * var(--ui-scale, 1));
   margin-right: calc(15px * var(--ui-scale, 1));
+  filter: brightness(0) invert(1);
   position: relative;
   z-index: 1;
 }
