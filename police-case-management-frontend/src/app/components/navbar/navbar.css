@@ -84,11 +84,6 @@ app-navbar:hover + .layout-main {
   margin-left: var(--sidebar-expanded);
 }
 
-/* Search page has heavy cards; disable margin animation there to avoid hover lag. */
-body.search-page .layout-main {
-  transition: none;
-}
-
 a.nav-item-link.active {
   background: #6c757d;
   color: #fff;
