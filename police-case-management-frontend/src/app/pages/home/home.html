@@ -12,34 +12,7 @@
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
       <h2 class="mb-0">All Cases</h2>
       <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap" *ngIf="cases.length > 1">
-        <span class="fw-semibold">Sort:</span>
-        <div class="sort-tabs" role="group" aria-label="Sort cases" [class.is-latest]="sortOrder === 'latest'" [class.is-oldest]="sortOrder === 'oldest'">
-        <button
-          type="button"
-          class="sort-btn"
-          [class.active]="sortOrder === 'latest'"
-          (click)="setSortOrder('latest')"
-        >
-          <span class="neu-text" aria-hidden="true">
-            <span class="neu-text-primary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
-            <span class="neu-text-secondary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
-          </span>
-          <span class="visually-hidden">Latest</span>
-        </button>
-        <button
-          type="button"
-          class="sort-btn"
-          [class.active]="sortOrder === 'oldest'"
-          (click)="setSortOrder('oldest')"
-        >
-          <span class="neu-text" aria-hidden="true">
-            <span class="neu-text-primary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
-            <span class="neu-text-secondary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
-          </span>
-          <span class="visually-hidden">Oldest</span>
-        </button>
-      </div>
-        <span class="fw-semibold ms-2">Filter:</span>
+        <span class="fw-semibold">Filter:</span>
         <div class="filter-tabs" role="group" aria-label="Filter updated cases">
           <div class="tabs">
           <input
@@ -90,6 +63,33 @@
           <span class="glider"></span>
           </div>
         </div>
+        <span class="fw-semibold ms-2">Sort:</span>
+        <div class="sort-tabs" role="group" aria-label="Sort cases" [class.is-latest]="sortOrder === 'latest'" [class.is-oldest]="sortOrder === 'oldest'">
+        <button
+          type="button"
+          class="sort-btn"
+          [class.active]="sortOrder === 'latest'"
+          (click)="setSortOrder('latest')"
+        >
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
+            <span class="neu-text-secondary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
+          </span>
+          <span class="visually-hidden">Latest</span>
+        </button>
+        <button
+          type="button"
+          class="sort-btn"
+          [class.active]="sortOrder === 'oldest'"
+          (click)="setSortOrder('oldest')"
+        >
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
+            <span class="neu-text-secondary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
+          </span>
+          <span class="visually-hidden">Oldest</span>
+        </button>
+      </div>
       </div>
     </div>
     <ng-container *ngIf="groupedCases.length > 0; else noCases">
