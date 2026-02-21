@@ -81,6 +81,25 @@ footer {
   margin-top: 0;
 }
 
+article.card.mb-3,
+article.case-details-card,
+article.pending-user-card,
+article.active-user-card {
+  border: none !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfaff 100%) !important;
+  box-shadow: 0 10px 20px rgba(54, 33, 86, 0.08);
+  overflow: hidden;
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+article.card.mb-3:hover,
+article.case-details-card:hover,
+article.pending-user-card:hover,
+article.active-user-card:hover {
+  box-shadow: 0 12px 24px rgba(54, 33, 86, 0.11);
+}
+
 .card-title a {
   color: #000;
   text-decoration: none !important;
