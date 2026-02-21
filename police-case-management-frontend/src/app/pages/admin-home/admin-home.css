@@ -17,12 +17,6 @@
   background-color: #c7ced6;
 }
 
-.filter-tabs {
-  display: inline-flex;
-  align-items: center;
-  height: var(--segmented-control-total-h, 36px);
-}
-
 .tabs {
   display: inline-flex;
   align-items: center;
@@ -31,7 +25,7 @@
   border: 2px solid #cecece;
   box-shadow: inset 4px 4px 10px #bcbcbc, inset -4px -4px 10px #ffffff;
   padding: var(--segmented-control-pad);
-  height: var(--segmented-control-total-h, 36px);
+  height: calc(var(--segmented-control-h) + (var(--segmented-control-pad) * 2) + 4px);
   border-radius: 999px;
   overflow: visible;
   width: fit-content;
@@ -47,7 +41,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: var(--segmented-control-h, 32px);
+  height: var(--segmented-control-h);
   width: auto;
   padding: 0 0.95rem;
   font-size: 0.8rem;
