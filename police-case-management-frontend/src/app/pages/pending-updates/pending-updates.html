@@ -33,19 +33,19 @@
   </div>
   <div
     *ngIf="successMessage"
-    class="alert alert-success alert-dismissible fade show text-center"
+    class="alert alert-success alert-dismissible fade show text-center app-timed-alert"
     role="alert"
   >
     {{ successMessage }}
-    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+    <button type="button" class="btn-close" (click)="closeSuccessMessage()" aria-label="Close"></button>
   </div>
   <div
     *ngIf="infoMessage"
-    class="alert alert-danger alert-dismissible fade show text-center"
+    class="alert alert-danger alert-dismissible fade show text-center app-timed-alert"
     role="alert"
   >
     {{ infoMessage }}
-    <button type="button" class="btn-close" (click)="infoMessage = ''" aria-label="Close"></button>
+    <button type="button" class="btn-close" (click)="closeInfoMessage()" aria-label="Close"></button>
   </div>
 
   <div *ngIf="loading">Loading...</div>

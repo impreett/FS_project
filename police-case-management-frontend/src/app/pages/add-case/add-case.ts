@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
@@ -35,7 +35,7 @@ type RoleListItem = {
   templateUrl: './add-case.html',
   styleUrl: './add-case.css',
 })
-export class AddCase implements OnInit {
+export class AddCase implements OnInit, OnDestroy {
   user: any = null;
   officers: string[] = [];
   formData: any = {
@@ -49,6 +49,8 @@ export class AddCase implements OnInit {
   involvedPeople: InvolvedPerson[] = [];
   errors: AddCaseErrors = {};
   successMessage = '';
+  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly successMessageDurationMs = 7000;
   todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
 
   constructor(private auth: AuthService, private caseService: CaseService) {}
@@ -70,6 +72,15 @@ export class AddCase implements OnInit {
     } else if (this.user) {
       this.formData.case_handler = this.user.fullname;
     }
+  }
+
+  ngOnDestroy() {
+    this.clearSuccessMessageTimer();
+  }
+
+  closeSuccessMessage() {
+    this.clearSuccessMessageTimer();
+    this.successMessage = '';
   }
 
   addPersonForRole(role: Exclude<PersonRole, ''>) {
@@ -214,7 +225,7 @@ export class AddCase implements OnInit {
         isApproved: !!this.user?.isAdmin,
       };
       await firstValueFrom(this.caseService.addCase(payload));
-      this.successMessage = 'Case added successfully!';
+      this.showSuccessMessage('Case added successfully!');
       this.formData = {
         case_title: '',
         case_type: '',
@@ -229,6 +240,22 @@ export class AddCase implements OnInit {
       console.error('Error details:', err?.error || err);
       this.successMessage = '';
       alert('Error adding case: ' + (err?.error?.msg || err?.message || err));
+    }
+  }
+
+  private showSuccessMessage(message: string) {
+    this.clearSuccessMessageTimer();
+    this.successMessage = message;
+    this.successMessageTimer = setTimeout(() => {
+      this.successMessage = '';
+      this.successMessageTimer = null;
+    }, this.successMessageDurationMs);
+  }
+
+  private clearSuccessMessageTimer() {
+    if (this.successMessageTimer) {
+      clearTimeout(this.successMessageTimer);
+      this.successMessageTimer = null;
     }
   }
 }

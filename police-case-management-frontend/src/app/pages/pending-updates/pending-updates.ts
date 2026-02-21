@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
@@ -11,12 +11,14 @@ import { CaseService } from '../../services/case';
   templateUrl: './pending-updates.html',
   styleUrl: './pending-updates.css',
 })
-export class PendingUpdates implements OnInit {
+export class PendingUpdates implements OnInit, OnDestroy {
   updates: any[] = [];
   originals: Record<string, any> = {};
   loading = true;
   successMessage = '';
   infoMessage = '';
+  private alertTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly alertDurationMs = 7000;
   sortOrder: 'latest' | 'oldest' = 'latest';
   private readonly monthYearFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'short',
@@ -27,6 +29,20 @@ export class PendingUpdates implements OnInit {
 
   async ngOnInit() {
     await this.fetchPendingUpdates();
+  }
+
+  ngOnDestroy() {
+    this.clearAlertTimer();
+  }
+
+  closeSuccessMessage() {
+    this.clearAlertTimer();
+    this.successMessage = '';
+  }
+
+  closeInfoMessage() {
+    this.clearAlertTimer();
+    this.infoMessage = '';
   }
 
   async fetchPendingUpdates() {
@@ -62,8 +78,7 @@ export class PendingUpdates implements OnInit {
   async handleApprove(updateId: string) {
     try {
       await firstValueFrom(this.adminService.approveUpdate(updateId));
-      this.successMessage = 'Update approved and applied successfully!';
-      this.infoMessage = '';
+      this.showSuccessMessage('Update approved and applied successfully!');
       this.updates = this.updates.filter((u) => u._id !== updateId);
       window.scrollTo(0, 0);
     } catch {
@@ -74,8 +89,7 @@ export class PendingUpdates implements OnInit {
   async handleDeny(updateId: string) {
     try {
       await firstValueFrom(this.adminService.denyUpdate(updateId));
-      this.infoMessage = 'Update request cancelled successfully!';
-      this.successMessage = '';
+      this.showInfoMessage('Update request cancelled successfully!');
       this.updates = this.updates.filter((u) => u._id !== updateId);
       window.scrollTo(0, 0);
     } catch {
@@ -111,5 +125,36 @@ export class PendingUpdates implements OnInit {
       }
     }
     return groups;
+  }
+
+  private showSuccessMessage(message: string) {
+    this.successMessage = message;
+    this.infoMessage = '';
+    this.startAlertTimer(() => {
+      this.successMessage = '';
+    });
+  }
+
+  private showInfoMessage(message: string) {
+    this.infoMessage = message;
+    this.successMessage = '';
+    this.startAlertTimer(() => {
+      this.infoMessage = '';
+    });
+  }
+
+  private startAlertTimer(onExpire: () => void) {
+    this.clearAlertTimer();
+    this.alertTimer = setTimeout(() => {
+      onExpire();
+      this.alertTimer = null;
+    }, this.alertDurationMs);
+  }
+
+  private clearAlertTimer() {
+    if (this.alertTimer) {
+      clearTimeout(this.alertTimer);
+      this.alertTimer = null;
+    }
   }
 }

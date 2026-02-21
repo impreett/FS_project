@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
 
@@ -9,10 +9,12 @@ import { AdminService } from '../../services/admin';
   templateUrl: './pending-users.html',
   styleUrl: './pending-users.css',
 })
-export class PendingUsers implements OnInit {
+export class PendingUsers implements OnInit, OnDestroy {
   users: any[] = [];
   loading = true;
   successMessage = '';
+  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly successMessageDurationMs = 7000;
   userConfirm:
     | {
         id: string;
@@ -30,6 +32,15 @@ export class PendingUsers implements OnInit {
 
   async ngOnInit() {
     await this.fetchPendingUsers();
+  }
+
+  ngOnDestroy() {
+    this.clearSuccessMessageTimer();
+  }
+
+  closeSuccessMessage() {
+    this.clearSuccessMessageTimer();
+    this.successMessage = '';
   }
 
   async fetchPendingUsers() {
@@ -74,7 +85,7 @@ export class PendingUsers implements OnInit {
     try {
       if (action === 'approve') {
         await firstValueFrom(this.adminService.approveUser(id));
-        this.successMessage = 'User approved!';
+        this.showSuccessMessage('User approved!');
         this.users = this.users.filter((user) => user._id !== id);
         window.scrollTo(0, 0);
       } else {
@@ -87,6 +98,22 @@ export class PendingUsers implements OnInit {
     } finally {
       this.isSubmittingAction = false;
       this.userConfirm = null;
+    }
+  }
+
+  private showSuccessMessage(message: string) {
+    this.clearSuccessMessageTimer();
+    this.successMessage = message;
+    this.successMessageTimer = setTimeout(() => {
+      this.successMessage = '';
+      this.successMessageTimer = null;
+    }, this.successMessageDurationMs);
+  }
+
+  private clearSuccessMessageTimer() {
+    if (this.successMessageTimer) {
+      clearTimeout(this.successMessageTimer);
+      this.successMessageTimer = null;
     }
   }
 }

@@ -876,3 +876,30 @@ a.pending-action-btn.neu-button:visited {
 .pending-action-btn.neu-button .span-mother2 span:nth-child(18) {
   transition: 1.9s;
 }
+
+.app-timed-alert {
+  position: relative;
+}
+
+.app-timed-alert::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 3px;
+  background-color: currentColor;
+  opacity: 0.35;
+  transform-origin: right center;
+  animation: app-timed-alert-progress 7s linear forwards;
+  pointer-events: none;
+}
+
+@keyframes app-timed-alert-progress {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}

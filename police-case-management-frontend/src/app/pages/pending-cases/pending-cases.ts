@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -24,10 +24,12 @@ type SearchField =
   templateUrl: './pending-cases.html',
   styleUrl: './pending-cases.css',
 })
-export class PendingCases implements OnInit {
+export class PendingCases implements OnInit, OnDestroy {
   cases: any[] = [];
   loading = true;
   successMessage = '';
+  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly successMessageDurationMs = 7000;
   caseConfirm:
     | {
         id: string;
@@ -98,6 +100,15 @@ export class PendingCases implements OnInit {
     }
   }
 
+  ngOnDestroy() {
+    this.clearSuccessMessageTimer();
+  }
+
+  closeSuccessMessage() {
+    this.clearSuccessMessageTimer();
+    this.successMessage = '';
+  }
+
   handleApprove(caseItem: any) {
     this.openCaseConfirm(caseItem, 'approve');
   }
@@ -128,7 +139,7 @@ export class PendingCases implements OnInit {
     try {
       if (action === 'approve') {
         await firstValueFrom(this.adminService.approveCase(id));
-        this.successMessage = 'Case approved!';
+        this.showSuccessMessage('Case approved!');
         this.cases = this.cases.filter((c) => c._id !== id);
         window.scrollTo(0, 0);
       } else {
@@ -283,5 +294,21 @@ export class PendingCases implements OnInit {
 
   private normalize(value: unknown): string {
     return String(value ?? '').toLowerCase().trim();
+  }
+
+  private showSuccessMessage(message: string) {
+    this.clearSuccessMessageTimer();
+    this.successMessage = message;
+    this.successMessageTimer = setTimeout(() => {
+      this.successMessage = '';
+      this.successMessageTimer = null;
+    }, this.successMessageDurationMs);
+  }
+
+  private clearSuccessMessageTimer() {
+    if (this.successMessageTimer) {
+      clearTimeout(this.successMessageTimer);
+      this.successMessageTimer = null;
+    }
   }
 }

@@ -9,11 +9,11 @@
 
   <div
     *ngIf="successMessage"
-    class="alert alert-success alert-dismissible fade show text-center"
+    class="alert alert-success alert-dismissible fade show text-center app-timed-alert"
     role="alert"
   >
     {{ successMessage }}
-    <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+    <button type="button" class="btn-close" (click)="closeSuccessMessage()" aria-label="Close"></button>
   </div>
 
   <div *ngIf="loading" class="alert alert-light border">Loading pending users...</div>

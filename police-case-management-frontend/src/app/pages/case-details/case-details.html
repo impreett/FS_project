@@ -24,11 +24,11 @@
     <ng-container *ngIf="user?.isAdmin; else clientView">
       <div
         *ngIf="successMessage"
-        class="alert alert-success alert-dismissible fade show text-center"
+        class="alert alert-success alert-dismissible fade show text-center app-timed-alert"
         role="alert"
       >
         {{ successMessage }}
-        <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
+        <button type="button" class="btn-close" (click)="closeSuccessMessage()" aria-label="Close"></button>
       </div>
       <article
         class="case-details-card"

@@ -3,11 +3,10 @@
   <div
     *ngIf="successMessage"
     role="alert"
-    class="alert alert-success alert-dismissible fade show text-center timed-alert"
+    class="alert alert-success alert-dismissible fade show text-center app-timed-alert"
   >
     {{ successMessage }}
     <button type="button" aria-label="Close" class="btn-close" (click)="closeSuccessMessage()"></button>
-    <span aria-hidden="true" class="timed-alert-progress"></span>
   </div>
 
   <ng-container *ngIf="!loading">

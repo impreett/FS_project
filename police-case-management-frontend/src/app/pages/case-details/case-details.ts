@@ -1,5 +1,5 @@
 import { CommonModule, Location } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -18,12 +18,14 @@ type PersonDisplay = {
   templateUrl: './case-details.html',
   styleUrl: './case-details.css',
 })
-export class CaseDetails implements OnInit {
+export class CaseDetails implements OnInit, OnDestroy {
   caseItem: any = null;
   loading = true;
   error: string | null = null;
   user: any = null;
   successMessage = '';
+  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly successMessageDurationMs = 7000;
   id = '';
   victimPeople: PersonDisplay[] = [];
   suspectPeople: PersonDisplay[] = [];
@@ -58,6 +60,15 @@ export class CaseDetails implements OnInit {
     } finally {
       this.loading = false;
     }
+  }
+
+  ngOnDestroy() {
+    this.clearSuccessMessageTimer();
+  }
+
+  closeSuccessMessage() {
+    this.clearSuccessMessageTimer();
+    this.successMessage = '';
   }
 
   private normalizeText(value: unknown): string {
@@ -133,7 +144,7 @@ export class CaseDetails implements OnInit {
   async handleApprove() {
     try {
       await firstValueFrom(this.adminService.approveCase(this.id));
-      this.successMessage = 'Case approved!';
+      this.showSuccessMessage('Case approved!');
       if (this.caseItem) {
         this.caseItem = { ...this.caseItem, isApproved: true };
       }
@@ -159,5 +170,21 @@ export class CaseDetails implements OnInit {
       return;
     }
     this.router.navigateByUrl('/');
+  }
+
+  private showSuccessMessage(message: string) {
+    this.clearSuccessMessageTimer();
+    this.successMessage = message;
+    this.successMessageTimer = setTimeout(() => {
+      this.successMessage = '';
+      this.successMessageTimer = null;
+    }, this.successMessageDurationMs);
+  }
+
+  private clearSuccessMessageTimer() {
+    if (this.successMessageTimer) {
+      clearTimeout(this.successMessageTimer);
+      this.successMessageTimer = null;
+    }
   }
 }
