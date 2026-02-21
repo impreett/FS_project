@@ -374,6 +374,12 @@ label.error {
   min-height: 34px;
   box-sizing: border-box;
   overflow: hidden;
+  text-decoration: none;
+}
+
+a.case-update-btn.neu-button,
+a.case-update-btn.neu-button:visited {
+  color: var(--neu-text);
 }
 
 .case-update-btn.neu-button {
