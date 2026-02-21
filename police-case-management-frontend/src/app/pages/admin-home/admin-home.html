@@ -1,10 +1,10 @@
-<div class="container mt-4" *ngIf="loading">
+﻿<div class="container mt-4" *ngIf="loading">
   <p>Loading admin dashboard...</p>
 </div>
 
 <div class="container mt-4" *ngIf="!loading">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-    <h2 class="mb-0">All Cases</h2>
+    <h2 class="mb-0">All cases</h2>
     <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap" *ngIf="cases.length > 1">
       <span class="fw-semibold">Filter:</span>
       <div class="filter-tabs" role="group" aria-label="Filter updated cases">
@@ -117,3 +117,4 @@
     <div class="alert alert-info">No cases found.</div>
   </ng-template>
 </div>
+

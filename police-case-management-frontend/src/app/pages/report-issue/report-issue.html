@@ -1,6 +1,6 @@
-<div class="container mt-4">
+﻿<div class="container mt-4">
   <div class="col-md-6 mx-auto">
-    <h3 class="text-center mb-4">Report an Issue</h3>
+    <h3 class="text-center mb-4">Report an issue</h3>
     <div *ngIf="tokenError" class="alert alert-danger">
       Your login session is outdated. Please log out and log in again to use this feature.
     </div>
@@ -31,8 +31,10 @@
         </div>
       </div>
       <button type="submit" class="btn btn-dark w-100 mt-3" [disabled]="tokenError">
-        Submit Report
+        Submit report
       </button>
     </form>
   </div>
 </div>
+
+

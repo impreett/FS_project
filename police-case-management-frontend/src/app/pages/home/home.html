@@ -1,4 +1,4 @@
-<app-admin-home *ngIf="isAdmin"></app-admin-home>
+﻿<app-admin-home *ngIf="isAdmin"></app-admin-home>
 
 <ng-container *ngIf="!isAdmin">
   <div class="container mt-4" *ngIf="loading">
@@ -10,7 +10,7 @@
 
   <div class="container mt-4" *ngIf="!loading && !error">
     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-      <h2 class="mb-0">All Cases</h2>
+      <h2 class="mb-0">All cases</h2>
       <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap" *ngIf="cases.length > 1">
         <span class="fw-semibold">Filter:</span>
         <div class="filter-tabs" role="group" aria-label="Filter updated cases">
@@ -121,3 +121,4 @@
     </ng-template>
   </div>
 </ng-container>
+

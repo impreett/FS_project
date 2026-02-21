@@ -1,4 +1,4 @@
-<div class="container mt-4" style="margin-bottom: 30px">
+﻿<div class="container mt-4" style="margin-bottom: 30px">
   <div *ngIf="loading">Loading form...</div>
   <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
 
@@ -7,10 +7,10 @@
       class="p-4"
       style="background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px #ccc; margin-bottom: 30px"
     >
-      <h3 class="mb-4 text-center">Update Case</h3>
+      <h3 class="mb-4 text-center">Update case</h3>
       <form (ngSubmit)="onSubmit()" novalidate>
         <div class="mb-3">
-          <label class="form-label">Case Title</label>
+          <label class="form-label">Case title</label>
           <input
             type="text"
             name="case_title"
@@ -23,14 +23,14 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Case Type</label>
+          <label class="form-label">Case type</label>
           <select
             name="case_type"
             [(ngModel)]="formData.case_type"
             class="form-select"
             [class.is-invalid]="errors.case_type"
           >
-            <option value="">Select Case Type</option>
+            <option value="">Select case type</option>
             <option value="Homicide (Murder)">Homicide (Murder)</option>
             <option value="Manslaughter">Manslaughter</option>
             <option value="Rape / Sexual Assault">Rape / Sexual Assault</option>
@@ -61,7 +61,7 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Case Description</label>
+          <label class="form-label">Case description</label>
           <textarea
             name="case_description"
             [(ngModel)]="formData.case_description"
@@ -76,7 +76,7 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">People Involved</label>
+          <label class="form-label">People involved</label>
           <div *ngIf="errors.involvedPeople" class="text-danger small mb-2">
             {{ errors.involvedPeople }}
           </div>
@@ -256,7 +256,7 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Case Date</label>
+          <label class="form-label">Case date</label>
           <input
             type="date"
             name="case_date"
@@ -270,7 +270,7 @@
         </div>
 
         <div class="mb-3">
-          <label class="form-label">Case Handler</label>
+          <label class="form-label">Case handler</label>
           <input
             type="text"
             class="form-control"
@@ -288,7 +288,7 @@
             class="form-select"
             [class.is-invalid]="errors.status"
           >
-            <option value="">Select Status</option>
+            <option value="">Select status</option>
             <option value="ACTIVE">ACTIVE</option>
             <option value="CLOSE">CLOSE</option>
           </select>
@@ -302,3 +302,5 @@
     </div>
   </ng-container>
 </div>
+
+

@@ -1,14 +1,14 @@
-<div class="container mt-4">
+﻿<div class="container mt-4">
   <div *ngIf="loading">Loading...</div>
 
   <ng-container *ngIf="!loading">
-    <h2 class="mb-4">Active Users</h2>
+    <h2 class="mb-4">Active users</h2>
     <div *ngIf="users.length === 0" class="alert alert-info">No active users found.</div>
     <div *ngIf="users.length > 0" class="table-responsive">
       <table class="table table-bordered table-striped">
         <thead class="table-dark">
           <tr>
-            <th>Full Name</th>
+            <th>Full name</th>
             <th>Police ID</th>
             <th>Email</th>
             <th>Contact</th>
@@ -32,3 +32,4 @@
     </div>
   </ng-container>
 </div>
+

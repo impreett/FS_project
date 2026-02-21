@@ -236,15 +236,17 @@ export class AdminUpdateForm implements OnInit {
     const nameRegex = /^[A-Za-z ]+$/;
 
     if (!this.formData.case_title || (this.formData.case_title || '').length < 5) {
-      errs.case_title = !this.formData.case_title ? 'Please enter the case title' : 'At least 5 characters';
+      errs.case_title = !this.formData.case_title
+        ? 'Please enter the case title.'
+        : 'Case title must be at least 5 characters.';
     }
     if (!this.formData.case_type) {
-      errs.case_type = 'Please select a case type';
+      errs.case_type = 'Please select a case type.';
     }
     if (!this.formData.case_description || (this.formData.case_description || '').length < 20) {
       errs.case_description = !this.formData.case_description
-        ? 'Please provide a description'
-        : 'At least 20 characters';
+        ? 'Please provide a description.'
+        : 'Description must be at least 20 characters.';
     }
     if (this.involvedPeople.length > 0) {
       for (const person of this.involvedPeople) {
@@ -262,15 +264,15 @@ export class AdminUpdateForm implements OnInit {
       }
     }
     if (!this.formData.case_date) {
-      errs.case_date = 'Please select a case date';
+      errs.case_date = 'Please select a case date.';
     } else if (this.formData.case_date > this.todayStr) {
-      errs.case_date = 'Case date cannot be in the future';
+      errs.case_date = 'Case date cannot be in the future.';
     }
     if (!this.formData.status) {
-      errs.status = 'Please select a case status';
+      errs.status = 'Please select a case status.';
     }
     if (!this.formData.case_handler) {
-      errs.case_handler = 'Please select a case handler';
+      errs.case_handler = 'Please select a case handler.';
     }
 
     this.errors = errs;

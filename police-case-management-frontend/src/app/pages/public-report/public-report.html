@@ -1,4 +1,4 @@
-<div class="public-page-shell">
+﻿<div class="public-page-shell">
   <header
     class="d-flex align-items-center justify-content-center p-3"
     style="background-color: #000; color: white"
@@ -8,7 +8,7 @@
   </header>
   <div class="public-page-content report-page-content">
     <div class="container py-5">
-      <h2 class="text-center mb-4">Report an Issue</h2>
+      <h2 class="text-center mb-4">Report an issue</h2>
       <div class="col-md-8 col-lg-6 mx-auto">
         <div class="card report-form-card shadow">
           <div class="card-body p-4 p-md-5">
@@ -39,7 +39,7 @@
             ></textarea>
             <label *ngIf="errors.reportText" class="error">{{ errors.reportText }}</label>
           </div>
-          <button type="submit" class="btn btn-dark w-100 mt-3">Submit Report</button>
+          <button type="submit" class="btn btn-dark w-100 mt-3">Submit report</button>
         </form>
         <div class="text-center mt-3">
           <a href="#" (click)="$event.preventDefault(); goBack()" class="text-decoration-none">Back</a>
@@ -51,3 +51,5 @@
   </div>
   <app-footer></app-footer>
 </div>
+
+

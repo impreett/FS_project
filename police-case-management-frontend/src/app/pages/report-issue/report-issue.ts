@@ -37,9 +37,9 @@ export class ReportIssue implements OnInit {
   validate() {
     const tempErrors: ReportIssueErrors = {};
     if (!this.reportText || this.reportText.trim() === '') {
-      tempErrors.reportText = 'Please describe your issue';
+      tempErrors.reportText = 'Please describe your issue.';
     } else if (this.reportText.trim().length < 50) {
-      tempErrors.reportText = 'Report must be at least 50 characters';
+      tempErrors.reportText = 'Report must be at least 50 characters.';
     }
     this.errors = tempErrors;
     return Object.keys(tempErrors).length === 0;

@@ -1,4 +1,4 @@
-<div class="public-page-shell register-page-shell">
+﻿<div class="public-page-shell register-page-shell">
   <header
     class="d-flex align-items-center justify-content-center p-3"
     style="background-color: #000; color: white"
@@ -8,13 +8,13 @@
   </header>
   <div class="public-page-content register-page-content">
     <div class="container py-5">
-      <h2 class="text-center mb-4">User Registration</h2>
+      <h2 class="text-center mb-4">User registration</h2>
       <div class="col-md-8 col-lg-6 mx-auto">
         <div class="card register-form-card shadow">
           <div class="card-body p-4 p-md-5">
         <form (ngSubmit)="onSubmit()" novalidate>
           <div class="mb-3">
-            <label class="form-label">Full Name</label>
+            <label class="form-label">Full name</label>
             <input
               type="text"
               name="fullname"
@@ -28,19 +28,19 @@
             <div *ngIf="errors.fullname" class="invalid-feedback">{{ errors.fullname }}</div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Police ID Number</label>
+            <label class="form-label">Police ID number</label>
             <input
               type="text"
               name="police_id"
               class="form-control"
               [class.is-invalid]="errors.police_id"
               [(ngModel)]="formData.police_id"
-              placeholder="Enter your Police ID Number"
+              placeholder="Enter your Police ID number"
             />
             <div *ngIf="errors.police_id" class="invalid-feedback">{{ errors.police_id }}</div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Contact Number</label>
+            <label class="form-label">Contact number</label>
             <input
               type="text"
               name="contact"
@@ -52,7 +52,7 @@
             <div *ngIf="errors.contact" class="invalid-feedback">{{ errors.contact }}</div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Email Address</label>
+            <label class="form-label">Email address</label>
             <input
               type="email"
               name="email"
@@ -64,7 +64,7 @@
             <div *ngIf="errors.email" class="invalid-feedback">{{ errors.email }}</div>
           </div>
           <div class="mb-3">
-            <label class="form-label">City / District</label>
+            <label class="form-label">City / district</label>
             <select
               name="city"
               class="form-select"
@@ -121,7 +121,7 @@
             <div *ngIf="errors.password" class="invalid-feedback">{{ errors.password }}</div>
           </div>
           <div class="mb-3">
-            <label class="form-label">Confirm Password</label>
+            <label class="form-label">Confirm password</label>
             <input
               type="password"
               name="conf_password"
@@ -152,3 +152,5 @@
   </div>
   <app-footer></app-footer>
 </div>
+
+

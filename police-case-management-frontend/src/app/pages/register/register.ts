@@ -80,7 +80,7 @@ export class Register {
       alert(res?.msg || 'Registration successful.');
       this.router.navigate(['/login']);
     } catch (err: any) {
-      alert(err?.error?.msg || 'Error registering');
+      alert(err?.error?.msg || 'Error registering.');
     } finally {
       this.loading = false;
     }

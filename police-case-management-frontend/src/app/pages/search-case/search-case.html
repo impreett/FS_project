@@ -1,5 +1,5 @@
-<div class="container mt-4">
-  <h2 class="mb-4">Search Case</h2>
+﻿<div class="container mt-4">
+  <h2 class="mb-4">Search case</h2>
   <div class="card card-body mb-4">
     <div class="row">
       <div class="col-md-4">
@@ -9,14 +9,14 @@
           (ngModelChange)="onSearchFieldChange($event)"
         >
           <option value="for-all">All</option>
-          <option value="case_title">Case Title</option>
-          <option value="case_type">Case Type</option>
+          <option value="case_title">Case title</option>
+          <option value="case_type">Case type</option>
           <option value="case_description">Description</option>
           <option value="suspects">Suspects</option>
           <option value="victim">Victim</option>
-          <option value="guilty_name">Guilty Name</option>
+          <option value="guilty_name">Guilty name</option>
           <option value="case_date">Date</option>
-          <option value="case_handler">Case Handler</option>
+          <option value="case_handler">Case handler</option>
           <option value="status">Status</option>
           <option *ngIf="user?.isAdmin" value="isApproved">Approval</option>
         </select>
@@ -29,7 +29,7 @@
             [(ngModel)]="searchQuery"
             (ngModelChange)="onSearchQueryChange($event)"
           >
-            <option value="">Select Case Type</option>
+            <option value="">Select case type</option>
             <option value="Homicide (Murder)">Homicide (Murder)</option>
             <option value="Manslaughter">Manslaughter</option>
             <option value="Rape / Sexual Assault">Rape / Sexual Assault</option>
@@ -62,7 +62,7 @@
             [(ngModel)]="searchQuery"
             (ngModelChange)="onSearchQueryChange($event)"
           >
-            <option value="">Select Officer</option>
+            <option value="">Select officer</option>
             <option *ngFor="let name of officers" [value]="name">{{ name }}</option>
           </select>
           <select
@@ -71,7 +71,7 @@
             [(ngModel)]="searchQuery"
             (ngModelChange)="onSearchQueryChange($event)"
           >
-            <option value="">Select Status</option>
+            <option value="">Select status</option>
             <option value="ACTIVE">ACTIVE</option>
             <option value="CLOSE">CLOSE</option>
           </select>
@@ -81,7 +81,7 @@
             [(ngModel)]="searchQuery"
             (ngModelChange)="onSearchQueryChange($event)"
           >
-            <option value="">-- Approval Status --</option>
+            <option value="">-- Approval status --</option>
             <option value="1">Approved</option>
             <option value="0">Pending</option>
           </select>
@@ -107,7 +107,7 @@
     </div>
   </div>
 
-  <h4>Search Results</h4>
+  <h4>Search results</h4>
   <p *ngIf="loading">Loading...</p>
 
   <ng-container *ngIf="!loading">
@@ -155,7 +155,7 @@
           </span>
         </p>
         <p class="detail-row">
-          <span class="detail-label"><b>Guilty Name:</b></span>
+          <span class="detail-label"><b>Guilty name:</b></span>
           <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(caseItem)">
             <ng-container *ngIf="peopleForCaseField(caseItem, 'guilty_name') as guiltyPeople">
               <ng-container *ngIf="guiltyPeople.length; else noGuilty">
@@ -198,3 +198,5 @@
     </ng-template>
   </ng-container>
 </div>
+
+

@@ -30,7 +30,7 @@ export class Login {
       }
     }
     if (!this.formData.password) {
-      next.password = 'Please enter your password';
+      next.password = 'Please enter your password.';
     }
     this.errors = next;
     return !next.email && !next.password;

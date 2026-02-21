@@ -1,6 +1,6 @@
-<div class="container mt-4" style="margin-bottom: 30px">
+﻿<div class="container mt-4" style="margin-bottom: 30px">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
-    <h2 class="mb-0">Removed Cases</h2>
+    <h2 class="mb-0">Removed cases</h2>
     <div class="d-flex justify-content-end align-items-center gap-2" *ngIf="cases.length > 1">
       <span class="fw-semibold">Sort:</span>
       <div class="sort-tabs" role="group" aria-label="Sort cases" [class.is-latest]="sortOrder === 'latest'" [class.is-oldest]="sortOrder === 'oldest'">
@@ -42,14 +42,14 @@
           name="search_field"
         >
           <option value="for-all">All</option>
-          <option value="case_title">Case Title</option>
-          <option value="case_type">Case Type</option>
+          <option value="case_title">Case title</option>
+          <option value="case_type">Case type</option>
           <option value="case_description">Description</option>
           <option value="suspects">Suspects</option>
           <option value="victim">Victim</option>
-          <option value="guilty_name">Guilty Name</option>
+          <option value="guilty_name">Guilty name</option>
           <option value="case_date">Date</option>
-          <option value="case_handler">Case Handler</option>
+          <option value="case_handler">Case handler</option>
           <option value="status">Status</option>
           <option value="isApproved">Approval</option>
         </select>
@@ -63,7 +63,7 @@
             (ngModelChange)="onSearchValueChange($event)"
             name="search_case_type"
           >
-            <option value="">Select Case Type</option>
+            <option value="">Select case type</option>
             <option *ngFor="let type of caseTypes" [value]="type">{{ type }}</option>
           </select>
           <select
@@ -73,7 +73,7 @@
             (ngModelChange)="onSearchValueChange($event)"
             name="search_case_handler"
           >
-            <option value="">Select Officer</option>
+            <option value="">Select officer</option>
             <option *ngFor="let name of officers" [value]="name">{{ name }}</option>
           </select>
           <select
@@ -83,7 +83,7 @@
             (ngModelChange)="onSearchValueChange($event)"
             name="search_status"
           >
-            <option value="">Select Status</option>
+            <option value="">Select status</option>
             <option value="ACTIVE">ACTIVE</option>
             <option value="CLOSE">CLOSE</option>
           </select>
@@ -94,7 +94,7 @@
             (ngModelChange)="onSearchValueChange($event)"
             name="search_approval"
           >
-            <option value="">-- Approval Status --</option>
+            <option value="">-- Approval status --</option>
             <option value="1">Approved</option>
             <option value="0">Pending</option>
           </select>
@@ -137,7 +137,7 @@
             <p class="card-text mb-1"><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
             <p class="card-text">{{ caseItem.case_description?.substring(0, 150) }}...</p>
             <button class="btn btn-success mt-2" (click)="handleRestore(caseItem._id)">
-              Restore Case
+              Restore case
             </button>
           </div>
         </article>
@@ -148,3 +148,5 @@
     </ng-template>
   </ng-container>
 </div>
+
+
