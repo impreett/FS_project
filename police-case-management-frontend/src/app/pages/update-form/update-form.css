@@ -59,17 +59,24 @@
 }
 
 .person-add-row {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
   margin-top: 8px;
 }
 
 .person-add-btn {
   display: flex;
-  width: 100%;
+  flex: 1 1 auto;
   justify-content: center;
-  flex: 0 0 auto;
+  width: auto;
 }
 
 .person-add-placeholder {
-  display: none;
+  display: inline-flex;
+  flex: 0 0 auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
 }
