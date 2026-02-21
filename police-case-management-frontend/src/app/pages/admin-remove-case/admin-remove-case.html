@@ -145,7 +145,7 @@
           <p class="card-text">{{ caseItem.case_description?.substring(0, 150) }}...</p>
           <button
             class="pending-action-btn pending-reject-btn neu-button mt-2"
-            (click)="handleRemove(caseItem._id)"
+            (click)="openRemoveConfirm(caseItem)"
           >
             <span class="span-mother" aria-hidden="true">
               <span>R</span><span>e</span><span>m</span><span>o</span><span>v</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
@@ -159,6 +159,54 @@
       </article>
     </ng-container>
   </ng-container>
+
+  <div
+    *ngIf="removeConfirm"
+    class="remove-confirm-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="remove-confirm-title"
+    (click)="closeRemoveConfirm()"
+  >
+    <div class="remove-confirm-card pending-user-surface" (click)="$event.stopPropagation()">
+      <h5 id="remove-confirm-title" class="mb-2">Remove case?</h5>
+      <p class="mb-3">
+        Are you sure you want to remove
+        <b>{{ removeConfirm.title }}</b
+        >?
+      </p>
+      <div class="remove-confirm-actions">
+        <button
+          type="button"
+          class="pending-action-btn pending-approve-btn neu-button"
+          [disabled]="isRemoving"
+          (click)="confirmRemove()"
+        >
+          <span class="span-mother" aria-hidden="true">
+            <span>Y</span><span>e</span><span>s</span>
+          </span>
+          <span class="span-mother2" aria-hidden="true">
+            <span>Y</span><span>e</span><span>s</span>
+          </span>
+          <span class="visually-hidden">Yes</span>
+        </button>
+        <button
+          type="button"
+          class="pending-action-btn pending-check-btn neu-button"
+          [disabled]="isRemoving"
+          (click)="closeRemoveConfirm()"
+        >
+          <span class="span-mother" aria-hidden="true">
+            <span>N</span><span>o</span>
+          </span>
+          <span class="span-mother2" aria-hidden="true">
+            <span>N</span><span>o</span>
+          </span>
+          <span class="visually-hidden">No</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 

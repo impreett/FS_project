@@ -29,6 +29,8 @@ export class AdminRemoveCase implements OnInit {
   cases: any[] = [];
   loading = true;
   message = '';
+  removeConfirm: { id: string; title: string } | null = null;
+  isRemoving = false;
   sortOrder: 'latest' | 'oldest' = 'latest';
   searchField: SearchField = 'for-all';
   searchValue = '';
@@ -90,15 +92,33 @@ export class AdminRemoveCase implements OnInit {
     }
   }
 
-  async handleRemove(caseId: string) {
-    if (!window.confirm('Are you sure you want to remove this case?')) return;
+  openRemoveConfirm(caseItem: any) {
+    const id = String(caseItem?._id ?? '');
+    if (!id) return;
+    this.removeConfirm = {
+      id,
+      title: String(caseItem?.case_title ?? 'this case'),
+    };
+  }
+
+  closeRemoveConfirm() {
+    if (this.isRemoving) return;
+    this.removeConfirm = null;
+  }
+
+  async confirmRemove() {
+    if (!this.removeConfirm || this.isRemoving) return;
+    this.isRemoving = true;
     try {
-      await firstValueFrom(this.caseService.removeCase(caseId));
+      await firstValueFrom(this.caseService.removeCase(this.removeConfirm.id));
       this.message = 'Case removed successfully!';
-      this.cases = this.cases.filter((c) => c._id !== caseId);
+      this.cases = this.cases.filter((c) => c._id !== this.removeConfirm?.id);
       window.scrollTo(0, 0);
     } catch {
       this.message = 'Error removing case.';
+    } finally {
+      this.isRemoving = false;
+      this.removeConfirm = null;
     }
   }
 
