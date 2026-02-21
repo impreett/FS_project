@@ -13,6 +13,14 @@ export class PendingUsers implements OnInit {
   users: any[] = [];
   loading = true;
   successMessage = '';
+  userConfirm:
+    | {
+        id: string;
+        name: string;
+        action: 'approve' | 'deny';
+      }
+    | null = null;
+  isSubmittingAction = false;
 
   constructor(private adminService: AdminService) {}
 
@@ -36,26 +44,49 @@ export class PendingUsers implements OnInit {
     }
   }
 
-  async handleApprove(userId: string) {
-    try {
-      await firstValueFrom(this.adminService.approveUser(userId));
-      this.successMessage = 'User approved!';
-      this.users = this.users.filter((user) => user._id !== userId);
-      window.scrollTo(0, 0);
-    } catch (err) {
-      console.error(err);
-      alert('Error approving user.');
-    }
+  handleApprove(user: any) {
+    this.openUserConfirm(user, 'approve');
   }
 
-  async handleDeny(userId: string) {
-    if (!window.confirm('Are you sure you want to deny this user?')) return;
+  handleDeny(user: any) {
+    this.openUserConfirm(user, 'deny');
+  }
+
+  private openUserConfirm(user: any, action: 'approve' | 'deny') {
+    const id = String(user?._id ?? '');
+    if (!id) return;
+    this.userConfirm = {
+      id,
+      name: String(user?.fullname ?? 'this user'),
+      action,
+    };
+  }
+
+  closeUserConfirm() {
+    if (this.isSubmittingAction) return;
+    this.userConfirm = null;
+  }
+
+  async confirmUserAction() {
+    if (!this.userConfirm || this.isSubmittingAction) return;
+    this.isSubmittingAction = true;
+    const { id, action } = this.userConfirm;
     try {
-      await firstValueFrom(this.adminService.denyUser(userId));
-      this.users = this.users.filter((user) => user._id !== userId);
+      if (action === 'approve') {
+        await firstValueFrom(this.adminService.approveUser(id));
+        this.successMessage = 'User approved!';
+        this.users = this.users.filter((user) => user._id !== id);
+        window.scrollTo(0, 0);
+      } else {
+        await firstValueFrom(this.adminService.denyUser(id));
+        this.users = this.users.filter((user) => user._id !== id);
+      }
     } catch (err) {
       console.error(err);
-      alert('Error denying user.');
+      alert(action === 'approve' ? 'Error approving user.' : 'Error denying user.');
+    } finally {
+      this.isSubmittingAction = false;
+      this.userConfirm = null;
     }
   }
 }

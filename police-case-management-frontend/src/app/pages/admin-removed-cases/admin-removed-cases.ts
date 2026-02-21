@@ -29,6 +29,8 @@ export class AdminRemovedCases implements OnInit {
   cases: any[] = [];
   loading = true;
   message = '';
+  restoreConfirm: { id: string; title: string } | null = null;
+  isRestoring = false;
   sortOrder: 'latest' | 'oldest' = 'latest';
   searchField: SearchField = 'for-all';
   searchValue = '';
@@ -90,14 +92,32 @@ export class AdminRemovedCases implements OnInit {
     }
   }
 
-  async handleRestore(caseId: string) {
-    if (!window.confirm('Are you sure you want to restore this case?')) return;
+  handleRestore(caseItem: any) {
+    const id = String(caseItem?._id ?? '');
+    if (!id) return;
+    this.restoreConfirm = {
+      id,
+      title: String(caseItem?.case_title ?? 'this case'),
+    };
+  }
+
+  closeRestoreConfirm() {
+    if (this.isRestoring) return;
+    this.restoreConfirm = null;
+  }
+
+  async confirmRestore() {
+    if (!this.restoreConfirm || this.isRestoring) return;
+    this.isRestoring = true;
     try {
-      const res: any = await firstValueFrom(this.caseService.restoreCase(caseId));
+      const res: any = await firstValueFrom(this.caseService.restoreCase(this.restoreConfirm.id));
       this.message = res?.msg || 'Case restored successfully';
-      this.cases = this.cases.filter((c) => c._id !== caseId);
+      this.cases = this.cases.filter((c) => c._id !== this.restoreConfirm?.id);
     } catch {
       this.message = 'Error restoring case.';
+    } finally {
+      this.isRestoring = false;
+      this.restoreConfirm = null;
     }
   }
 

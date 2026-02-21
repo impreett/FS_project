@@ -138,7 +138,7 @@
             <p class="card-text">{{ caseItem.case_description?.substring(0, 150) }}...</p>
             <button
               class="pending-action-btn pending-approve-btn neu-button mt-2"
-              (click)="handleRestore(caseItem._id)"
+              (click)="handleRestore(caseItem)"
             >
               <span class="span-mother" aria-hidden="true">
                 <span>R</span><span>e</span><span>s</span><span>t</span><span>o</span><span>r</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
@@ -156,6 +156,44 @@
       <p class="alert alert-warning">No removed cases found.</p>
     </ng-template>
   </ng-container>
+
+  <div
+    *ngIf="restoreConfirm"
+    class="app-confirm-overlay"
+    role="dialog"
+    aria-modal="true"
+    (click)="closeRestoreConfirm()"
+  >
+    <div class="app-confirm-card pending-user-surface" (click)="$event.stopPropagation()">
+      <h5 class="mb-2">Restore case?</h5>
+      <p class="mb-3 app-confirm-text">
+        Are you sure you want to restore <b>{{ restoreConfirm.title }}</b
+        >?
+      </p>
+      <div class="app-confirm-actions">
+        <button
+          type="button"
+          class="pending-action-btn pending-approve-btn neu-button"
+          [disabled]="isRestoring"
+          (click)="confirmRestore()"
+        >
+          <span class="span-mother" aria-hidden="true"><span>Y</span><span>e</span><span>s</span></span>
+          <span class="span-mother2" aria-hidden="true"><span>Y</span><span>e</span><span>s</span></span>
+          <span class="visually-hidden">Yes</span>
+        </button>
+        <button
+          type="button"
+          class="pending-action-btn pending-check-btn neu-button"
+          [disabled]="isRestoring"
+          (click)="closeRestoreConfirm()"
+        >
+          <span class="span-mother" aria-hidden="true"><span>N</span><span>o</span></span>
+          <span class="span-mother2" aria-hidden="true"><span>N</span><span>o</span></span>
+          <span class="visually-hidden">No</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 

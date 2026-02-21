@@ -28,6 +28,14 @@ export class PendingCases implements OnInit {
   cases: any[] = [];
   loading = true;
   successMessage = '';
+  caseConfirm:
+    | {
+        id: string;
+        title: string;
+        action: 'approve' | 'deny';
+      }
+    | null = null;
+  isSubmittingAction = false;
   sortOrder: 'latest' | 'oldest' = 'latest';
   searchField: SearchField = 'for-all';
   searchValue = '';
@@ -90,24 +98,48 @@ export class PendingCases implements OnInit {
     }
   }
 
-  async handleApprove(caseId: string) {
-    try {
-      await firstValueFrom(this.adminService.approveCase(caseId));
-      this.successMessage = 'Case approved!';
-      this.cases = this.cases.filter((c) => c._id !== caseId);
-      window.scrollTo(0, 0);
-    } catch {
-      alert('Error approving case.');
-    }
+  handleApprove(caseItem: any) {
+    this.openCaseConfirm(caseItem, 'approve');
   }
 
-  async handleDeny(caseId: string) {
-    if (!window.confirm('Are you sure you want to deny this case?')) return;
+  handleDeny(caseItem: any) {
+    this.openCaseConfirm(caseItem, 'deny');
+  }
+
+  private openCaseConfirm(caseItem: any, action: 'approve' | 'deny') {
+    const id = String(caseItem?._id ?? '');
+    if (!id) return;
+    this.caseConfirm = {
+      id,
+      title: String(caseItem?.case_title ?? 'this case'),
+      action,
+    };
+  }
+
+  closeCaseConfirm() {
+    if (this.isSubmittingAction) return;
+    this.caseConfirm = null;
+  }
+
+  async confirmCaseAction() {
+    if (!this.caseConfirm || this.isSubmittingAction) return;
+    this.isSubmittingAction = true;
+    const { id, action } = this.caseConfirm;
     try {
-      await firstValueFrom(this.adminService.denyCase(caseId));
-      this.cases = this.cases.filter((c) => c._id !== caseId);
+      if (action === 'approve') {
+        await firstValueFrom(this.adminService.approveCase(id));
+        this.successMessage = 'Case approved!';
+        this.cases = this.cases.filter((c) => c._id !== id);
+        window.scrollTo(0, 0);
+      } else {
+        await firstValueFrom(this.adminService.denyCase(id));
+        this.cases = this.cases.filter((c) => c._id !== id);
+      }
     } catch {
-      alert('Error denying case.');
+      alert(action === 'approve' ? 'Error approving case.' : 'Error denying case.');
+    } finally {
+      this.isSubmittingAction = false;
+      this.caseConfirm = null;
     }
   }
 
