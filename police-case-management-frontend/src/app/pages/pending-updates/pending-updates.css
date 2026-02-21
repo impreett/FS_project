@@ -16,7 +16,7 @@
   align-items: stretch;
 }
 
-.pending-update-actions > .btn {
+.pending-update-actions > .pending-action-btn {
   flex: 0 0 auto;
   min-width: 0;
   width: 100%;

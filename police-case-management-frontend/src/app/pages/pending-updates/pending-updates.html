@@ -70,17 +70,41 @@
               </p>
             </div>
             <div class="d-flex gap-2 pending-update-actions">
-              <button class="btn btn-success btn-sm flex-fill" (click)="handleApprove(update._id)">
-                Approve
+              <button
+                class="pending-action-btn pending-approve-btn neu-button"
+                (click)="handleApprove(update._id)"
+              >
+                <span class="span-mother" aria-hidden="true">
+                  <span>A</span><span>p</span><span>p</span><span>r</span><span>o</span><span>v</span><span>e</span>
+                </span>
+                <span class="span-mother2" aria-hidden="true">
+                  <span>A</span><span>p</span><span>p</span><span>r</span><span>o</span><span>v</span><span>e</span>
+                </span>
+                <span class="visually-hidden">Approve</span>
               </button>
-              <button class="btn btn-danger btn-sm flex-fill" (click)="handleDeny(update._id)">
-                Reject
+              <button
+                class="pending-action-btn pending-reject-btn neu-button"
+                (click)="handleDeny(update._id)"
+              >
+                <span class="span-mother" aria-hidden="true">
+                  <span>R</span><span>e</span><span>j</span><span>e</span><span>c</span><span>t</span>
+                </span>
+                <span class="span-mother2" aria-hidden="true">
+                  <span>R</span><span>e</span><span>j</span><span>e</span><span>c</span><span>t</span>
+                </span>
+                <span class="visually-hidden">Reject</span>
               </button>
               <a
-                class="btn btn-outline-primary btn-sm flex-fill"
+                class="pending-action-btn pending-check-btn neu-button"
                 [routerLink]="['/admin/check-side-by-side', update._id]"
               >
-                Check side by side
+                <span class="span-mother" aria-hidden="true">
+                  <span>C</span><span>h</span><span>e</span><span>c</span><span>k</span><span>&nbsp;</span><span>s</span><span>i</span><span>d</span><span>e</span><span>&nbsp;</span><span>b</span><span>y</span><span>&nbsp;</span><span>s</span><span>i</span><span>d</span><span>e</span>
+                </span>
+                <span class="span-mother2" aria-hidden="true">
+                  <span>C</span><span>h</span><span>e</span><span>c</span><span>k</span><span>&nbsp;</span><span>s</span><span>i</span><span>d</span><span>e</span><span>&nbsp;</span><span>b</span><span>y</span><span>&nbsp;</span><span>s</span><span>i</span><span>d</span><span>e</span>
+                </span>
+                <span class="visually-hidden">Check side by side</span>
               </a>
             </div>
           </div>
