@@ -20,9 +20,19 @@
   padding-right: 0;
 }
 
+.people-roles-row > .col-md-4 > .p-2 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.people-roles-row > .col-md-4 > .p-2 > .fw-semibold {
+  width: min(100%, 94%);
+}
+
 .people-role-list,
 .person-add-row {
-  width: calc(100% - 8px);
+  width: min(100%, 94%);
   margin-inline: auto;
 }
 
