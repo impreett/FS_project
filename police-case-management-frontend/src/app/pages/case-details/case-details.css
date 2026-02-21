@@ -54,6 +54,20 @@
   word-break: break-word;
 }
 
+.desc-row {
+  align-items: start;
+}
+
+.desc-value-bg {
+  display: block;
+  background: #f3f5f8;
+  border: 1px solid #e0e5eb;
+  border-radius: 6px;
+  padding: 8px 10px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 @media (max-width: 576px) {
   .people-lines {
     grid-template-columns: minmax(0, 1fr);

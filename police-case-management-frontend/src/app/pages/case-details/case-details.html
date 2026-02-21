@@ -67,9 +67,11 @@
           <span class="detail-label"><b>Approval:</b></span>
           <span class="detail-value">{{ caseItem.isApproved ? 'Approved' : 'Pending' }}</span>
         </p>
-        <p class="desc-box">
-          <b>Description:</b><br />
-          <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
+        <p class="detail-row desc-row">
+          <span class="detail-label"><b>Description:</b></span>
+          <span class="detail-value desc-value-bg">
+            <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
+          </span>
         </p>
 
         <div *ngIf="!caseItem.isApproved">
@@ -113,9 +115,11 @@
           <span class="detail-label"><b>Status:</b></span>
           <span class="detail-value">{{ caseItem.status }}</span>
         </p>
-        <p class="desc-box">
-          <b>Description:</b><br />
-          <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
+        <p class="detail-row desc-row">
+          <span class="detail-label"><b>Description:</b></span>
+          <span class="detail-value desc-value-bg">
+            <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
+          </span>
         </p>
       </article>
     </ng-template>
