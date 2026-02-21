@@ -97,15 +97,15 @@ const importData = async () => {
         await User.deleteMany();
         await Case.deleteMany();
         await Report.deleteMany();
-        console.log('âœ… Previous data destroyed...');
+        console.log('[OK] Previous data destroyed...');
 
         /* Insert parsed data into MongoDB */
         await User.insertMany(usersToCreate);
         await Case.insertMany(casesToCreate);
 
-        console.log('âœ… Data Imported Successfully!');
+        console.log('[OK] Data imported successfully!');
     } catch (err) {
-        console.error('âŒ Error during import:', err);
+        console.error('[ERROR] Error during import:', err);
     } finally {
         await mongoose.connection.close();
         console.log('MongoDB Connection Closed.');
@@ -119,9 +119,9 @@ const deleteData = async () => {
         await User.deleteMany();
         await Case.deleteMany();
         await Report.deleteMany();
-        console.log('âœ… Data Destroyed Successfully...');
+        console.log('[OK] Data destroyed successfully...');
     } catch (err) {
-        console.error('âŒ Error during deletion:', err);
+        console.error('[ERROR] Error during deletion:', err);
     } finally {
         await mongoose.connection.close();
         console.log('MongoDB Connection Closed.');

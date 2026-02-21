@@ -26,8 +26,8 @@ export class PublicReport {
   validate() {
     const next: PublicReportErrors = {};
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!this.formData.email) next.email = 'Please enter your Email';
-    else if (!emailRe.test(this.formData.email)) next.email = 'Enter a valid Email address';
+    if (!this.formData.email) next.email = 'Please enter your email.';
+    else if (!emailRe.test(this.formData.email)) next.email = 'Enter a valid email address.';
     if (!this.formData.reportText) next.reportText = 'Please describe your issue';
     else if ((this.formData.reportText || '').length < 50)
       next.reportText = 'Report must be at least 50 characters long';

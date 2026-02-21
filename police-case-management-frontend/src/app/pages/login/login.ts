@@ -22,11 +22,11 @@ export class Login {
   validate() {
     const next = { email: '', password: '' };
     if (!this.formData.email) {
-      next.email = 'Please enter your Email';
+      next.email = 'Please enter your email.';
     } else {
       const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!re.test(this.formData.email)) {
-        next.email = 'Enter a valid Email address';
+        next.email = 'Enter a valid email address.';
       }
     }
     if (!this.formData.password) {
@@ -66,7 +66,7 @@ export class Login {
           'Your credentials are under review. If you were an approved user, your ID is disabled. For further information, please submit a report.'
         );
       } else {
-        alert('Invalid Email or Password');
+        alert('Invalid email or password.');
       }
     } finally {
       this.loading = false;
