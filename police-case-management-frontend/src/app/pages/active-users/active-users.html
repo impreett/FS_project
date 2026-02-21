@@ -24,7 +24,15 @@
             <td>{{ user.contact }}</td>
             <td>{{ user.city }}</td>
             <td class="text-center align-middle">
-              <button class="btn btn-danger btn-sm" (click)="handleDisable(user._id)">Disable</button>
+              <button class="pending-action-btn pending-reject-btn neu-button" (click)="handleDisable(user._id)">
+                <span class="span-mother" aria-hidden="true">
+                  <span>D</span><span>i</span><span>s</span><span>a</span><span>b</span><span>l</span><span>e</span>
+                </span>
+                <span class="span-mother2" aria-hidden="true">
+                  <span>D</span><span>i</span><span>s</span><span>a</span><span>b</span><span>l</span><span>e</span>
+                </span>
+                <span class="visually-hidden">Disable</span>
+              </button>
             </td>
           </tr>
         </tbody>
