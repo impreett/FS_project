@@ -22,7 +22,6 @@
               [class.is-invalid]="errors.fullname"
               [ngModel]="formData.fullname"
               (ngModelChange)="onChangeName($event)"
-              style="text-transform: uppercase"
               placeholder="Enter your full name"
             />
             <div *ngIf="errors.fullname" class="invalid-feedback">{{ errors.fullname }}</div>
@@ -35,7 +34,7 @@
               class="form-control"
               [class.is-invalid]="errors.police_id"
               [(ngModel)]="formData.police_id"
-              placeholder="Enter police ID number"
+              placeholder="Enter your police ID number"
             />
             <div *ngIf="errors.police_id" class="invalid-feedback">{{ errors.police_id }}</div>
           </div>
@@ -47,7 +46,7 @@
               class="form-control"
               [class.is-invalid]="errors.contact"
               [(ngModel)]="formData.contact"
-              placeholder="Enter contact number"
+              placeholder="Enter your contact number"
             />
             <div *ngIf="errors.contact" class="invalid-feedback">{{ errors.contact }}</div>
           </div>
@@ -59,7 +58,7 @@
               class="form-control"
               [class.is-invalid]="errors.email"
               [(ngModel)]="formData.email"
-              placeholder="Enter email address"
+              placeholder="Enter your email address"
             />
             <div *ngIf="errors.email" class="invalid-feedback">{{ errors.email }}</div>
           </div>
@@ -116,7 +115,7 @@
               class="form-control"
               [class.is-invalid]="errors.password"
               [(ngModel)]="formData.password"
-              placeholder="Create password"
+              placeholder="Create a password"
             />
             <div *ngIf="errors.password" class="invalid-feedback">{{ errors.password }}</div>
           </div>
@@ -128,7 +127,7 @@
               class="form-control"
               [class.is-invalid]="errors.conf_password"
               [(ngModel)]="formData.conf_password"
-              placeholder="Confirm password"
+              placeholder="Confirm your password"
             />
             <div *ngIf="errors.conf_password" class="invalid-feedback">
               {{ errors.conf_password }}
@@ -152,5 +151,4 @@
   </div>
   <app-footer></app-footer>
 </div>
-
 
