@@ -136,8 +136,17 @@
             <p class="card-text mb-1"><b>Handler:</b> {{ caseItem.case_handler }}</p>
             <p class="card-text mb-1"><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
             <p class="card-text">{{ caseItem.case_description?.substring(0, 150) }}...</p>
-            <button class="btn btn-success mt-2" (click)="handleRestore(caseItem._id)">
-              Restore case
+            <button
+              class="pending-action-btn pending-approve-btn neu-button mt-2"
+              (click)="handleRestore(caseItem._id)"
+            >
+              <span class="span-mother" aria-hidden="true">
+                <span>R</span><span>e</span><span>s</span><span>t</span><span>o</span><span>r</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+              </span>
+              <span class="span-mother2" aria-hidden="true">
+                <span>R</span><span>e</span><span>s</span><span>t</span><span>o</span><span>r</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+              </span>
+              <span class="visually-hidden">Restore case</span>
             </button>
           </div>
         </article>
