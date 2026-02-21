@@ -81,11 +81,32 @@ footer {
   margin-top: 0;
 }
 
+.pending-user-surface {
+  border: none !important;
+  border-radius: 14px !important;
+  background: linear-gradient(180deg, #ffffff 0%, #fbfaff 100%) !important;
+  box-shadow: 0 10px 20px rgba(54, 33, 86, 0.08);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.pending-user-surface:hover {
+  box-shadow: 0 12px 24px rgba(54, 33, 86, 0.11);
+}
+
+.pending-user-surface.card {
+  overflow: hidden;
+}
+
+.pending-user-surface.card .card-header {
+  border-bottom: 1px solid #e9e1f1;
+  background: linear-gradient(180deg, #f8f4ff 0%, #f3edff 100%);
+}
+
 article.card.mb-3,
 article.case-details-card,
 article.pending-user-card,
 article.active-user-card {
-  border: none !important;
+  border: 1px solid #e3dceb !important;
   border-radius: 14px !important;
   background: linear-gradient(180deg, #ffffff 0%, #fbfaff 100%) !important;
   box-shadow: 0 10px 20px rgba(54, 33, 86, 0.08);

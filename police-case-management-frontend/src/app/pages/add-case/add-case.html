@@ -7,10 +7,7 @@
     {{ successMessage }}
     <button type="button" class="btn-close" (click)="successMessage = ''" aria-label="Close"></button>
   </div>
-  <div
-    class="p-4"
-    style="background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px #ccc; margin-bottom: 30px"
-  >
+  <div class="p-4 pending-user-surface" style="margin-bottom: 30px">
     <h2 class="mb-4 text-center">Add new case</h2>
     <form (ngSubmit)="onSubmit()" novalidate>
       <div class="mb-3">

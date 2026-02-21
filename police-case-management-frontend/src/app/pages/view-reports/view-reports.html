@@ -57,7 +57,7 @@
       <ng-container *ngFor="let group of groupedReports">
         <h5 class="mb-3 text-secondary month-year-heading">{{ group.label }}</h5>
         <article *ngFor="let report of group.items" class="card mb-3">
-          <div class="card-body">
+          <div class="card-body pending-user-surface">
             <p class="card-text mb-2"><b>From:</b> {{ report.email }}</p>
             <p class="card-text mb-2"><b>Date:</b> {{ report.date | date: 'medium' }}</p>
             <p class="card-text mt-2" style="white-space: pre-wrap">
