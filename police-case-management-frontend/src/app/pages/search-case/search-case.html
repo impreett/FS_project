@@ -185,9 +185,11 @@
             [innerHTML]="highlightText(displayApproval(caseItem.isApproved), 'N/A')"
           ></span>
         </p>
-        <p class="desc-box">
-          <b>Description:</b><br />
-          <span style="white-space: pre-wrap" [innerHTML]="highlightText(caseItem.case_description)"></span>
+        <p class="detail-row desc-row">
+          <span class="detail-label"><b>Description:</b></span>
+          <span class="detail-value desc-value-bg">
+            <span style="white-space: pre-wrap" [innerHTML]="highlightText(caseItem.case_description)"></span>
+          </span>
         </p>
       </article>
     </ng-container>
