@@ -12,6 +12,14 @@
   background-color: transparent;
 }
 
+.people-role-list .person-list-item {
+  width: 100%;
+  max-width: 100%;
+  margin-inline: auto;
+  padding-left: 0;
+  padding-right: 0;
+}
+
 @media (min-width: 768px) {
   .people-roles-row {
     --bs-gutter-y: 0;
