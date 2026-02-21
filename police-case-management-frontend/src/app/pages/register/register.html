@@ -1,4 +1,4 @@
-<div class="public-page-shell">
+<div class="public-page-shell register-page-shell">
   <header
     class="d-flex align-items-center justify-content-center p-3"
     style="background-color: #000; color: white"
@@ -6,10 +6,12 @@
     <img src="/assets/logo.png" alt="Logo" class="public-header-logo" />
     <h1>Police Registration Portal</h1>
   </header>
-  <div class="public-page-content">
-    <div class="container mt-5">
-      <div class="col-md-6 mx-auto">
-        <h3 class="text-center">User Register</h3>
+  <div class="public-page-content register-page-content">
+    <div class="container py-5">
+      <div class="col-md-8 col-lg-6 mx-auto">
+        <div class="card register-form-card shadow">
+          <div class="card-body p-4 p-md-5">
+        <h3 class="text-center mb-4">User Register</h3>
         <form (ngSubmit)="onSubmit()" novalidate>
           <div class="mb-3">
             <label class="form-label">Full Name</label>
@@ -143,6 +145,8 @@
             Register
           </button>
         </form>
+          </div>
+        </div>
       </div>
     </div>
   </div>
