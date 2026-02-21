@@ -382,6 +382,11 @@ a.case-update-btn.neu-button:visited {
   color: var(--neu-text);
 }
 
+a.case-cancel-btn.neu-button,
+a.case-cancel-btn.neu-button:visited {
+  color: var(--neu-text);
+}
+
 .case-update-btn.neu-button {
   --neu-bg: #eaf8ef;
   --neu-inset-dark: #c4e7d0;
@@ -389,6 +394,14 @@ a.case-update-btn.neu-button:visited {
   --neu-border: #b5dbbe;
   --neu-text: #2f7b45;
   padding: 8px 20px;
+}
+
+.case-cancel-btn.neu-button {
+  --neu-bg: #eeeeee;
+  --neu-inset-dark: #d3d3d3;
+  --neu-outer-dark: #c9c9c9;
+  --neu-border: #d8d8d8;
+  --neu-text: #5a5a5a;
 }
 
 .person-add-btn.neu-button:hover,
