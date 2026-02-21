@@ -34,12 +34,14 @@
 
 .remove-confirm-actions {
   display: flex;
-  justify-content: flex-end;
   gap: 10px;
+  width: 100%;
+  align-items: stretch;
 }
 
 .remove-confirm-actions .pending-action-btn {
-  min-width: 112px;
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 @media (max-width: 576px) {
