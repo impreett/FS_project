@@ -63,7 +63,18 @@
             <p class="card-text mt-2" style="white-space: pre-wrap">
               <b>Report: </b>{{ report.reportText }}
             </p>
-            <button class="btn btn-danger" (click)="handleMarkAsRead(report._id)">Mark as read</button>
+            <button
+              class="pending-action-btn pending-reject-btn neu-button report-read-btn"
+              (click)="handleMarkAsRead(report._id)"
+            >
+              <span class="span-mother" aria-hidden="true">
+                <span>M</span><span>a</span><span>r</span><span>k</span><span>&nbsp;</span><span>a</span><span>s</span><span>&nbsp;</span><span>r</span><span>e</span><span>a</span><span>d</span>
+              </span>
+              <span class="span-mother2" aria-hidden="true">
+                <span>M</span><span>a</span><span>r</span><span>k</span><span>&nbsp;</span><span>a</span><span>s</span><span>&nbsp;</span><span>r</span><span>e</span><span>a</span><span>d</span>
+              </span>
+              <span class="visually-hidden">Mark as read</span>
+            </button>
           </div>
         </article>
       </ng-container>
