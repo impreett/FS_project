@@ -14,9 +14,9 @@
 
 .tabs {
   --filter-gap: 0.14rem;
-  --filter-all-w: 68px;
-  --filter-recent-w: 208px;
-  --filter-updated-w: 98px;
+  --filter-all-w: calc(3ch + 1.2rem);
+  --filter-recent-w: calc(16ch + 1.2rem);
+  --filter-updated-w: calc(7ch + 1.2rem);
   display: inline-flex;
   align-items: center;
   position: relative;
