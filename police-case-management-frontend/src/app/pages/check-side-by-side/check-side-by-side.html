@@ -1,7 +1,15 @@
 ﻿<div class="container mt-4">
   <div class="d-flex justify-content-between align-items-center mb-3">
     <h2 class="mb-0">Check side by side</h2>
-    <a routerLink="/admin/pending-updates" class="btn btn-outline-secondary btn-sm">Back</a>
+    <a routerLink="/admin/pending-updates" class="pending-action-btn pending-check-btn neu-button">
+      <span class="span-mother" aria-hidden="true">
+        <span>B</span><span>a</span><span>c</span><span>k</span>
+      </span>
+      <span class="span-mother2" aria-hidden="true">
+        <span>B</span><span>a</span><span>c</span><span>k</span>
+      </span>
+      <span class="visually-hidden">Back</span>
+    </a>
   </div>
 
   <div *ngIf="loading">Loading...</div>
