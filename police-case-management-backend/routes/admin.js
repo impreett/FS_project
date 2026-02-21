@@ -67,7 +67,7 @@ router.get('/pending-cases', adminAuth, async (req, res) => {
 
 router.put('/approve-case/:id', adminAuth, async (req, res) => {
     try {
-        await Case.findByIdAndUpdate(req.params.id, { isApproved: true });
+        await Case.findByIdAndUpdate(req.params.id, { isApproved: true, updated_on: new Date() });
         res.json({ msg: 'Case approved successfully' });
     } catch (err) { res.status(500).send('Server Error'); }
 });
@@ -126,7 +126,9 @@ router.put('/approve-update/:updateId', adminAuth, async (req, res) => {
         if (caseDateError) {
             return res.status(400).json({ msg: caseDateError });
         }
-        await Case.findByIdAndUpdate(originalCaseId, { $set: normalizedData });
+        await Case.findByIdAndUpdate(originalCaseId, {
+            $set: { ...normalizedData, updated_on: new Date() }
+        });
         await UpdateCase.findByIdAndDelete(req.params.updateId);
         res.json({ msg: 'Update approved and applied successfully!' });
     } catch (err) { res.status(500).send('Server Error'); }

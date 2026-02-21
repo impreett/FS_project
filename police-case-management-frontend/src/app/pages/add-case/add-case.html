@@ -18,6 +18,7 @@
         <input
           type="text"
           name="case_title"
+          placeholder="Enter case title"
           class="form-control"
           [class.is-invalid]="errors.case_title"
           [(ngModel)]="formData.case_title"
@@ -66,6 +67,7 @@
         <textarea
           name="case_description"
           class="form-control"
+          placeholder="Enter case description"
           [class.is-invalid]="errors.case_description"
           [(ngModel)]="formData.case_description"
           rows="5"
@@ -100,6 +102,7 @@
                           type="text"
                           class="form-control form-control-sm"
                           maxlength="20"
+                          placeholder="Enter name"
                           [name]="'suspect_name_' + person.index"
                           [ngModel]="person.name"
                           (ngModelChange)="onPersonNameChange(person.index, $event)"
@@ -110,6 +113,7 @@
                           class="form-control form-control-sm"
                           min="0"
                           max="120"
+                          placeholder="Age (optional)"
                           [name]="'suspect_age_' + person.index"
                           [ngModel]="person.age"
                           (ngModelChange)="onPersonAgeChange(person.index, $event)"
@@ -154,6 +158,7 @@
                           type="text"
                           class="form-control form-control-sm"
                           maxlength="20"
+                          placeholder="Enter name"
                           [name]="'guilty_name_' + person.index"
                           [ngModel]="person.name"
                           (ngModelChange)="onPersonNameChange(person.index, $event)"
@@ -164,6 +169,7 @@
                           class="form-control form-control-sm"
                           min="0"
                           max="120"
+                          placeholder="Age (optional)"
                           [name]="'guilty_age_' + person.index"
                           [ngModel]="person.age"
                           (ngModelChange)="onPersonAgeChange(person.index, $event)"
@@ -208,6 +214,7 @@
                           type="text"
                           class="form-control form-control-sm"
                           maxlength="20"
+                          placeholder="Enter name"
                           [name]="'victim_name_' + person.index"
                           [ngModel]="person.name"
                           (ngModelChange)="onPersonNameChange(person.index, $event)"
@@ -218,6 +225,7 @@
                           class="form-control form-control-sm"
                           min="0"
                           max="120"
+                          placeholder="Age (optional)"
                           [name]="'victim_age_' + person.index"
                           [ngModel]="person.age"
                           (ngModelChange)="onPersonAgeChange(person.index, $event)"
@@ -252,6 +260,7 @@
         <input
           type="date"
           name="case_date"
+          placeholder="Select case date"
           class="form-control"
           [class.is-invalid]="errors.case_date"
           [(ngModel)]="formData.case_date"
@@ -276,7 +285,13 @@
       <ng-template #handlerReadonly>
         <div class="mb-3">
           <label class="form-label">Case Handler</label>
-          <input type="text" class="form-control" [value]="formData.case_handler" readonly />
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Auto-filled case handler"
+            [value]="formData.case_handler"
+            readonly
+          />
         </div>
       </ng-template>
 
@@ -284,12 +299,19 @@
         <label class="form-label">Status</label>
         <ng-container *ngIf="user?.isAdmin; else statusReadonly">
           <select name="status" class="form-select" [(ngModel)]="formData.status">
+            <option value="">Select Status</option>
             <option value="ACTIVE">ACTIVE</option>
             <option value="CLOSE">CLOSE</option>
           </select>
         </ng-container>
         <ng-template #statusReadonly>
-          <input type="text" class="form-control" value="ACTIVE" readonly />
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Auto-filled status"
+            value="ACTIVE"
+            readonly
+          />
         </ng-template>
       </div>
       <button type="submit" class="btn btn-primary w-100">Add Case</button>

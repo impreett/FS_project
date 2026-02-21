@@ -129,7 +129,7 @@ router.put('/:id', adminAuth, async (req, res) => {
         }
         const caseItem = await Case.findOneAndUpdate(
             { _id: req.params.id, is_removed: { $ne: true } },
-            { $set: normalizedBody },
+            { $set: { ...normalizedBody, updated_on: new Date() } },
             { new: true }
         );
         if (!caseItem) {

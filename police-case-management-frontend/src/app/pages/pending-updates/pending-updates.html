@@ -3,22 +3,30 @@
     <h2 class="mb-0">Pending Case Updates</h2>
     <div class="d-flex justify-content-end align-items-center gap-2" *ngIf="updates.length > 1">
       <span class="fw-semibold">Sort:</span>
-      <div class="btn-group" role="group" aria-label="Sort cases">
+      <div class="sort-tabs" role="group" aria-label="Sort cases" [class.is-latest]="sortOrder === 'latest'" [class.is-oldest]="sortOrder === 'oldest'">
         <button
           type="button"
-          class="btn btn-outline-secondary btn-sm"
+          class="sort-btn"
           [class.active]="sortOrder === 'latest'"
           (click)="setSortOrder('latest')"
         >
-          Latest
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
+            <span class="neu-text-secondary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
+          </span>
+          <span class="visually-hidden">Latest</span>
         </button>
         <button
           type="button"
-          class="btn btn-outline-secondary btn-sm"
+          class="sort-btn"
           [class.active]="sortOrder === 'oldest'"
           (click)="setSortOrder('oldest')"
         >
-          Oldest
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
+            <span class="neu-text-secondary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
+          </span>
+          <span class="visually-hidden">Oldest</span>
         </button>
       </div>
     </div>
@@ -47,19 +55,20 @@
       <ng-container *ngFor="let group of groupedUpdates">
         <h5 class="mb-3 text-secondary month-year-heading">{{ group.label }}</h5>
         <article *ngFor="let update of group.items" class="card mb-3 shadow-sm">
-          <div class="card-body">
-            <h4 class="mb-2 pending-update-title">
-              {{ update.case_title || originals[update.originalCaseId]?.case_title || 'N/A' }}
-            </h4>
-            <p class="mb-1">
-              <b>Case Handler:</b>
-              {{ update.case_handler || originals[update.originalCaseId]?.case_handler || 'N/A' }}
-            </p>
-            <p class="mb-3">
-              <b>Update Received:</b>
-              {{ update.requestedAt ? (update.requestedAt | date: 'dd-MM-yyyy HH:mm') : 'N/A' }}
-            </p>
-
+          <div class="card-body pending-update-layout">
+            <div class="pending-update-meta">
+              <h4 class="mb-2 pending-update-title">
+                {{ update.case_title || originals[update.originalCaseId]?.case_title || 'N/A' }}
+              </h4>
+              <p class="mb-1">
+                <b>Case Handler:</b>
+                {{ update.case_handler || originals[update.originalCaseId]?.case_handler || 'N/A' }}
+              </p>
+              <p class="mb-0">
+                <b>Update Received:</b>
+                {{ update.requestedAt ? (update.requestedAt | date: 'dd-MM-yyyy HH:mm') : 'N/A' }}
+              </p>
+            </div>
             <div class="d-flex gap-2 pending-update-actions">
               <button class="btn btn-success btn-sm flex-fill" (click)="handleApprove(update._id)">
                 Approve

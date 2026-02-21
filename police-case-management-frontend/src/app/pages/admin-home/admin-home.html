@@ -5,48 +5,115 @@
 <div class="container mt-4" *ngIf="!loading">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <h2 class="mb-0">All Cases</h2>
-    <div class="d-flex justify-content-end align-items-center gap-2" *ngIf="cases.length > 1">
+    <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap" *ngIf="cases.length > 1">
       <span class="fw-semibold">Sort:</span>
-      <div class="btn-group" role="group" aria-label="Sort cases">
+      <div class="sort-tabs" role="group" aria-label="Sort cases" [class.is-latest]="sortOrder === 'latest'" [class.is-oldest]="sortOrder === 'oldest'">
         <button
           type="button"
-          class="btn btn-outline-secondary btn-sm"
+          class="sort-btn"
           [class.active]="sortOrder === 'latest'"
           (click)="setSortOrder('latest')"
         >
-          Latest
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
+            <span class="neu-text-secondary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
+          </span>
+          <span class="visually-hidden">Latest</span>
         </button>
         <button
           type="button"
-          class="btn btn-outline-secondary btn-sm"
+          class="sort-btn"
           [class.active]="sortOrder === 'oldest'"
           (click)="setSortOrder('oldest')"
         >
-          Oldest
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
+            <span class="neu-text-secondary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
+          </span>
+          <span class="visually-hidden">Oldest</span>
         </button>
+      </div>
+      <span class="fw-semibold ms-2">Filter:</span>
+      <div class="filter-tabs" role="group" aria-label="Filter updated cases">
+        <div class="tabs">
+        <input
+          type="radio"
+          id="admin-radio-1"
+          name="admin_update_filter"
+          [checked]="updateFilter === 'all'"
+          (change)="setUpdateFilter('all')"
+        />
+        <label class="tab" for="admin-radio-1">
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>A</span><span>l</span><span>l</span></span>
+            <span class="neu-text-secondary"><span>A</span><span>l</span><span>l</span></span>
+          </span>
+          <span class="visually-hidden">All</span>
+        </label>
+
+        <input
+          type="radio"
+          id="admin-radio-2"
+          name="admin_update_filter"
+          [checked]="updateFilter === 'recent'"
+          (change)="setUpdateFilter('recent')"
+        />
+        <label class="tab" for="admin-radio-2">
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>R</span><span>e</span><span>c</span><span>e</span><span>n</span><span>t</span><span>l</span><span>y</span><span>&nbsp;</span><span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>d</span></span>
+            <span class="neu-text-secondary"><span>R</span><span>e</span><span>c</span><span>e</span><span>n</span><span>t</span><span>l</span><span>y</span><span>&nbsp;</span><span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>d</span></span>
+          </span>
+          <span class="visually-hidden">Recently Updated</span>
+        </label>
+
+        <input
+          type="radio"
+          id="admin-radio-3"
+          name="admin_update_filter"
+          [checked]="updateFilter === 'updated'"
+          (change)="setUpdateFilter('updated')"
+        />
+        <label class="tab" for="admin-radio-3">
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>d</span></span>
+            <span class="neu-text-secondary"><span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>d</span></span>
+          </span>
+          <span class="visually-hidden">Updated</span>
+        </label>
+
+        <span class="glider"></span>
+        </div>
       </div>
     </div>
   </div>
-  <ng-container *ngFor="let group of groupedCases">
-    <h5 class="mb-3 text-secondary month-year-heading">{{ group.label }}</h5>
-    <article *ngFor="let caseItem of group.items" class="card mb-3">
-      <div class="card-body">
-        <h3 class="card-title">
-          <a [routerLink]="['/case', caseItem._id]" style="color: black; text-decoration: none">
-            {{ caseItem.case_title }}
-          </a>
-        </h3>
-        <p
-          class="card-text mb-1 fw-bold"
-          [class.text-success]="caseItem.isApproved"
-          [class.text-danger]="!caseItem.isApproved"
-        >
-          <b>Approval:</b> {{ caseItem.isApproved ? 'Approved' : 'Pending' }}
-        </p>
-        <p class="card-text mb-1"><b>Handler:</b> {{ caseItem.case_handler }}</p>
-        <p class="card-text mb-1"><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
-        <p class="card-text">{{ caseItem.case_description?.substring(0, 150) }}...</p>
-      </div>
-    </article>
+  <ng-container *ngIf="groupedCases.length > 0; else noCases">
+    <ng-container *ngFor="let group of groupedCases">
+      <h5 class="mb-3 text-secondary month-year-heading">{{ group.label }}</h5>
+      <article *ngFor="let caseItem of group.items" class="card mb-3">
+        <div class="card-body">
+          <h3 class="card-title">
+            <a [routerLink]="['/case', caseItem._id]" style="color: black; text-decoration: none">
+              {{ caseItem.case_title }}
+            </a>
+          </h3>
+          <p
+            class="card-text mb-1 fw-bold"
+            [class.text-success]="caseItem.isApproved"
+            [class.text-danger]="!caseItem.isApproved"
+          >
+            <b>Approval:</b> {{ caseItem.isApproved ? 'Approved' : 'Pending' }}
+          </p>
+          <p class="card-text mb-1"><b>Handler:</b> {{ caseItem.case_handler }}</p>
+          <p class="card-text mb-1"><b>Date:</b> {{ caseItem.case_date | date: 'dd-MM-yyyy' }}</p>
+          <p class="card-text mb-1" *ngIf="caseItem.updated_on || caseItem.updatedAt">
+            <b>Updated:</b> {{ (caseItem.updated_on || caseItem.updatedAt) | date: 'dd-MM-yyyy HH:mm' }}
+          </p>
+          <p class="card-text">{{ caseItem.case_description?.substring(0, 150) }}...</p>
+        </div>
+      </article>
+    </ng-container>
   </ng-container>
+  <ng-template #noCases>
+    <div class="alert alert-info">No cases found.</div>
+  </ng-template>
 </div>

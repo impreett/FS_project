@@ -20,6 +20,7 @@ const caseSchema = new mongoose.Schema({
     case_handler: { type: String, required: true },          /* Officer responsible for the case */
     status: { type: String, required: true, enum: ['ACTIVE', 'CLOSE'] }, /* Current case status */
     isApproved: { type: Boolean, default: false },           /* Flag for administrative approval */
+    updated_on: { type: Date, default: null },               /* Last admin-approved update timestamp */
     is_removed: { type: Boolean, default: false }            /* Soft deletion flag to preserve records */
 });
 

@@ -25,11 +25,12 @@ const parseLegacyPeopleString = (value) => {
   if (!text || text.toUpperCase() === 'N/A') return [];
 
   const namedWithAge = [];
-  const re = /Name:\s*([^,]+?)\s+Age:\s*(\d{1,3})/gi;
+  const re = /Name:\s*([^,]+?)\s+Age:\s*([^,]+)/gi;
   let match;
   while ((match = re.exec(text)) !== null) {
     const name = normalizeName(match[1]);
-    const age = normalizeAge(match[2]);
+    const rawAge = normalizeName(match[2]);
+    const age = rawAge.toUpperCase() === 'UNIDENTIFIED' ? null : normalizeAge(rawAge);
     if (name) namedWithAge.push({ name, age });
   }
   if (namedWithAge.length) return namedWithAge;
@@ -72,7 +73,7 @@ const formatPeopleField = (value) => {
   const arr = normalizePeopleField(value);
   if (!arr.length) return 'N/A';
   return arr
-    .map((p) => (p.age === null || p.age === undefined ? `Name: ${p.name}` : `Name: ${p.name}   Age: ${p.age}`))
+    .map((p) => `Name: ${p.name}   Age: ${p.age === null || p.age === undefined ? 'Unidentified' : p.age}`)
     .join(', ');
 };
 

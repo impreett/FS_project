@@ -89,6 +89,7 @@
             *ngSwitchCase="'case_date'"
             type="date"
             class="form-control"
+            placeholder="Select date"
             [(ngModel)]="searchQuery"
             (ngModelChange)="onSearchQueryChange($event)"
             [max]="todayStr"

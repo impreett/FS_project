@@ -12,6 +12,7 @@
           <input
             type="text"
             name="case_title"
+            placeholder="Enter case title"
             [value]="formData.case_title || ''"
             (input)="onChange('case_title', $any($event.target).value)"
             class="form-control"
@@ -64,6 +65,7 @@
             [value]="formData.case_description || ''"
             (input)="onChange('case_description', $any($event.target).value)"
             class="form-control"
+            placeholder="Enter case description"
             rows="5"
             [class.is-invalid]="errors.case_description"
           ></textarea>
@@ -97,6 +99,7 @@
                             type="text"
                             class="form-control form-control-sm"
                             maxlength="20"
+                            placeholder="Enter name"
                             [name]="'suspect_name_' + person.index"
                             [ngModel]="person.name"
                             (ngModelChange)="onPersonNameChange(person.index, $event)"
@@ -107,6 +110,7 @@
                             class="form-control form-control-sm"
                             min="0"
                             max="120"
+                            placeholder="Enter age (optional)"
                             [name]="'suspect_age_' + person.index"
                             [ngModel]="person.age"
                             (ngModelChange)="onPersonAgeChange(person.index, $event)"
@@ -151,6 +155,7 @@
                             type="text"
                             class="form-control form-control-sm"
                             maxlength="20"
+                            placeholder="Enter name"
                             [name]="'guilty_name_' + person.index"
                             [ngModel]="person.name"
                             (ngModelChange)="onPersonNameChange(person.index, $event)"
@@ -161,6 +166,7 @@
                             class="form-control form-control-sm"
                             min="0"
                             max="120"
+                            placeholder="Enter age (optional)"
                             [name]="'guilty_age_' + person.index"
                             [ngModel]="person.age"
                             (ngModelChange)="onPersonAgeChange(person.index, $event)"
@@ -205,6 +211,7 @@
                             type="text"
                             class="form-control form-control-sm"
                             maxlength="20"
+                            placeholder="Enter name"
                             [name]="'victim_name_' + person.index"
                             [ngModel]="person.name"
                             (ngModelChange)="onPersonNameChange(person.index, $event)"
@@ -215,6 +222,7 @@
                             class="form-control form-control-sm"
                             min="0"
                             max="120"
+                            placeholder="Enter age (optional)"
                             [name]="'victim_age_' + person.index"
                             [ngModel]="person.age"
                             (ngModelChange)="onPersonAgeChange(person.index, $event)"
@@ -249,6 +257,7 @@
           <input
             type="date"
             name="case_date"
+            placeholder="Select case date"
             [value]="formData.case_date || ''"
             (input)="onChange('case_date', $any($event.target).value)"
             class="form-control"
@@ -280,6 +289,7 @@
             class="form-select"
             [class.is-invalid]="errors.status"
           >
+            <option value="">Select Status</option>
             <option value="ACTIVE">ACTIVE</option>
             <option value="CLOSE">CLOSE</option>
           </select>

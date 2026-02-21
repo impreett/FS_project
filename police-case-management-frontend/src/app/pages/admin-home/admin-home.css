@@ -5,9 +5,71 @@
   gap: 10px;
 }
 
+.card.mb-3 .card-body {
+  border: 1px solid #d7d7d7;
+  border-radius: 6px;
+}
+
 .month-year-heading::after {
   content: '';
   flex: 1;
   height: 1px;
   background-color: #c7ced6;
 }
+
+.tabs {
+  display: flex;
+  position: relative;
+  background-color: #e0e0e0;
+  border: 2px solid #cecece;
+  box-shadow: inset 4px 4px 10px #bcbcbc, inset -4px -4px 10px #ffffff;
+  padding: 0.22rem;
+  border-radius: 999px;
+  overflow: visible;
+  width: fit-content;
+  gap: 0.14rem;
+}
+
+.filter-tabs input[type='radio'] {
+  display: none;
+}
+
+.tab {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
+  width: auto;
+  padding: 0 0.95rem;
+  font-size: 0.8rem;
+  color: #4d4d4d;
+  font-weight: 700;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: color 0.2s ease-in-out, box-shadow 0.2s ease-in-out, background 0.2s ease-in-out;
+  position: relative;
+  z-index: 3;
+  white-space: nowrap;
+}
+
+.tab:hover {
+  color: #1d4eaa;
+}
+
+.filter-tabs input[type='radio']:checked + label {
+  color: #1d4eaa;
+  background: linear-gradient(145deg, #d5d5d5, #efefef);
+  box-shadow: 2px 2px 5px #bcbcbc, -2px -2px 5px #ffffff;
+}
+
+.glider {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .tabs {
+    transform: scale(0.75);
+    transform-origin: left center;
+  }
+}
+

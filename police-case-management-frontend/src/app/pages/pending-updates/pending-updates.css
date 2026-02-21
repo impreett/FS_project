@@ -1,5 +1,28 @@
-.pending-update-actions .btn {
+.pending-update-layout {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.pending-update-meta {
+  flex: 1 1 auto;
   min-width: 0;
+}
+
+.pending-update-actions {
+  flex: 0 0 clamp(220px, 30%, 300px);
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.pending-update-actions > .btn {
+  flex: 0 0 auto;
+  min-width: 0;
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .pending-update-title {
@@ -22,7 +45,13 @@
 }
 
 @media (max-width: 576px) {
+  .pending-update-layout {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
   .pending-update-actions {
+    flex: 1 1 auto;
     flex-direction: column;
   }
 }

@@ -3,22 +3,30 @@
     <h2 class="mb-0">Remove Cases</h2>
     <div class="d-flex justify-content-end align-items-center gap-2" *ngIf="cases.length > 1">
       <span class="fw-semibold">Sort:</span>
-      <div class="btn-group" role="group" aria-label="Sort cases">
+      <div class="sort-tabs" role="group" aria-label="Sort cases" [class.is-latest]="sortOrder === 'latest'" [class.is-oldest]="sortOrder === 'oldest'">
         <button
           type="button"
-          class="btn btn-outline-secondary btn-sm"
+          class="sort-btn"
           [class.active]="sortOrder === 'latest'"
           (click)="setSortOrder('latest')"
         >
-          Latest
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
+            <span class="neu-text-secondary"><span>L</span><span>a</span><span>t</span><span>e</span><span>s</span><span>t</span></span>
+          </span>
+          <span class="visually-hidden">Latest</span>
         </button>
         <button
           type="button"
-          class="btn btn-outline-secondary btn-sm"
+          class="sort-btn"
           [class.active]="sortOrder === 'oldest'"
           (click)="setSortOrder('oldest')"
         >
-          Oldest
+          <span class="neu-text" aria-hidden="true">
+            <span class="neu-text-primary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
+            <span class="neu-text-secondary"><span>O</span><span>l</span><span>d</span><span>e</span><span>s</span><span>t</span></span>
+          </span>
+          <span class="visually-hidden">Oldest</span>
         </button>
       </div>
     </div>
@@ -94,6 +102,7 @@
             *ngSwitchCase="'case_date'"
             type="date"
             class="form-control"
+            placeholder="Select date"
             [(ngModel)]="searchValue"
             (ngModelChange)="onSearchValueChange($event)"
             [max]="todayStr"

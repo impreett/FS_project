@@ -180,7 +180,7 @@ export class SearchCase implements OnInit {
           if (!name) return null;
           const ageValue =
             entry.age === null || entry.age === undefined || entry.age === ''
-              ? 'N/A'
+              ? 'Unidentified'
               : String(entry.age);
           return { name, age: ageValue };
         })
@@ -195,11 +195,12 @@ export class SearchCase implements OnInit {
       .map((part) => part.trim())
       .filter(Boolean)
       .map((part) => {
-        const withAge = part.match(/^Name:\s*(.+?)\s+Age:\s*(\d{1,3})$/i);
+        const withAge = part.match(/^Name:\s*(.+?)\s+Age:\s*([^,]+)$/i);
         if (withAge) {
+          const parsedAge = this.normalizeText(withAge[2]);
           return {
             name: this.normalizeText(withAge[1]),
-            age: this.normalizeText(withAge[2]) || 'N/A',
+            age: parsedAge || 'Unidentified',
           };
         }
 
@@ -207,13 +208,13 @@ export class SearchCase implements OnInit {
         if (nameOnly) {
           return {
             name: this.normalizeText(nameOnly[1]),
-            age: 'N/A',
+            age: 'Unidentified',
           };
         }
 
         return {
           name: this.normalizeText(part),
-          age: 'N/A',
+          age: 'Unidentified',
         };
       })
       .filter((entry) => !!entry.name);

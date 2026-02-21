@@ -1,6 +1,7 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, Location } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
 import { AdminService } from '../../services/admin';
@@ -30,6 +31,8 @@ export class CaseDetails implements OnInit {
 
   constructor(
     private route: ActivatedRoute,
+    private location: Location,
+    private router: Router,
     private auth: AuthService,
     private adminService: AdminService,
     private caseService: CaseService
@@ -69,7 +72,10 @@ export class CaseDetails implements OnInit {
           if (!entry || typeof entry !== 'object') return null;
           const name = this.normalizeText(entry.name);
           if (!name) return null;
-          const ageValue = entry.age === null || entry.age === undefined || entry.age === '' ? 'N/A' : String(entry.age);
+          const ageValue =
+            entry.age === null || entry.age === undefined || entry.age === ''
+              ? 'Unidentified'
+              : String(entry.age);
           return { name, age: ageValue };
         })
         .filter((entry): entry is PersonDisplay => !!entry);
@@ -83,11 +89,12 @@ export class CaseDetails implements OnInit {
       .map((part) => part.trim())
       .filter(Boolean)
       .map((part) => {
-        const withAge = part.match(/^Name:\s*(.+?)\s+Age:\s*(\d{1,3})$/i);
+        const withAge = part.match(/^Name:\s*(.+?)\s+Age:\s*([^,]+)$/i);
         if (withAge) {
+          const parsedAge = this.normalizeText(withAge[2]);
           return {
             name: this.normalizeText(withAge[1]),
-            age: this.normalizeText(withAge[2]) || 'N/A',
+            age: parsedAge || 'Unidentified',
           };
         }
 
@@ -95,13 +102,13 @@ export class CaseDetails implements OnInit {
         if (nameOnly) {
           return {
             name: this.normalizeText(nameOnly[1]),
-            age: 'N/A',
+            age: 'Unidentified',
           };
         }
 
         return {
           name: this.normalizeText(part),
-          age: 'N/A',
+          age: 'Unidentified',
         };
       })
       .filter((entry) => !!entry.name);
@@ -144,5 +151,13 @@ export class CaseDetails implements OnInit {
     } catch {
       alert('Error denying case.');
     }
+  }
+
+  goBack() {
+    if (window.history.length > 1) {
+      this.location.back();
+      return;
+    }
+    this.router.navigateByUrl('/');
   }
 }

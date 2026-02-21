@@ -132,9 +132,9 @@ export class AddCase implements OnInit {
 
   private buildPeoplePayload() {
     const grouped: {
-      suspects: Array<{ name: string; age: number }>;
-      victim: Array<{ name: string; age: number }>;
-      guilty_name: Array<{ name: string; age: number }>;
+      suspects: Array<{ name: string; age: number | null }>;
+      victim: Array<{ name: string; age: number | null }>;
+      guilty_name: Array<{ name: string; age: number | null }>;
     } = {
       suspects: [],
       victim: [],
@@ -145,8 +145,8 @@ export class AddCase implements OnInit {
       const name = this.normalizeText(person.name);
       const age = this.normalizeText(person.age);
       const role = person.role;
-      if (!name || !age || !role) continue;
-      grouped[role].push({ name, age: Number(age) });
+      if (!name || !role) continue;
+      grouped[role].push({ name, age: age ? Number(age) : null });
     }
 
     return {
@@ -180,7 +180,7 @@ export class AddCase implements OnInit {
     }
 
     if (this.involvedPeople.length === 0) {
-      tempErrors.involvedPeople = 'Add at least one person with name, age, and role.';
+      tempErrors.involvedPeople = 'Add at least one person with name and role.';
     } else {
       for (const person of this.involvedPeople) {
         const name = this.normalizeText(person.name);
@@ -193,7 +193,7 @@ export class AddCase implements OnInit {
           break;
         }
 
-        if (!ageText || !/^\d{1,3}$/.test(ageText) || Number(ageText) > 120) {
+        if (ageText && (!/^\d{1,3}$/.test(ageText) || Number(ageText) > 120)) {
           tempErrors.involvedPeople = 'Each age must be between 0 and 120.';
           break;
         }

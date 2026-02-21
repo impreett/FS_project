@@ -104,7 +104,9 @@ export class AdminUpdateForm implements OnInit {
             entry.age === null || entry.age === undefined || entry.age === ''
               ? ''
               : String(entry.age).trim();
-          return { name, age: ageText, role };
+          const normalizedAge =
+            /^\d{1,3}$/.test(ageText) && Number(ageText) <= 120 ? ageText : '';
+          return { name, age: normalizedAge, role };
         })
         .filter((entry) => !!entry) as InvolvedPerson[];
     }
@@ -117,11 +119,14 @@ export class AdminUpdateForm implements OnInit {
       .map((part) => part.trim())
       .filter(Boolean)
       .map((part) => {
-        const withAge = part.match(/^Name:\s*(.+?)\s+Age:\s*(\d{1,3})$/i);
+        const withAge = part.match(/^Name:\s*(.+?)\s+Age:\s*([^,]+)$/i);
         if (withAge) {
+          const parsedAgeRaw = this.normalizeText(withAge[2]);
+          const parsedAge =
+            /^\d{1,3}$/.test(parsedAgeRaw) && Number(parsedAgeRaw) <= 120 ? parsedAgeRaw : '';
           return {
             name: this.normalizeText(withAge[1]),
-            age: this.normalizeText(withAge[2]),
+            age: parsedAge,
             role,
           };
         }
@@ -250,7 +255,7 @@ export class AdminUpdateForm implements OnInit {
           errs.involvedPeople = 'Each name must be 3-20 letters (alphabets and spaces only).';
           break;
         }
-        if (!ageText || !/^\d{1,3}$/.test(ageText) || Number(ageText) > 120) {
+        if (ageText && (!/^\d{1,3}$/.test(ageText) || Number(ageText) > 120)) {
           errs.involvedPeople = 'Each age must be between 0 and 120.';
           break;
         }
