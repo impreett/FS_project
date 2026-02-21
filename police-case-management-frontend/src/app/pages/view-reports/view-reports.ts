@@ -13,6 +13,9 @@ export class ViewReports implements OnInit {
   reports: any[] = [];
   loading = true;
   sortOrder: 'latest' | 'oldest' = 'latest';
+  successMessage = '';
+  readConfirm: { id: string; from: string } | null = null;
+  isMarkingRead = false;
   private readonly monthYearFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'short',
     year: 'numeric',
@@ -31,14 +34,33 @@ export class ViewReports implements OnInit {
     }
   }
 
-  async handleMarkAsRead(reportId: string) {
-    if (!window.confirm('Are you sure you want to mark this report as read?')) return;
+  handleMarkAsRead(reportId: string, from: string) {
+    this.readConfirm = { id: reportId, from: from || 'this sender' };
+  }
+
+  closeReadConfirm() {
+    if (this.isMarkingRead) return;
+    this.readConfirm = null;
+  }
+
+  closeSuccessMessage() {
+    this.successMessage = '';
+  }
+
+  async confirmMarkAsRead() {
+    if (!this.readConfirm || this.isMarkingRead) return;
+    this.isMarkingRead = true;
+    const sender = this.readConfirm.from;
     try {
-      await firstValueFrom(this.reportService.deleteReport(reportId));
-      this.reports = this.reports.filter((report) => report._id !== reportId);
+      await firstValueFrom(this.reportService.deleteReport(this.readConfirm.id));
+      this.reports = this.reports.filter((report) => report._id !== this.readConfirm?.id);
+      this.successMessage = `Report from ${sender} marked as read!`;
     } catch (err) {
       console.error(err);
       alert('Error removing report.');
+    } finally {
+      this.isMarkingRead = false;
+      this.readConfirm = null;
     }
   }
 
