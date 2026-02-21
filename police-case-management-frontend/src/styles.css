@@ -351,15 +351,15 @@ label.error {
 }
 
 .person-add-btn.neu-button {
-  background-color: #e0e0e0;
+  background-color: #eaf3ff;
   border-radius: 50px;
-  box-shadow: inset 4px 4px 10px #bcbcbc, inset -4px -4px 10px #ffffff;
-  color: #4d4d4d;
+  box-shadow: inset 4px 4px 10px #c0d6f2, inset -4px -4px 10px #ffffff;
+  color: #2f5f9f;
   cursor: pointer;
   font-size: 0.86rem;
   padding: 7px 16px;
   transition: all 0.2s ease-in-out;
-  border: 2px solid rgb(206, 206, 206);
+  border: 2px solid #bed4f1;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -372,18 +372,18 @@ label.error {
 
 .person-add-btn.neu-button:hover {
   box-shadow:
-    inset 2px 2px 5px #bcbcbc,
+    inset 2px 2px 5px #c0d6f2,
     inset -2px -2px 5px #ffffff,
-    2px 2px 5px #bcbcbc,
+    2px 2px 5px #b8cff0,
     -2px -2px 5px #ffffff;
 }
 
 .person-add-btn.neu-button:focus-visible {
   outline: none;
   box-shadow:
-    inset 2px 2px 5px #bcbcbc,
+    inset 2px 2px 5px #c0d6f2,
     inset -2px -2px 5px #ffffff,
-    2px 2px 5px #bcbcbc,
+    2px 2px 5px #b8cff0,
     -2px -2px 5px #ffffff;
 }
 
