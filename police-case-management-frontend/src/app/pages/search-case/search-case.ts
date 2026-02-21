@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
@@ -28,14 +28,12 @@ export class SearchCase implements OnInit, OnDestroy {
   todayStr = new Date().toISOString().split('T')[0];
 
   constructor(
-    private cdr: ChangeDetectorRef,
     private auth: AuthService,
     private adminService: AdminService,
     private caseService: CaseService
   ) {}
 
   async ngOnInit() {
-    this.cdr.detach();
     this.setSearchPageClass(true);
     this.user = this.auth.getUser();
     try {
@@ -49,12 +47,10 @@ export class SearchCase implements OnInit, OnDestroy {
 
   ngOnDestroy() {
     this.setSearchPageClass(false);
-    this.cdr.reattach();
   }
 
   async fetchCases() {
     this.loading = true;
-    this.cdr.detectChanges();
     try {
       const params = { field: this.searchField, query: this.searchQuery };
       const res = this.user?.isAdmin
@@ -66,14 +62,12 @@ export class SearchCase implements OnInit, OnDestroy {
       this.cases = [];
     } finally {
       this.loading = false;
-      this.cdr.detectChanges();
     }
   }
 
   onSearchFieldChange(value: string) {
     this.searchField = value;
     this.searchQuery = '';
-    this.cdr.detectChanges();
     this.fetchCases();
   }
 
