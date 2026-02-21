@@ -35,7 +35,7 @@
               class="form-control"
               [class.is-invalid]="errors.police_id"
               [(ngModel)]="formData.police_id"
-              placeholder="Enter your Police ID number"
+              placeholder="Enter your police ID number"
             />
             <div *ngIf="errors.police_id" class="invalid-feedback">{{ errors.police_id }}</div>
           </div>
@@ -137,7 +137,7 @@
           <div class="mb-3 form-check">
             <input type="checkbox" name="term_of_use" class="form-check-input" required />
             <label class="form-check-label"
-              >I accept the <a routerLink="/terms">Terms and Conditions</a></label
+              >I accept the <a routerLink="/terms">Terms &amp; Conditions</a>.</label
             >
           </div>
           <p>Already have an account? <a routerLink="/login">Login here</a>.</p>

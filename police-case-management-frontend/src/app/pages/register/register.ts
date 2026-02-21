@@ -50,7 +50,7 @@ export class Register {
     const tempErrors: RegisterErrors = {};
     tempErrors.fullname = fullname ? '' : 'Please enter your full name.';
     if (fullname && !/^[a-zA-Z\s]+$/.test(fullname)) {
-      tempErrors.fullname = 'Only alphabets are allowed.';
+      tempErrors.fullname = 'Only letters and spaces are allowed.';
     }
     tempErrors.police_id = police_id.length === 8 ? '' : 'Police ID must be exactly 8 characters.';
     tempErrors.contact =
