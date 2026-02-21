@@ -25,7 +25,7 @@
   border: 2px solid #cecece;
   box-shadow: inset 4px 4px 10px #bcbcbc, inset -4px -4px 10px #ffffff;
   padding: var(--segmented-control-pad);
-  min-height: calc(var(--segmented-control-h) + (var(--segmented-control-pad) * 2) + 4px);
+  height: var(--segmented-control-wrap-h);
   border-radius: 999px;
   overflow: visible;
   width: fit-content;
