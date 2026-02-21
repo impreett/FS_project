@@ -397,11 +397,11 @@ a.case-cancel-btn.neu-button:visited {
 }
 
 .case-cancel-btn.neu-button {
-  --neu-bg: #eeeeee;
-  --neu-inset-dark: #d3d3d3;
-  --neu-outer-dark: #c9c9c9;
-  --neu-border: #d8d8d8;
-  --neu-text: #5a5a5a;
+  --neu-bg: #fdeeee;
+  --neu-inset-dark: #f3c6c6;
+  --neu-outer-dark: #e7b7b7;
+  --neu-border: #f0c5c5;
+  --neu-text: #9d2c2c;
 }
 
 .person-add-btn.neu-button:hover,
