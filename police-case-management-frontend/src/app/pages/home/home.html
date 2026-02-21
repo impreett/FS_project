@@ -14,7 +14,7 @@
       <div class="d-flex justify-content-end align-items-center gap-2 flex-wrap" *ngIf="cases.length > 1">
         <span class="fw-semibold">Filter:</span>
         <div class="filter-tabs" role="group" aria-label="Filter updated cases">
-          <div class="tabs">
+          <div class="tabs" #filterTabs>
           <input
             type="radio"
             id="home-radio-1"

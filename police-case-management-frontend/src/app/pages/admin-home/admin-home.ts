@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
@@ -10,7 +10,9 @@ import { AdminService } from '../../services/admin';
   templateUrl: './admin-home.html',
   styleUrl: './admin-home.css',
 })
-export class AdminHome implements OnInit {
+export class AdminHome implements OnInit, AfterViewInit {
+  @ViewChild('filterTabs') filterTabs?: ElementRef<HTMLElement>;
+
   cases: any[] = [];
   loading = true;
   sortOrder: 'latest' | 'oldest' = 'latest';
@@ -30,6 +32,17 @@ export class AdminHome implements OnInit {
       alert('Failed to fetch cases. You may not be an admin.');
     } finally {
       this.loading = false;
+      setTimeout(() => this.syncFilterTabMetrics());
+    }
+  }
+
+  ngAfterViewInit() {
+    this.syncFilterTabMetrics();
+    setTimeout(() => this.syncFilterTabMetrics());
+    if (typeof document !== 'undefined' && 'fonts' in document) {
+      (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts?.ready
+        .then(() => this.syncFilterTabMetrics())
+        .catch(() => {});
     }
   }
 
@@ -39,6 +52,30 @@ export class AdminHome implements OnInit {
 
   setUpdateFilter(filter: 'all' | 'recent' | 'updated') {
     this.updateFilter = filter;
+    setTimeout(() => this.syncFilterTabMetrics());
+  }
+
+  @HostListener('window:resize')
+  onWindowResize() {
+    this.syncFilterTabMetrics();
+  }
+
+  private syncFilterTabMetrics() {
+    const tabs = this.filterTabs?.nativeElement;
+    if (!tabs) return;
+    const labels = Array.from(tabs.querySelectorAll('label.tab')) as HTMLElement[];
+    if (labels.length < 3) return;
+
+    const setPxVar = (name: string, value: number) =>
+      tabs.style.setProperty(name, `${Math.ceil(value)}px`);
+
+    setPxVar('--filter-all-w', labels[0].offsetWidth);
+    setPxVar('--filter-recent-w', labels[1].offsetWidth);
+    setPxVar('--filter-updated-w', labels[2].offsetWidth);
+
+    setPxVar('--filter-all-x', labels[0].offsetLeft);
+    setPxVar('--filter-recent-x', labels[1].offsetLeft);
+    setPxVar('--filter-updated-x', labels[2].offsetLeft);
   }
 
   private getUpdatedTimestamp(caseItem: any) {
