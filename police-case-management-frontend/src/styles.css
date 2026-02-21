@@ -126,7 +126,7 @@ label.error {
   border: 2px solid #cecece;
   box-shadow: inset 4px 4px 10px #bcbcbc, inset -4px -4px 10px #ffffff;
   padding: var(--segmented-control-pad);
-  height: calc(var(--segmented-control-h) + (var(--segmented-control-pad) * 2) + 4px);
+  min-height: calc(var(--segmented-control-h) + (var(--segmented-control-pad) * 2) + 4px);
   border-radius: 999px;
   isolation: isolate;
   box-sizing: border-box;
