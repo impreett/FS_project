@@ -84,6 +84,15 @@ app-navbar:hover + .layout-main {
   margin-left: var(--sidebar-expanded);
 }
 
+/* On search page, keep content fixed and let expanded sidebar overlay to avoid layout thrash. */
+body.search-page app-navbar:hover + .layout-main {
+  margin-left: var(--sidebar-collapsed);
+}
+
+body.search-page .layout-main {
+  transition: margin-left 0ms;
+}
+
 a.nav-item-link.active {
   background: #6c757d;
   color: #fff;
