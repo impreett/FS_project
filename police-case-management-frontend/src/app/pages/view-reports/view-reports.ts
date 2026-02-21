@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ReportService } from '../../services/report';
 
@@ -9,13 +9,15 @@ import { ReportService } from '../../services/report';
   templateUrl: './view-reports.html',
   styleUrl: './view-reports.css',
 })
-export class ViewReports implements OnInit {
+export class ViewReports implements OnInit, OnDestroy {
   reports: any[] = [];
   loading = true;
   sortOrder: 'latest' | 'oldest' = 'latest';
   successMessage = '';
   readConfirm: { id: string; from: string } | null = null;
   isMarkingRead = false;
+  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly successMessageDurationMs = 7000;
   private readonly monthYearFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'short',
     year: 'numeric',
@@ -38,12 +40,17 @@ export class ViewReports implements OnInit {
     this.readConfirm = { id: reportId, from: from || 'this sender' };
   }
 
+  ngOnDestroy() {
+    this.clearSuccessMessageTimer();
+  }
+
   closeReadConfirm() {
     if (this.isMarkingRead) return;
     this.readConfirm = null;
   }
 
   closeSuccessMessage() {
+    this.clearSuccessMessageTimer();
     this.successMessage = '';
   }
 
@@ -54,7 +61,7 @@ export class ViewReports implements OnInit {
     try {
       await firstValueFrom(this.reportService.deleteReport(this.readConfirm.id));
       this.reports = this.reports.filter((report) => report._id !== this.readConfirm?.id);
-      this.successMessage = `Report from ${sender} marked as read!`;
+      this.showSuccessMessage(`Report from ${sender} marked as read!`);
     } catch (err) {
       console.error(err);
       alert('Error removing report.');
@@ -66,6 +73,22 @@ export class ViewReports implements OnInit {
 
   setSortOrder(order: 'latest' | 'oldest') {
     this.sortOrder = order;
+  }
+
+  private showSuccessMessage(message: string) {
+    this.clearSuccessMessageTimer();
+    this.successMessage = message;
+    this.successMessageTimer = setTimeout(() => {
+      this.successMessage = '';
+      this.successMessageTimer = null;
+    }, this.successMessageDurationMs);
+  }
+
+  private clearSuccessMessageTimer() {
+    if (this.successMessageTimer) {
+      clearTimeout(this.successMessageTimer);
+      this.successMessageTimer = null;
+    }
   }
 
   private getReportTime(report: any) {

@@ -21,3 +21,33 @@
   margin-top: 6px;
   min-width: 162px;
 }
+
+.timed-alert {
+  position: relative;
+  overflow: hidden;
+}
+
+.timed-alert .btn-close {
+  position: relative;
+  z-index: 1;
+}
+
+.timed-alert-progress {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 3px;
+  background: rgba(25, 135, 84, 0.85);
+  transform-origin: left center;
+  animation: timed-alert-progress-shrink 7s linear forwards;
+}
+
+@keyframes timed-alert-progress-shrink {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
