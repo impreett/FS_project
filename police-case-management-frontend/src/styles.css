@@ -445,3 +445,18 @@ label.error {
 .person-add-btn.neu-button .span-mother2 span:nth-child(5) {
   transition: 0.6s;
 }
+
+.person-add-btn.neu-button .span-mother span:nth-child(6),
+.person-add-btn.neu-button .span-mother2 span:nth-child(6) {
+  transition: 0.7s;
+}
+
+.person-add-btn.neu-button .span-mother span:nth-child(7),
+.person-add-btn.neu-button .span-mother2 span:nth-child(7) {
+  transition: 0.8s;
+}
+
+.person-add-btn.neu-button .span-mother span:nth-child(8),
+.person-add-btn.neu-button .span-mother2 span:nth-child(8) {
+  transition: 0.9s;
+}
