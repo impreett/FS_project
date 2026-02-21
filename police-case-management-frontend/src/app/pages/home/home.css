@@ -13,7 +13,7 @@
 }
 
 .tabs {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   position: relative;
   background-color: #e0e0e0;
@@ -21,6 +21,7 @@
   box-shadow: inset 4px 4px 10px #bcbcbc, inset -4px -4px 10px #ffffff;
   padding: var(--segmented-control-pad);
   height: var(--segmented-control-wrap-h);
+  min-height: var(--segmented-control-wrap-h);
   border-radius: 999px;
   overflow: visible;
   width: fit-content;
@@ -49,6 +50,7 @@
   z-index: 3;
   white-space: nowrap;
   line-height: 1;
+  margin: 0;
   box-sizing: border-box;
 }
 
