@@ -313,24 +313,26 @@
           </select>
           <div *ngIf="errors.status" class="invalid-feedback">{{ errors.status }}</div>
         </div>
-        <button type="submit" class="case-update-btn neu-button">
-          <span class="span-mother" aria-hidden="true">
-            <span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
-          </span>
-          <span class="span-mother2" aria-hidden="true">
-            <span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
-          </span>
-          <span class="visually-hidden">Update case</span>
-        </button>
-        <a routerLink="/admin/update-case" class="case-update-btn neu-button ms-2">
-          <span class="span-mother" aria-hidden="true">
-            <span>C</span><span>a</span><span>n</span><span>c</span><span>e</span><span>l</span>
-          </span>
-          <span class="span-mother2" aria-hidden="true">
-            <span>C</span><span>a</span><span>n</span><span>c</span><span>e</span><span>l</span>
-          </span>
-          <span class="visually-hidden">Cancel</span>
-        </a>
+        <div class="case-update-actions">
+          <button type="submit" class="case-update-btn neu-button">
+            <span class="span-mother" aria-hidden="true">
+              <span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+            </span>
+            <span class="visually-hidden">Update case</span>
+          </button>
+          <a routerLink="/admin/update-case" class="case-update-btn neu-button">
+            <span class="span-mother" aria-hidden="true">
+              <span>C</span><span>a</span><span>n</span><span>c</span><span>e</span><span>l</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>C</span><span>a</span><span>n</span><span>c</span><span>e</span><span>l</span>
+            </span>
+            <span class="visually-hidden">Cancel</span>
+          </a>
+        </div>
       </form>
     </div>
   </ng-container>

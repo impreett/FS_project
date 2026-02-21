@@ -65,3 +65,15 @@
 .person-add-placeholder {
   display: none;
 }
+
+.case-update-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  width: 100%;
+}
+
+.case-update-actions .case-update-btn {
+  width: 100%;
+  min-width: 0;
+}
