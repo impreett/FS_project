@@ -1,3 +1,16 @@
+:host {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.container {
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
 .search-highlight {
   background-color: #ffe58f;
   padding: 0;
@@ -19,6 +32,9 @@
   padding: 20px;
   background: #fff;
   margin-bottom: 30px;
+  max-width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .case-details-card p {
@@ -38,6 +54,7 @@
 
 .detail-value {
   word-break: break-word;
+  min-width: 0;
 }
 
 .people-lines {
@@ -46,6 +63,7 @@
   column-gap: 12px;
   row-gap: 2px;
   align-items: baseline;
+  min-width: 0;
 }
 
 .person-line {
@@ -77,6 +95,7 @@
   padding: 8px 10px;
   overflow-wrap: anywhere;
   word-break: break-word;
+  min-width: 0;
 }
 
 @media (max-width: 576px) {
