@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
@@ -17,7 +17,7 @@ type PersonDisplay = {
   templateUrl: './search-case.html',
   styleUrl: './search-case.css',
 })
-export class SearchCase implements OnInit {
+export class SearchCase implements OnInit, OnDestroy {
   cases: any[] = [];
   loading = false;
   searchField = 'for-all';
@@ -33,6 +33,7 @@ export class SearchCase implements OnInit {
   ) {}
 
   async ngOnInit() {
+    this.setSearchPageClass(true);
     this.user = this.auth.getUser();
     try {
       const res = await firstValueFrom(this.caseService.getOfficers());
@@ -41,6 +42,10 @@ export class SearchCase implements OnInit {
       console.error('Failed to fetch officers');
     }
     await this.fetchCases();
+  }
+
+  ngOnDestroy() {
+    this.setSearchPageClass(false);
   }
 
   async fetchCases() {
@@ -233,4 +238,8 @@ export class SearchCase implements OnInit {
       .replace(/'/g, '&#39;');
   }
 
+  private setSearchPageClass(enabled: boolean) {
+    if (typeof document === 'undefined') return;
+    document.body.classList.toggle('search-page', enabled);
+  }
 }
