@@ -15,6 +15,10 @@ export class ActiveUsers implements OnInit {
 
   constructor(private adminService: AdminService) {}
 
+  get cityCount(): number {
+    return new Set(this.users.map((u) => (u?.city || '').trim()).filter(Boolean)).size;
+  }
+
   async ngOnInit() {
     try {
       const res = await firstValueFrom(this.adminService.getActiveUsers());

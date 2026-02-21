@@ -1,43 +1,56 @@
-﻿<div class="container mt-4">
-  <div *ngIf="loading">Loading...</div>
+<div class="container mt-4 mb-4 active-users-page">
+  <section class="active-users-hero">
+    <div>
+      <h2 class="mb-1">Active users</h2>
+      <p class="active-users-subtitle mb-0">
+        Manage approved officers currently allowed to access the system.
+      </p>
+    </div>
+    <div class="active-users-metrics">
+      <article class="metric-card">
+        <span class="metric-label">Total active</span>
+        <span class="metric-value">{{ users.length }}</span>
+      </article>
+      <article class="metric-card">
+        <span class="metric-label">Cities covered</span>
+        <span class="metric-value">{{ cityCount }}</span>
+      </article>
+    </div>
+  </section>
+
+  <div *ngIf="loading" class="alert alert-light border">Loading active users...</div>
 
   <ng-container *ngIf="!loading">
-    <h2 class="mb-4">Active users</h2>
     <div *ngIf="users.length === 0" class="alert alert-info">No active users found.</div>
-    <div *ngIf="users.length > 0" class="table-responsive">
-      <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-          <tr>
-            <th>Full name</th>
-            <th>Police ID</th>
-            <th>Email</th>
-            <th>Contact</th>
-            <th>City</th>
-            <th class="text-center">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let user of users">
-            <td>{{ user.fullname }}</td>
-            <td>{{ user.police_id }}</td>
-            <td>{{ user.email }}</td>
-            <td>{{ user.contact }}</td>
-            <td>{{ user.city }}</td>
-            <td class="text-center align-middle">
-              <button class="pending-action-btn pending-reject-btn neu-button" (click)="handleDisable(user._id)">
-                <span class="span-mother" aria-hidden="true">
-                  <span>D</span><span>i</span><span>s</span><span>a</span><span>b</span><span>l</span><span>e</span>
-                </span>
-                <span class="span-mother2" aria-hidden="true">
-                  <span>D</span><span>i</span><span>s</span><span>a</span><span>b</span><span>l</span><span>e</span>
-                </span>
-                <span class="visually-hidden">Disable</span>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+
+    <div *ngIf="users.length > 0" class="active-users-grid">
+      <article *ngFor="let user of users" class="active-user-card">
+        <header class="active-user-head">
+          <h5 class="active-user-name mb-0">{{ user.fullname }}</h5>
+          <span class="active-user-city">{{ user.city }}</span>
+        </header>
+
+        <div class="active-user-details">
+          <p class="detail-item mb-1"><b>Email:</b> {{ user.email }}</p>
+          <p class="detail-item mb-1"><b>Police ID:</b> {{ user.police_id }}</p>
+          <p class="detail-item mb-0"><b>Contact:</b> {{ user.contact }}</p>
+        </div>
+
+        <div class="active-user-actions">
+          <button
+            class="pending-action-btn pending-reject-btn neu-button active-user-disable-btn"
+            (click)="handleDisable(user._id)"
+          >
+            <span class="span-mother" aria-hidden="true">
+              <span>D</span><span>i</span><span>s</span><span>a</span><span>b</span><span>l</span><span>e</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>D</span><span>i</span><span>s</span><span>a</span><span>b</span><span>l</span><span>e</span>
+            </span>
+            <span class="visually-hidden">Disable</span>
+          </button>
+        </div>
+      </article>
     </div>
   </ng-container>
 </div>
-
