@@ -55,24 +55,3 @@
     flex-direction: column;
   }
 }
-
-/* Keep neumorphic button style but disable letter hover animation on this page */
-.pending-update-actions .pending-action-btn.neu-button .span-mother {
-  overflow: visible;
-}
-
-.pending-update-actions .pending-action-btn.neu-button .span-mother span {
-  transition: none;
-}
-
-.pending-update-actions .pending-action-btn.neu-button:hover .span-mother {
-  position: static;
-}
-
-.pending-update-actions .pending-action-btn.neu-button:hover .span-mother span {
-  transform: none;
-}
-
-.pending-update-actions .pending-action-btn.neu-button .span-mother2 {
-  display: none;
-}
