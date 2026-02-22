@@ -74,9 +74,25 @@
           </span>
         </p>
 
-        <div *ngIf="!caseItem.isApproved">
-          <button class="btn btn-success me-2" (click)="handleApprove()">Approve</button>
-          <button class="btn btn-danger" (click)="handleDeny()">Deny</button>
+        <div *ngIf="!caseItem.isApproved" class="case-admin-actions">
+          <button class="pending-action-btn pending-approve-btn neu-button" (click)="handleApprove()">
+            <span class="span-mother" aria-hidden="true">
+              <span>A</span><span>p</span><span>p</span><span>r</span><span>o</span><span>v</span><span>e</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>A</span><span>p</span><span>p</span><span>r</span><span>o</span><span>v</span><span>e</span>
+            </span>
+            <span class="visually-hidden">Approve</span>
+          </button>
+          <button class="pending-action-btn pending-reject-btn neu-button" (click)="handleDeny()">
+            <span class="span-mother" aria-hidden="true">
+              <span>D</span><span>e</span><span>n</span><span>y</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>D</span><span>e</span><span>n</span><span>y</span>
+            </span>
+            <span class="visually-hidden">Deny</span>
+          </button>
         </div>
       </article>
     </ng-container>

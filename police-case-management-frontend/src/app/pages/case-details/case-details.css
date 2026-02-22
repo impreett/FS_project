@@ -80,7 +80,7 @@
   margin-bottom: 14px;
 }
 
-.neu-button {
+.case-back-actions .neu-button {
   background-color: #e0e0e0;
   border-radius: 50px;
   box-shadow: inset 4px 4px 10px #bcbcbc, inset -4px -4px 10px #ffffff;
@@ -100,7 +100,7 @@
   box-sizing: border-box;
 }
 
-.neu-button:hover {
+.case-back-actions .neu-button:hover {
   box-shadow:
     inset 2px 2px 5px #bcbcbc,
     inset -2px -2px 5px #ffffff,
@@ -108,7 +108,7 @@
     -2px -2px 5px #ffffff;
 }
 
-.neu-button:focus {
+.case-back-actions .neu-button:focus {
   outline: none;
   box-shadow:
     inset 2px 2px 5px #bcbcbc,
@@ -117,61 +117,69 @@
     -2px -2px 5px #ffffff;
 }
 
-.neu-button .span-mother {
+.case-back-actions .neu-button .span-mother {
   display: flex;
   overflow: hidden;
 }
 
-.neu-button:hover .span-mother {
+.case-back-actions .neu-button:hover .span-mother {
   position: absolute;
 }
 
-.neu-button:hover .span-mother span {
+.case-back-actions .neu-button:hover .span-mother span {
   transform: translateY(1.2em);
 }
 
-.neu-button .span-mother span:nth-child(1) {
+.case-back-actions .neu-button .span-mother span:nth-child(1) {
   transition: 0.2s;
 }
 
-.neu-button .span-mother span:nth-child(2) {
+.case-back-actions .neu-button .span-mother span:nth-child(2) {
   transition: 0.3s;
 }
 
-.neu-button .span-mother span:nth-child(3) {
+.case-back-actions .neu-button .span-mother span:nth-child(3) {
   transition: 0.4s;
 }
 
-.neu-button .span-mother span:nth-child(4) {
+.case-back-actions .neu-button .span-mother span:nth-child(4) {
   transition: 0.5s;
 }
 
-.neu-button .span-mother2 {
+.case-back-actions .neu-button .span-mother2 {
   display: flex;
   position: absolute;
   overflow: hidden;
 }
 
-.neu-button .span-mother2 span {
+.case-back-actions .neu-button .span-mother2 span {
   transform: translateY(-1.2em);
 }
 
-.neu-button:hover .span-mother2 span {
+.case-back-actions .neu-button:hover .span-mother2 span {
   transform: translateY(0);
 }
 
-.neu-button .span-mother2 span:nth-child(1) {
+.case-back-actions .neu-button .span-mother2 span:nth-child(1) {
   transition: 0.2s;
 }
 
-.neu-button .span-mother2 span:nth-child(2) {
+.case-back-actions .neu-button .span-mother2 span:nth-child(2) {
   transition: 0.3s;
 }
 
-.neu-button .span-mother2 span:nth-child(3) {
+.case-back-actions .neu-button .span-mother2 span:nth-child(3) {
   transition: 0.4s;
 }
 
-.neu-button .span-mother2 span:nth-child(4) {
+.case-back-actions .neu-button .span-mother2 span:nth-child(4) {
   transition: 0.5s;
+}
+
+.case-admin-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  flex-wrap: wrap;
 }
