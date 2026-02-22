@@ -46,11 +46,23 @@ export class SearchCase implements OnInit {
   async fetchCases() {
     this.loading = true;
     try {
-      const params = { field: this.searchField, query: this.searchQuery };
-      const res = this.user?.isAdmin
-        ? await firstValueFrom(this.adminService.searchCases(params))
-        : await firstValueFrom(this.caseService.getCases(params));
-      this.cases = res || [];
+      const query = String(this.searchQuery ?? '').trim();
+      if (this.searchField === 'for-all') {
+        const params = { field: 'for-all', query: '' };
+        const res = this.user?.isAdmin
+          ? await firstValueFrom(this.adminService.searchCases(params))
+          : await firstValueFrom(this.caseService.getCases(params));
+        const allCases = res || [];
+        this.cases = query
+          ? allCases.filter((caseItem) => this.matchesForAllSearch(caseItem, query))
+          : allCases;
+      } else {
+        const params = { field: this.searchField, query: this.searchQuery };
+        const res = this.user?.isAdmin
+          ? await firstValueFrom(this.adminService.searchCases(params))
+          : await firstValueFrom(this.caseService.getCases(params));
+        this.cases = res || [];
+      }
     } catch (err) {
       console.error('Error fetching cases:', err);
       this.cases = [];
@@ -169,6 +181,66 @@ export class SearchCase implements OnInit {
   private normalizeText(value: unknown): string {
     if (value === null || value === undefined) return '';
     return String(value).trim();
+  }
+
+  private matchesForAllSearch(caseItem: any, query: string): boolean {
+    const normalizedQuery = this.normalizeForSearch(query);
+    if (!normalizedQuery) return true;
+    return this.normalizeForSearch(this.getWholeCaseSearchText(caseItem)).includes(normalizedQuery);
+  }
+
+  private getWholeCaseSearchText(caseItem: any): string {
+    const parts: string[] = [];
+    const walk = (value: unknown) => {
+      if (value === null || value === undefined) return;
+
+      if (value instanceof Date) {
+        parts.push(value.toISOString(), this.formatDateForSearch(value));
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach(walk);
+        return;
+      }
+
+      if (typeof value === 'object') {
+        Object.values(value as Record<string, unknown>).forEach(walk);
+        return;
+      }
+
+      if (typeof value === 'boolean') {
+        parts.push(value ? 'true approved yes 1' : 'false pending no 0');
+        return;
+      }
+
+      const text = String(value).trim();
+      if (!text) return;
+
+      parts.push(text);
+
+      const parsedDate = new Date(text);
+      if (!Number.isNaN(parsedDate.getTime())) {
+        parts.push(this.formatDateForSearch(parsedDate));
+      }
+    };
+
+    walk(caseItem);
+    return parts.join(' ');
+  }
+
+  private formatDateForSearch(dateObj: Date): string {
+    const localDay = String(dateObj.getDate()).padStart(2, '0');
+    const localMonth = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const localYear = dateObj.getFullYear();
+    const utcDay = String(dateObj.getUTCDate()).padStart(2, '0');
+    const utcMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const utcYear = dateObj.getUTCFullYear();
+    return `${localDay}-${localMonth}-${localYear} ${localYear}-${localMonth}-${localDay} ${utcDay}-${utcMonth}-${utcYear} ${utcYear}-${utcMonth}-${utcDay}`;
+  }
+
+  private normalizeForSearch(value: unknown): string {
+    return String(value ?? '').toLowerCase().trim();
   }
 
   private parsePeople(value: unknown): PersonDisplay[] {
