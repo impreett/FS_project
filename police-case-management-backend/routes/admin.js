@@ -10,7 +10,7 @@ const {
     serializeCasesForClient,
     formatPeopleField,
     buildPeopleSearchOr,
-    buildPeopleForAllSearchOr,
+    buildCaseForAllSearchOr,
 } = require('../utils/people');
 const { validateCaseDateNotFuture } = require('../utils/caseDate');
 
@@ -148,13 +148,7 @@ router.get('/search-cases', adminAuth, async (req, res) => {
         let searchFilter = { is_removed: { $ne: true } }; // non-removed by default
         if (query && field) {
             if (field === "for-all") {
-                searchFilter.$or = [
-                    { case_title: { $regex: query, $options: 'i' } },
-                    { case_type: { $regex: query, $options: 'i' } },
-                    { case_description: { $regex: query, $options: 'i' } },
-                    { case_handler: { $regex: query, $options: 'i' } },
-                    ...buildPeopleForAllSearchOr(query),
-                ];
+                searchFilter.$or = buildCaseForAllSearchOr(query);
             } else if (field === "isApproved") {
                 searchFilter.isApproved = query === '1';
             } else if (field === "status") {

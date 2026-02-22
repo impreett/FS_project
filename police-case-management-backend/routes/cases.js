@@ -9,7 +9,7 @@ const {
     serializeCaseForClient,
     serializeCasesForClient,
     buildPeopleSearchOr,
-    buildPeopleForAllSearchOr,
+    buildCaseForAllSearchOr,
 } = require('../utils/people');
 const { validateCaseDateNotFuture } = require('../utils/caseDate');
 
@@ -31,12 +31,7 @@ router.get('/', async (req, res) => {
     let searchFilter = { isApproved: true, is_removed: { $ne: true } };
     if (query && field) {
         if (field === "for-all") {
-            searchFilter.$or = [
-                { case_title: { $regex: query, $options: 'i' } }, { case_type: { $regex: query, $options: 'i' } },
-                { case_description: { $regex: query, $options: 'i' } },
-                { case_handler: { $regex: query, $options: 'i' } },
-                ...buildPeopleForAllSearchOr(query),
-            ];
+            searchFilter.$or = buildCaseForAllSearchOr(query);
         } else if (field === "status") {
             searchFilter.status = query.toUpperCase();
         } else if (field === "case_date") {

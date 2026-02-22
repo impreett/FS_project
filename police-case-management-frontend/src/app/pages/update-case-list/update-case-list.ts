@@ -113,9 +113,7 @@ export class UpdateCaseList implements OnInit {
 
     return this.cases.filter((caseItem) => {
       if (this.searchField === 'for-all') {
-        return this.searchableFields.some((field) =>
-          this.normalize(this.getFieldValue(caseItem, field)).includes(normalizedQuery)
-        );
+        return this.normalize(this.getWholeCaseSearchText(caseItem)).includes(normalizedQuery);
       }
 
       if (
@@ -158,6 +156,53 @@ export class UpdateCaseList implements OnInit {
       }
     }
     return groups;
+  }
+
+  private getWholeCaseSearchText(caseItem: any): string {
+    const parts: string[] = [];
+    const walk = (value: unknown) => {
+      if (value === null || value === undefined) return;
+
+      if (value instanceof Date) {
+        parts.push(value.toISOString(), this.formatDateForSearch(value));
+        return;
+      }
+
+      if (Array.isArray(value)) {
+        value.forEach(walk);
+        return;
+      }
+
+      if (typeof value === 'object') {
+        Object.values(value as Record<string, unknown>).forEach(walk);
+        return;
+      }
+
+      if (typeof value === 'boolean') {
+        parts.push(value ? 'true approved yes 1' : 'false pending no 0');
+        return;
+      }
+
+      const text = String(value).trim();
+      if (!text) return;
+
+      parts.push(text);
+
+      const parsedDate = new Date(text);
+      if (!Number.isNaN(parsedDate.getTime())) {
+        parts.push(this.formatDateForSearch(parsedDate), this.getDateValue(text));
+      }
+    };
+
+    walk(caseItem);
+    return parts.join(' ');
+  }
+
+  private formatDateForSearch(dateObj: Date): string {
+    const day = String(dateObj.getDate()).padStart(2, '0');
+    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const year = dateObj.getFullYear();
+    return `${day}-${month}-${year} ${year}-${month}-${day}`;
   }
 
   private getFieldValue(caseItem: any, field: SearchField): string {

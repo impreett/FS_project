@@ -87,18 +87,100 @@ const serializeCaseForClient = (caseDoc) => {
 
 const serializeCasesForClient = (caseDocs = []) => caseDocs.map(serializeCaseForClient);
 
+const escapeRegex = (value) => String(value ?? '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 const buildPeopleSearchOr = (field, query) => {
-  const regex = { $regex: query, $options: 'i' };
+  const regex = { $regex: escapeRegex(query), $options: 'i' };
   return [{ [`${field}.name`]: regex }];
 };
 
 const buildPeopleForAllSearchOr = (query) => {
-  const regex = { $regex: query, $options: 'i' };
+  const regex = { $regex: escapeRegex(query), $options: 'i' };
   return [
     { 'suspects.name': regex },
     { 'victim.name': regex },
     { 'guilty_name.name': regex },
   ];
+};
+
+const parseQueryDateRange = (query) => {
+  const text = String(query ?? '').trim();
+  if (!text) return null;
+
+  let year;
+  let month;
+  let day;
+  let match = text.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (match) {
+    year = Number(match[1]);
+    month = Number(match[2]);
+    day = Number(match[3]);
+  } else {
+    match = text.match(/^(\d{2})-(\d{2})-(\d{4})$/);
+    if (!match) return null;
+    day = Number(match[1]);
+    month = Number(match[2]);
+    year = Number(match[3]);
+  }
+
+  const start = new Date(Date.UTC(year, month - 1, day));
+  if (
+    Number.isNaN(start.getTime()) ||
+    start.getUTCFullYear() !== year ||
+    start.getUTCMonth() !== month - 1 ||
+    start.getUTCDate() !== day
+  ) {
+    return null;
+  }
+
+  const end = new Date(start);
+  end.setUTCDate(end.getUTCDate() + 1);
+  return { start, end };
+};
+
+const buildCaseForAllSearchOr = (query) => {
+  const text = String(query ?? '').trim();
+  if (!text) return [];
+
+  const escaped = escapeRegex(text);
+  const regex = { $regex: escaped, $options: 'i' };
+  const lowered = text.toLowerCase();
+  const or = [
+    { case_title: regex },
+    { case_type: regex },
+    { case_description: regex },
+    { case_handler: regex },
+    { status: regex },
+    ...buildPeopleForAllSearchOr(text),
+    {
+      $expr: {
+        $regexMatch: {
+          input: { $toString: '$_id' },
+          regex: escaped,
+          options: 'i',
+        },
+      },
+    },
+  ];
+
+  if (/^\d+$/.test(text)) {
+    const age = Number(text);
+    or.push({ 'suspects.age': age }, { 'victim.age': age }, { 'guilty_name.age': age });
+  }
+
+  if (['approved', 'approve', 'true', 'yes', '1'].includes(lowered)) {
+    or.push({ isApproved: true });
+  }
+  if (['pending', 'false', 'no', '0'].includes(lowered)) {
+    or.push({ isApproved: false });
+  }
+
+  const range = parseQueryDateRange(text);
+  if (range) {
+    or.push({ case_date: { $gte: range.start, $lt: range.end } });
+  }
+
+  return or;
 };
 
 module.exports = {
@@ -110,4 +192,5 @@ module.exports = {
   serializeCasesForClient,
   buildPeopleSearchOr,
   buildPeopleForAllSearchOr,
+  buildCaseForAllSearchOr,
 };
