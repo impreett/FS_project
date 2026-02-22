@@ -138,10 +138,15 @@
         <article *ngFor="let caseItem of group.items" class="case-details-card search-result-article">
           <div class="pending-case-layout">
             <div class="pending-case-meta">
-              <h3 class="mb-4">
-                <a [routerLink]="['/case', caseItem._id]" class="text-dark text-decoration-none">
-                  {{ caseItem.case_title }}
-                </a>
+              <h3 class="mb-4 search-result-title">
+                <ng-container *ngIf="searchField !== 'for-all'; else pendingTitlePlain">
+                  <a [routerLink]="['/case', caseItem._id]" class="result-title-link">
+                    {{ caseItem.case_title }}
+                  </a>
+                </ng-container>
+                <ng-template #pendingTitlePlain>
+                  <span>{{ caseItem.case_title }}</span>
+                </ng-template>
               </h3>
               <p class="detail-row" *ngIf="shouldShowField('case_id')">
                 <span class="detail-label"><b>Case ID:</b></span>

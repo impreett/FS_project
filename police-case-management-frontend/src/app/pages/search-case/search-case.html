@@ -113,7 +113,18 @@
   <ng-container *ngIf="!loading">
     <ng-container *ngIf="cases.length > 0; else noCases">
       <article *ngFor="let caseItem of cases" class="case-details-card search-result-article">
-        <h2 class="mb-4" [innerHTML]="highlightText(caseItem.case_title, 'Untitled')"></h2>
+        <h2 class="mb-4 search-result-title">
+          <ng-container *ngIf="searchField !== 'for-all'; else searchTitlePlain">
+            <a
+              [routerLink]="['/case', caseItem._id]"
+              class="result-title-link"
+              [innerHTML]="highlightText(caseItem.case_title, 'Untitled')"
+            ></a>
+          </ng-container>
+          <ng-template #searchTitlePlain>
+            <span [innerHTML]="highlightText(caseItem.case_title, 'Untitled')"></span>
+          </ng-template>
+        </h2>
         <p class="detail-row" *ngIf="shouldShowField('case_id')">
           <span class="detail-label"><b>Case ID:</b></span>
           <span class="detail-value" [innerHTML]="highlightText(caseItem._id, 'N/A')"></span>

@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
 import { AdminService } from '../../services/admin';
@@ -13,7 +14,7 @@ type PersonDisplay = {
 
 @Component({
   selector: 'app-search-case',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './search-case.html',
   styleUrl: './search-case.css',
 })
