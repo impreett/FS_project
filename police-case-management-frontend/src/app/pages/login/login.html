@@ -12,36 +12,50 @@
       <div class="col-md-8 col-lg-6 mx-auto">
         <div class="card login-form-card shadow">
           <div class="card-body p-4 p-md-5">
-        <form (ngSubmit)="onSubmit()" novalidate>
-          <div class="mb-3">
-            <label class="form-label">Email</label>
-            <input
-              type="email"
-              name="email"
-              class="form-control"
-              [class.is-invalid]="errors.email"
-              [(ngModel)]="formData.email"
-              placeholder="Enter your email"
-            />
-            <div *ngIf="errors.email" class="error">{{ errors.email }}</div>
-          </div>
-          <div class="mb-3">
-            <label class="form-label">Password</label>
-            <input
-              type="password"
-              name="password"
-              class="form-control"
-              [class.is-invalid]="errors.password"
-              [(ngModel)]="formData.password"
-              placeholder="Enter your password"
-            />
-            <div *ngIf="errors.password" class="error">{{ errors.password }}</div>
-          </div>
-          <p>Don't have an account? <a routerLink="/register">Register here</a>.</p>
-          <button type="submit" class="btn btn-dark w-100 mt-3" [disabled]="loading">
-            Login
-          </button>
-        </form>
+            <div
+              *ngIf="errorMessage"
+              class="alert alert-danger alert-dismissible fade show text-center app-timed-alert mb-3"
+              role="alert"
+            >
+              {{ errorMessage }}
+              <button
+                type="button"
+                class="btn-close"
+                (click)="closeErrorMessage()"
+                aria-label="Close"
+              ></button>
+            </div>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+              <div class="mb-3">
+                <label class="form-label">Email</label>
+                <input
+                  type="email"
+                  formControlName="email"
+                  class="form-control"
+                  [class.is-invalid]="emailControl.invalid && (emailControl.touched || submitted)"
+                  placeholder="Enter your email"
+                />
+                <div *ngIf="emailError" class="error">{{ emailError }}</div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Password</label>
+                <input
+                  type="password"
+                  formControlName="password"
+                  class="form-control"
+                  [class.is-invalid]="passwordControl.invalid && (passwordControl.touched || submitted)"
+                  placeholder="Enter your password"
+                />
+                <div *ngIf="passwordError" class="error">{{ passwordError }}</div>
+              </div>
+
+              <p>Don't have an account? <a routerLink="/register">Register here</a>.</p>
+              <button type="submit" class="btn btn-dark w-100 mt-3" [disabled]="loading">
+                Login
+              </button>
+            </form>
           </div>
         </div>
       </div>
