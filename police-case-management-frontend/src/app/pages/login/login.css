@@ -13,6 +13,28 @@
   background: rgba(255, 255, 255, 0.96);
 }
 
+.login-error-card {
+  width: 100%;
+  padding: 16px 18px;
+  text-align: left;
+}
+
+.login-error-card p {
+  color: #303747;
+}
+
+.remove-confirm-actions {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: stretch;
+}
+
+.remove-confirm-actions .pending-action-btn {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
 .error {
   color: #dc3545;
   margin-top: 4px;
@@ -26,5 +48,15 @@
 @media (max-width: 991.98px) {
   .login-page-content {
     background-attachment: scroll;
+  }
+}
+
+@media (max-width: 576px) {
+  .remove-confirm-actions {
+    flex-direction: column;
+  }
+
+  .remove-confirm-actions .pending-action-btn {
+    width: 100%;
   }
 }

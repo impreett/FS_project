@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
@@ -12,7 +12,7 @@ import { AuthService } from '../../services/auth';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login implements OnDestroy {
+export class Login {
   private readonly fb = inject(FormBuilder);
 
   loginForm = this.fb.nonNullable.group({
@@ -21,8 +21,8 @@ export class Login implements OnDestroy {
   });
   loading = false;
   submitted = false;
+  errorTitle = '';
   errorMessage = '';
-  private errorMessageTimer: ReturnType<typeof setTimeout> | null = null;
 
   constructor(private auth: AuthService, private router: Router) {}
 
@@ -62,23 +62,13 @@ export class Login implements OnDestroy {
     );
   }
 
-  private showErrorMessage(message: string) {
-    if (this.errorMessageTimer) {
-      clearTimeout(this.errorMessageTimer);
-      this.errorMessageTimer = null;
-    }
+  private showErrorMessage(title: string, message: string) {
+    this.errorTitle = title;
     this.errorMessage = message;
-    this.errorMessageTimer = setTimeout(() => {
-      this.errorMessage = '';
-      this.errorMessageTimer = null;
-    }, 7000);
   }
 
   closeErrorMessage() {
-    if (this.errorMessageTimer) {
-      clearTimeout(this.errorMessageTimer);
-      this.errorMessageTimer = null;
-    }
+    this.errorTitle = '';
     this.errorMessage = '';
   }
 
@@ -93,25 +83,22 @@ export class Login implements OnDestroy {
       const res = await firstValueFrom(this.auth.login(this.loginForm.getRawValue()));
       const token = res?.token;
       if (!token) {
-        this.showErrorMessage('Invalid email or password.');
+        this.showErrorMessage('Login failed', 'Invalid email or password.');
         return;
       }
       this.auth.setToken(token);
       this.router.navigate(['/']);
     } catch (err: any) {
-      this.showErrorMessage(
-        this.isApprovalError(err)
-          ? 'Your credentials are under review. If you were an approved user, your ID is disabled. For further information, please submit a report.'
-          : 'Invalid email or password.'
-      );
+      if (this.isApprovalError(err)) {
+        this.showErrorMessage(
+          'Access restricted',
+          'Your credentials are under review. If you were an approved user, your ID is disabled. For further information, please submit a report.'
+        );
+      } else {
+        this.showErrorMessage('Login failed', 'Invalid email or password.');
+      }
     } finally {
       this.loading = false;
-    }
-  }
-
-  ngOnDestroy() {
-    if (this.errorMessageTimer) {
-      clearTimeout(this.errorMessageTimer);
     }
   }
 }
