@@ -112,7 +112,11 @@
 
   <ng-container *ngIf="!loading">
     <ng-container *ngIf="cases.length > 0; else noCases">
-      <article *ngFor="let caseItem of cases" class="case-details-card search-result-article">
+      <article
+        *ngFor="let caseItem of cases"
+        class="case-details-card search-result-article"
+        [class.search-title-only-card]="searchField === 'case_title'"
+      >
         <h2 class="mb-4 search-result-title">
           <ng-container *ngIf="searchField !== 'for-all'; else searchTitlePlain">
             <a

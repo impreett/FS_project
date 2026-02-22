@@ -366,6 +366,17 @@ label.error {
   word-break: break-word;
 }
 
+.search-result-article.search-title-only-card {
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+}
+
+.search-result-article.search-title-only-card .search-result-title {
+  margin-bottom: 0 !important;
+  width: 100%;
+}
+
 @media (max-width: 576px) {
   .search-result-article .detail-row {
     grid-template-columns: minmax(0, 1fr);
