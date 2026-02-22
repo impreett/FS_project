@@ -191,41 +191,40 @@ export class SearchCase implements OnInit {
 
   private getWholeCaseSearchText(caseItem: any): string {
     const parts: string[] = [];
-    const walk = (value: unknown) => {
-      if (value === null || value === undefined) return;
 
-      if (value instanceof Date) {
-        parts.push(value.toISOString(), this.formatDateForSearch(value));
-        return;
-      }
+    const pushIfText = (value: unknown) => {
+      const text = String(value ?? '').trim();
+      if (text) parts.push(text);
+    };
 
-      if (Array.isArray(value)) {
-        value.forEach(walk);
-        return;
-      }
+    pushIfText(caseItem?._id);
+    pushIfText(caseItem?.case_title);
+    pushIfText(caseItem?.case_type);
+    pushIfText(caseItem?.case_description);
+    pushIfText(caseItem?.case_handler);
+    pushIfText(caseItem?.status);
 
-      if (typeof value === 'object') {
-        Object.values(value as Record<string, unknown>).forEach(walk);
-        return;
-      }
-
-      if (typeof value === 'boolean') {
-        parts.push(value ? 'true approved yes 1' : 'false pending no 0');
-        return;
-      }
-
-      const text = String(value).trim();
-      if (!text) return;
-
-      parts.push(text);
-
-      const parsedDate = new Date(text);
+    const dateRaw = String(caseItem?.case_date ?? '').trim();
+    if (dateRaw) {
+      parts.push(dateRaw);
+      const parsedDate = new Date(dateRaw);
       if (!Number.isNaN(parsedDate.getTime())) {
         parts.push(this.formatDateForSearch(parsedDate));
       }
-    };
+    }
 
-    walk(caseItem);
+    parts.push(caseItem?.isApproved ? 'approved true yes 1' : 'pending false no 0');
+
+    const peopleFields: Array<'suspects' | 'victim' | 'guilty_name'> = ['suspects', 'victim', 'guilty_name'];
+    for (const field of peopleFields) {
+      const raw = caseItem?.[field];
+      pushIfText(raw);
+      for (const person of this.parsePeople(raw)) {
+        pushIfText(person.name);
+        pushIfText(person.age);
+      }
+    }
+
     return parts.join(' ');
   }
 
