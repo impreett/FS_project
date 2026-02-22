@@ -272,10 +272,13 @@ export class PendingCases implements OnInit, OnDestroy {
   }
 
   private formatDateForSearch(dateObj: Date): string {
-    const day = String(dateObj.getDate()).padStart(2, '0');
-    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const year = dateObj.getFullYear();
-    return `${day}-${month}-${year} ${year}-${month}-${day}`;
+    const localDay = String(dateObj.getDate()).padStart(2, '0');
+    const localMonth = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const localYear = dateObj.getFullYear();
+    const utcDay = String(dateObj.getUTCDate()).padStart(2, '0');
+    const utcMonth = String(dateObj.getUTCMonth() + 1).padStart(2, '0');
+    const utcYear = dateObj.getUTCFullYear();
+    return `${localDay}-${localMonth}-${localYear} ${localYear}-${localMonth}-${localDay} ${utcDay}-${utcMonth}-${utcYear} ${utcYear}-${utcMonth}-${utcDay}`;
   }
 
   private getFieldValue(caseItem: any, field: SearchField): string {
