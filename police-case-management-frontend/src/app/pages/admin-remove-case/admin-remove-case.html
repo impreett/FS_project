@@ -122,7 +122,17 @@
     </div>
   </div>
 
-  <div *ngIf="message" class="alert alert-info">{{ message }}</div>
+  <div
+    *ngIf="message"
+    class="alert"
+    [ngClass]="{
+      'alert-success': messageType === 'success',
+      'alert-danger': messageType === 'danger',
+      'alert-info': messageType === 'info'
+    }"
+  >
+    {{ message }}
+  </div>
   <div *ngIf="loading">Loading cases...</div>
   <div *ngIf="!loading && groupedCases.length === 0" class="alert alert-info">No cases found.</div>
   <ng-container *ngIf="!loading">

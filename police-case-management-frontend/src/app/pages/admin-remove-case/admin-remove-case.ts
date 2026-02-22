@@ -29,6 +29,7 @@ export class AdminRemoveCase implements OnInit {
   cases: any[] = [];
   loading = true;
   message = '';
+  messageType: 'success' | 'danger' | 'info' = 'info';
   removeConfirm: { id: string; title: string } | null = null;
   isRemoving = false;
   sortOrder: 'latest' | 'oldest' = 'latest';
@@ -87,6 +88,7 @@ export class AdminRemoveCase implements OnInit {
       this.cases = res || [];
     } catch {
       this.message = 'Failed to fetch cases.';
+      this.messageType = 'danger';
     } finally {
       this.loading = false;
     }
@@ -112,10 +114,12 @@ export class AdminRemoveCase implements OnInit {
     try {
       await firstValueFrom(this.caseService.removeCase(this.removeConfirm.id));
       this.message = 'Case removed successfully!';
+      this.messageType = 'success';
       this.cases = this.cases.filter((c) => c._id !== this.removeConfirm?.id);
       window.scrollTo(0, 0);
     } catch {
       this.message = 'Error removing case.';
+      this.messageType = 'danger';
     } finally {
       this.isRemoving = false;
       this.removeConfirm = null;
