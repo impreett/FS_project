@@ -19,32 +19,21 @@
 }
 
 .remember-me-label {
-  --neu-bg: #ececec;
-  --neu-inset-dark: #d0d0d0;
-  --neu-outer-dark: #c4c4c4;
-  --neu-border: #d8d8d8;
-  --neu-text: #3f3f3f;
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  padding: 8px 14px;
-  border: 2px solid var(--neu-border);
-  border-radius: 50px;
-  background: var(--neu-bg);
-  box-shadow: inset 4px 4px 10px var(--neu-inset-dark), inset -4px -4px 10px #ffffff;
-  color: var(--neu-text);
-  font-weight: 700;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #3f3f3f;
+  font-weight: 400;
   cursor: pointer;
   user-select: none;
-  transition: box-shadow 0.2s ease-in-out;
 }
 
 .remember-me-label:hover {
-  box-shadow:
-    inset 2px 2px 5px var(--neu-inset-dark),
-    inset -2px -2px 5px #ffffff,
-    2px 2px 5px var(--neu-outer-dark),
-    -2px -2px 5px #ffffff;
+  color: #3f3f3f;
 }
 
 .remember-me-checkbox {
