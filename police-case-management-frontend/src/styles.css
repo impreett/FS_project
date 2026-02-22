@@ -63,7 +63,7 @@ app-root {
 
 .public-header-logo {
   height: 100px;
-  width: 100px;
+  width: auto;
   margin-right: 15px;
   filter: brightness(0) invert(1);
 }
