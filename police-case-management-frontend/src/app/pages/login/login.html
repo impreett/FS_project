@@ -12,33 +12,6 @@
       <div class="col-md-8 col-lg-6 mx-auto">
         <div class="card login-form-card shadow">
           <div class="card-body p-4 p-md-5">
-            <div
-              *ngIf="errorMessage"
-              class="remove-confirm-card pending-user-surface login-error-card mb-3"
-              role="alert"
-              aria-live="assertive"
-            >
-              <h5 id="login-error-title" class="mb-2">{{ errorTitle || "Login failed" }}</h5>
-              <p class="mb-3">{{ errorMessage }}</p>
-              <div class="remove-confirm-actions">
-                <button
-                  type="button"
-                  class="pending-action-btn pending-check-btn neu-button"
-                  (click)="closeErrorMessage()"
-                >
-                  <span aria-hidden="true" class="span-mother">
-                    <span>O</span>
-                    <span>K</span>
-                  </span>
-                  <span aria-hidden="true" class="span-mother2">
-                    <span>O</span>
-                    <span>K</span>
-                  </span>
-                  <span class="visually-hidden">OK</span>
-                </button>
-              </div>
-            </div>
-
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
               <div class="mb-3">
                 <label class="form-label">Email</label>
@@ -71,6 +44,36 @@
             </form>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+  <div
+    *ngIf="errorMessage"
+    class="remove-confirm-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="login-error-title"
+    (click)="closeErrorMessage()"
+  >
+    <div class="remove-confirm-card pending-user-surface login-error-card" (click)="$event.stopPropagation()">
+      <h5 id="login-error-title" class="mb-2">{{ errorTitle || "Login failed" }}</h5>
+      <p class="mb-3">{{ errorMessage }}</p>
+      <div class="remove-confirm-actions">
+        <button
+          type="button"
+          class="pending-action-btn pending-check-btn neu-button"
+          (click)="closeErrorMessage()"
+        >
+          <span aria-hidden="true" class="span-mother">
+            <span>O</span>
+            <span>K</span>
+          </span>
+          <span aria-hidden="true" class="span-mother2">
+            <span>O</span>
+            <span>K</span>
+          </span>
+          <span class="visually-hidden">OK</span>
+        </button>
       </div>
     </div>
   </div>
