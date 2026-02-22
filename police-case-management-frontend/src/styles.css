@@ -281,6 +281,73 @@ label.error {
   line-height: inherit;
 }
 
+.search-result-article {
+  padding: 20px;
+  margin-bottom: 30px;
+}
+
+.search-result-article .detail-row {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr);
+  column-gap: 8px;
+  align-items: baseline;
+  margin-bottom: 0.7rem;
+}
+
+.search-result-article .detail-label {
+  white-space: nowrap;
+}
+
+.search-result-article .detail-value {
+  word-break: break-word;
+}
+
+.search-result-article .people-lines {
+  display: grid;
+  grid-template-columns: var(--people-name-col, max-content) max-content;
+  column-gap: 12px;
+  row-gap: 2px;
+  align-items: baseline;
+}
+
+.search-result-article .person-line {
+  display: contents;
+}
+
+.search-result-article .person-name-part {
+  min-width: 0;
+  word-break: break-word;
+}
+
+.search-result-article .person-age-part {
+  white-space: nowrap;
+}
+
+.search-result-article .desc-row {
+  align-items: start;
+}
+
+.search-result-article .desc-value-bg {
+  display: block;
+  background: #f3f5f8;
+  border: 1px solid #e0e5eb;
+  border-radius: 6px;
+  padding: 8px 10px;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+@media (max-width: 576px) {
+  .search-result-article .detail-row {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 4px;
+  }
+
+  .search-result-article .people-lines {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
 .sort-tabs {
   --sort-pill-w: 96px;
   display: inline-flex;

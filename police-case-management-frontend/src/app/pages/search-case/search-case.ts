@@ -82,6 +82,12 @@ export class SearchCase implements OnInit {
     this.fetchCases();
   }
 
+  shouldShowField(field: string): boolean {
+    if (this.searchField === 'for-all') return true;
+    if (this.searchField === 'case_title') return false;
+    return this.searchField === field;
+  }
+
   peopleForCaseField(caseItem: any, field: 'victim' | 'suspects' | 'guilty_name'): PersonDisplay[] {
     return this.parsePeople(caseItem?.[field]);
   }

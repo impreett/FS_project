@@ -5,6 +5,14 @@ import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
 import { CaseService } from '../../services/case';
+import {
+  displayApproval as formatApproval,
+  displayDate as formatDate,
+  peopleForCaseField as getPeopleForCaseField,
+  peopleNameColumnWidthFor as getPeopleNameColumnWidthFor,
+  shouldShowCaseField,
+  type PersonDisplay,
+} from '../../utils/case-search-display';
 
 type SearchField =
   | 'for-all'
@@ -132,6 +140,29 @@ export class AdminRemovedCases implements OnInit {
 
   onSearchValueChange(value: string) {
     this.searchValue = value || '';
+  }
+
+  shouldShowField(field: string): boolean {
+    return shouldShowCaseField(this.searchField, field);
+  }
+
+  peopleForCaseField(
+    caseItem: any,
+    field: 'victim' | 'suspects' | 'guilty_name'
+  ): PersonDisplay[] {
+    return getPeopleForCaseField(caseItem, field);
+  }
+
+  peopleNameColumnWidthFor(caseItem: any): string {
+    return getPeopleNameColumnWidthFor(caseItem);
+  }
+
+  displayDate(value: unknown): string {
+    return formatDate(value);
+  }
+
+  displayApproval(value: unknown): string {
+    return formatApproval(value);
   }
 
   get officers() {

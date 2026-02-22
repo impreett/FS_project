@@ -112,21 +112,21 @@
 
   <ng-container *ngIf="!loading">
     <ng-container *ngIf="cases.length > 0; else noCases">
-      <article *ngFor="let caseItem of cases" class="case-details-card">
+      <article *ngFor="let caseItem of cases" class="case-details-card search-result-article">
         <h2 class="mb-4" [innerHTML]="highlightText(caseItem.case_title, 'Untitled')"></h2>
-        <p class="detail-row">
+        <p class="detail-row" *ngIf="shouldShowField('case_id')">
           <span class="detail-label"><b>Case ID:</b></span>
           <span class="detail-value" [innerHTML]="highlightText(caseItem._id, 'N/A')"></span>
         </p>
-        <p class="detail-row">
+        <p class="detail-row" *ngIf="shouldShowField('case_type')">
           <span class="detail-label"><b>Type:</b></span>
           <span class="detail-value" [innerHTML]="highlightText(caseItem.case_type, 'N/A')"></span>
         </p>
-        <p class="detail-row">
+        <p class="detail-row" *ngIf="shouldShowField('case_handler')">
           <span class="detail-label"><b>Handler:</b></span>
           <span class="detail-value" [innerHTML]="highlightText(caseItem.case_handler, 'N/A')"></span>
         </p>
-        <p class="detail-row">
+        <p class="detail-row" *ngIf="shouldShowField('victim')">
           <span class="detail-label"><b>Victim:</b></span>
           <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(caseItem)">
             <ng-container *ngIf="peopleForCaseField(caseItem, 'victim') as victimPeople">
@@ -140,7 +140,7 @@
             <ng-template #noVictim>No victim added.</ng-template>
           </span>
         </p>
-        <p class="detail-row">
+        <p class="detail-row" *ngIf="shouldShowField('suspects')">
           <span class="detail-label"><b>Suspects:</b></span>
           <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(caseItem)">
             <ng-container *ngIf="peopleForCaseField(caseItem, 'suspects') as suspectPeople">
@@ -154,7 +154,7 @@
             <ng-template #noSuspects>No suspect added.</ng-template>
           </span>
         </p>
-        <p class="detail-row">
+        <p class="detail-row" *ngIf="shouldShowField('guilty_name')">
           <span class="detail-label"><b>Guilty name:</b></span>
           <span class="detail-value people-lines" [style.--people-name-col]="peopleNameColumnWidthFor(caseItem)">
             <ng-container *ngIf="peopleForCaseField(caseItem, 'guilty_name') as guiltyPeople">
@@ -168,15 +168,15 @@
             <ng-template #noGuilty>No guilty person added.</ng-template>
           </span>
         </p>
-        <p class="detail-row">
+        <p class="detail-row" *ngIf="shouldShowField('case_date')">
           <span class="detail-label"><b>Date:</b></span>
           <span class="detail-value" [innerHTML]="highlightText(displayDate(caseItem.case_date), 'N/A')"></span>
         </p>
-        <p class="detail-row">
+        <p class="detail-row" *ngIf="shouldShowField('status')">
           <span class="detail-label"><b>Status:</b></span>
           <span class="detail-value" [innerHTML]="highlightText(caseItem.status, 'N/A')"></span>
         </p>
-        <p class="detail-row" *ngIf="user?.isAdmin">
+        <p class="detail-row" *ngIf="user?.isAdmin && shouldShowField('isApproved')">
           <span class="detail-label"><b>Approval:</b></span>
           <span
             class="detail-value"
@@ -185,7 +185,7 @@
             [innerHTML]="highlightText(displayApproval(caseItem.isApproved), 'N/A')"
           ></span>
         </p>
-        <p class="detail-row desc-row">
+        <p class="detail-row desc-row" *ngIf="shouldShowField('case_description')">
           <span class="detail-label"><b>Description:</b></span>
           <span class="detail-value desc-value-bg">
             <span style="white-space: pre-wrap" [innerHTML]="highlightText(caseItem.case_description)"></span>
