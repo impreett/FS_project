@@ -18,6 +18,7 @@ export class Login {
   loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required]],
+    rememberMe: [false],
   });
   loading = false;
   submitted = false;
@@ -80,13 +81,14 @@ export class Login {
 
     this.loading = true;
     try {
-      const res = await firstValueFrom(this.auth.login(this.loginForm.getRawValue()));
+      const { email, password, rememberMe } = this.loginForm.getRawValue();
+      const res = await firstValueFrom(this.auth.login({ email, password }));
       const token = res?.token;
       if (!token) {
         this.showErrorMessage('Login failed', 'Invalid email or password.');
         return;
       }
-      this.auth.setToken(token);
+      this.auth.setToken(token, rememberMe);
       this.router.navigate(['/']);
     } catch (err: any) {
       if (this.isApprovalError(err)) {

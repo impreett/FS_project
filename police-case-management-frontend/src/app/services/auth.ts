@@ -8,6 +8,7 @@ import { API_BASE } from './config';
 })
 export class AuthService {
   private readonly tokenKey = 'token';
+  private readonly sessionTokenKey = 'session_token';
 
   constructor(private http: HttpClient) {}
 
@@ -27,15 +28,22 @@ export class AuthService {
   }
 
   getToken() {
-    return localStorage.getItem(this.tokenKey);
+    return localStorage.getItem(this.tokenKey) || sessionStorage.getItem(this.sessionTokenKey);
   }
 
-  setToken(token: string) {
-    localStorage.setItem(this.tokenKey, token);
+  setToken(token: string, rememberMe = true) {
+    if (rememberMe) {
+      localStorage.setItem(this.tokenKey, token);
+      sessionStorage.removeItem(this.sessionTokenKey);
+      return;
+    }
+    sessionStorage.setItem(this.sessionTokenKey, token);
+    localStorage.removeItem(this.tokenKey);
   }
 
   clearToken() {
     localStorage.removeItem(this.tokenKey);
+    sessionStorage.removeItem(this.sessionTokenKey);
   }
 
   getUser(): any | null {
