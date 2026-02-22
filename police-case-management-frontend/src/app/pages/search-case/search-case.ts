@@ -106,9 +106,9 @@ export class SearchCase implements OnInit {
     return `${longest}ch`;
   }
 
-  highlightText(value: unknown, fallback = ''): string {
+  highlightText(value: unknown, fallback = '', fieldKey?: string): string {
     const plainText = this.toDisplayText(value).trim() || fallback;
-    return this.applyHighlight(plainText);
+    return this.applyHighlight(plainText, fieldKey);
   }
 
   displayDate(value: unknown): string {
@@ -128,16 +128,23 @@ export class SearchCase implements OnInit {
     return value ? 'Approved' : 'Pending';
   }
 
-  private applyHighlight(text: string): string {
+  private applyHighlight(text: string, fieldKey?: string): string {
     const safeText = this.escapeHtml(text);
     const term = this.getHighlightTerm();
     if (!term) return safeText;
+    if (!this.shouldHighlightField(fieldKey)) return safeText;
 
     const safeTermRegex = this.escapeRegExp(term);
     if (!safeTermRegex) return safeText;
 
     const regex = new RegExp(`(${safeTermRegex})`, 'gi');
     return safeText.replace(regex, '<span class="search-highlight-inline">$1</span>');
+  }
+
+  private shouldHighlightField(fieldKey?: string): boolean {
+    if (this.searchField === 'for-all') return true;
+    if (!fieldKey) return false;
+    return this.searchField === fieldKey;
   }
 
   private getHighlightTerm(): string {
