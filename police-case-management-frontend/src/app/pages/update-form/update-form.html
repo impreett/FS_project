@@ -1,4 +1,4 @@
-﻿<div class="container mt-4" style="margin-bottom: 30px">
+<div class="container mt-4" style="margin-bottom: 30px">
   <div *ngIf="loading">Loading form...</div>
   <div *ngIf="!loading && error" class="alert alert-danger">{{ error }}</div>
 
@@ -8,14 +8,13 @@
       style="background-color: #fff; border-radius: 8px; box-shadow: 0 0 10px #ccc; margin-bottom: 30px"
     >
       <h3 class="mb-4 text-center">Update case</h3>
-      <form (ngSubmit)="onSubmit()" novalidate>
+      <form [formGroup]="updateCaseForm" (ngSubmit)="onSubmit()" novalidate>
         <div class="mb-3">
           <label class="form-label">Case title</label>
           <input
             type="text"
-            name="case_title"
             placeholder="Enter case title"
-            [(ngModel)]="formData.case_title"
+            formControlName="case_title"
             class="form-control"
             [class.is-invalid]="errors.case_title"
           />
@@ -25,8 +24,7 @@
         <div class="mb-3">
           <label class="form-label">Case type</label>
           <select
-            name="case_type"
-            [(ngModel)]="formData.case_type"
+            formControlName="case_type"
             class="form-select"
             [class.is-invalid]="errors.case_type"
           >
@@ -63,8 +61,7 @@
         <div class="mb-3">
           <label class="form-label">Case description</label>
           <textarea
-            name="case_description"
-            [(ngModel)]="formData.case_description"
+            formControlName="case_description"
             class="form-control"
             placeholder="Enter case description"
             rows="5"
@@ -88,7 +85,7 @@
                   <div class="fw-semibold mb-2">Suspect</div>
                   <ul class="list-group list-group-flush people-role-list">
                     <li class="list-group-item text-muted small" *ngIf="suspectPeople.length === 0">
-                      No suspect added.
+                      Unidentified
                     </li>
                     <li
                       class="list-group-item d-flex justify-content-between align-items-center person-list-item"
@@ -102,9 +99,8 @@
                             class="form-control form-control-sm"
                             maxlength="20"
                             placeholder="Enter name"
-                            [name]="'suspect_name_' + person.index"
-                            [ngModel]="person.name"
-                            (ngModelChange)="onPersonNameChange(person.index, $event)"
+                            [value]="person.name"
+                            (input)="onPersonNameChange(person.index, $any($event.target).value)"
                           />
                           <label class="person-edit-label">Age</label>
                           <input
@@ -113,9 +109,8 @@
                             min="0"
                             max="120"
                             placeholder="Enter age (optional)"
-                            [name]="'suspect_age_' + person.index"
-                            [ngModel]="person.age"
-                            (ngModelChange)="onPersonAgeChange(person.index, $event)"
+                            [value]="person.age"
+                            (input)="onPersonAgeChange(person.index, $any($event.target).value)"
                           />
                         </div>
                       </div>
@@ -150,7 +145,7 @@
                   <div class="fw-semibold mb-2">Guilty</div>
                   <ul class="list-group list-group-flush people-role-list">
                     <li class="list-group-item text-muted small" *ngIf="guiltyPeople.length === 0">
-                      No guilty person added.
+                      Unidentified
                     </li>
                     <li
                       class="list-group-item d-flex justify-content-between align-items-center person-list-item"
@@ -164,9 +159,8 @@
                             class="form-control form-control-sm"
                             maxlength="20"
                             placeholder="Enter name"
-                            [name]="'guilty_name_' + person.index"
-                            [ngModel]="person.name"
-                            (ngModelChange)="onPersonNameChange(person.index, $event)"
+                            [value]="person.name"
+                            (input)="onPersonNameChange(person.index, $any($event.target).value)"
                           />
                           <label class="person-edit-label">Age</label>
                           <input
@@ -175,9 +169,8 @@
                             min="0"
                             max="120"
                             placeholder="Enter age (optional)"
-                            [name]="'guilty_age_' + person.index"
-                            [ngModel]="person.age"
-                            (ngModelChange)="onPersonAgeChange(person.index, $event)"
+                            [value]="person.age"
+                            (input)="onPersonAgeChange(person.index, $any($event.target).value)"
                           />
                         </div>
                       </div>
@@ -212,7 +205,7 @@
                   <div class="fw-semibold mb-2">Victim</div>
                   <ul class="list-group list-group-flush people-role-list">
                     <li class="list-group-item text-muted small" *ngIf="victimPeople.length === 0">
-                      No victim added.
+                      Unidentified
                     </li>
                     <li
                       class="list-group-item d-flex justify-content-between align-items-center person-list-item"
@@ -226,9 +219,8 @@
                             class="form-control form-control-sm"
                             maxlength="20"
                             placeholder="Enter name"
-                            [name]="'victim_name_' + person.index"
-                            [ngModel]="person.name"
-                            (ngModelChange)="onPersonNameChange(person.index, $event)"
+                            [value]="person.name"
+                            (input)="onPersonNameChange(person.index, $any($event.target).value)"
                           />
                           <label class="person-edit-label">Age</label>
                           <input
@@ -237,9 +229,8 @@
                             min="0"
                             max="120"
                             placeholder="Enter age (optional)"
-                            [name]="'victim_age_' + person.index"
-                            [ngModel]="person.age"
-                            (ngModelChange)="onPersonAgeChange(person.index, $event)"
+                            [value]="person.age"
+                            (input)="onPersonAgeChange(person.index, $any($event.target).value)"
                           />
                         </div>
                       </div>
@@ -277,9 +268,8 @@
           <label class="form-label">Case date</label>
           <input
             type="date"
-            name="case_date"
             placeholder="Select case date"
-            [(ngModel)]="formData.case_date"
+            formControlName="case_date"
             class="form-control"
             [class.is-invalid]="errors.case_date"
             [max]="todayStr"
@@ -293,7 +283,7 @@
             type="text"
             class="form-control"
             placeholder="Auto-filled case handler"
-            [value]="formData.case_handler"
+            formControlName="case_handler"
             readonly
           />
         </div>
@@ -301,8 +291,7 @@
         <div class="mb-3">
           <label class="form-label">Status</label>
           <select
-            name="status"
-            [(ngModel)]="formData.status"
+            formControlName="status"
             class="form-select"
             [class.is-invalid]="errors.status"
           >
@@ -312,13 +301,96 @@
           </select>
           <div *ngIf="errors.status" class="invalid-feedback">{{ errors.status }}</div>
         </div>
-        <div class="mt-3">
-          <button type="submit" class="btn btn-primary">Submit Update</button>
-          <a routerLink="/update" class="btn btn-secondary ms-2">Cancel</a>
+
+        <div class="mb-3">
+          <label class="form-label">Changes done</label>
+          <div formArrayName="changes_done">
+            <div class="d-flex align-items-start gap-2 mb-2" *ngFor="let changeCtrl of changesDoneControls; let i = index">
+              <div class="flex-grow-1">
+                <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Describe what was changed..."
+                  [formControlName]="i"
+                />
+                <div *ngIf="errors.changes_done && i === 0" class="text-danger small mt-1">
+                  {{ errors.changes_done }}
+                </div>
+              </div>
+              <button
+                type="button"
+                class="btn-close mt-2"
+                aria-label="Remove change"
+                [disabled]="changesDoneControls.length === 1"
+                (click)="removeChangeDone(i)"
+              ></button>
+            </div>
+          </div>
+          <button type="button" class="person-add-btn neu-button" (click)="addChangeDone()">
+            <span class="span-mother" aria-hidden="true">
+              <span>+</span><span>&nbsp;</span><span>A</span><span>d</span><span>d</span><span>&nbsp;</span><span>c</span><span>h</span><span>a</span><span>n</span><span>g</span><span>e</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>+</span><span>&nbsp;</span><span>A</span><span>d</span><span>d</span><span>&nbsp;</span><span>c</span><span>h</span><span>a</span><span>n</span><span>g</span><span>e</span>
+            </span>
+            <span class="visually-hidden">+ Add change</span>
+          </button>
+        </div>
+
+        <div class="case-update-actions">
+          <button type="submit" class="case-update-btn neu-button">
+            <span class="span-mother" aria-hidden="true">
+              <span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>U</span><span>p</span><span>d</span><span>a</span><span>t</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+            </span>
+            <span class="visually-hidden">Update case</span>
+          </button>
+          <a routerLink="/update" class="case-update-btn case-cancel-btn neu-button">
+            <span class="span-mother" aria-hidden="true">
+              <span>C</span><span>a</span><span>n</span><span>c</span><span>e</span><span>l</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>C</span><span>a</span><span>n</span><span>c</span><span>e</span><span>l</span>
+            </span>
+            <span class="visually-hidden">Cancel</span>
+          </a>
         </div>
       </form>
     </div>
   </ng-container>
+
+  <div
+    *ngIf="submitMessage"
+    class="remove-confirm-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="update-success-title"
+    (click)="closeSubmitMessage()"
+  >
+    <div class="remove-confirm-card pending-user-surface update-success-card" (click)="$event.stopPropagation()">
+      <h5 id="update-success-title" class="mb-2">{{ submitMessageTitle || "Success" }}</h5>
+      <p class="mb-3">{{ submitMessage }}</p>
+      <div class="remove-confirm-actions">
+        <button
+          type="button"
+          class="pending-action-btn pending-check-btn neu-button"
+          (click)="closeSubmitMessage()"
+        >
+          <span aria-hidden="true" class="span-mother">
+            <span>O</span>
+            <span>K</span>
+          </span>
+          <span aria-hidden="true" class="span-mother2">
+            <span>O</span>
+            <span>K</span>
+          </span>
+          <span class="visually-hidden">OK</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 

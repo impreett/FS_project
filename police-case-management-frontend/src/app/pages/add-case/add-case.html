@@ -1,4 +1,4 @@
-﻿<div class="container mt-4">
+<div class="container mt-4">
   <div
     *ngIf="successMessage"
     class="alert alert-success alert-dismissible fade show text-center app-timed-alert"
@@ -9,26 +9,24 @@
   </div>
   <div class="p-4 pending-user-surface" style="margin-bottom: 30px">
     <h2 class="mb-4 text-center">Add new case</h2>
-    <form (ngSubmit)="onSubmit()" novalidate>
+    <form [formGroup]="addCaseForm" (ngSubmit)="onSubmit()" novalidate>
       <div class="mb-3">
         <label class="form-label">Case title</label>
         <input
           type="text"
-          name="case_title"
           placeholder="Enter case title"
           class="form-control"
           [class.is-invalid]="errors.case_title"
-          [(ngModel)]="formData.case_title"
+          formControlName="case_title"
         />
         <div *ngIf="errors.case_title" class="invalid-feedback">{{ errors.case_title }}</div>
       </div>
       <div class="mb-3">
         <label class="form-label">Case type</label>
         <select
-          name="case_type"
           class="form-select"
           [class.is-invalid]="errors.case_type"
-          [(ngModel)]="formData.case_type"
+          formControlName="case_type"
         >
           <option value="">Select case type</option>
           <option value="Homicide (Murder)">Homicide (Murder)</option>
@@ -62,11 +60,10 @@
       <div class="mb-3">
         <label class="form-label">Case description</label>
         <textarea
-          name="case_description"
           class="form-control"
           placeholder="Enter case description"
           [class.is-invalid]="errors.case_description"
-          [(ngModel)]="formData.case_description"
+          formControlName="case_description"
           rows="5"
         ></textarea>
         <div *ngIf="errors.case_description" class="invalid-feedback">
@@ -86,7 +83,7 @@
                 <div class="fw-semibold mb-2">Suspect</div>
                 <ul class="list-group list-group-flush people-role-list">
                   <li class="list-group-item text-muted small" *ngIf="suspectPeople.length === 0">
-                    No suspect added.
+                    Unidentified
                   </li>
                   <li
                     class="list-group-item d-flex justify-content-between align-items-center person-list-item"
@@ -100,9 +97,8 @@
                           class="form-control form-control-sm"
                           maxlength="20"
                           placeholder="Enter name"
-                          [name]="'suspect_name_' + person.index"
-                          [ngModel]="person.name"
-                          (ngModelChange)="onPersonNameChange(person.index, $event)"
+                          [value]="person.name"
+                          (input)="onPersonNameChange(person.index, $any($event.target).value)"
                         />
                         <label class="person-edit-label">Age</label>
                         <input
@@ -111,9 +107,8 @@
                           min="0"
                           max="120"
                           placeholder="Age (optional)"
-                          [name]="'suspect_age_' + person.index"
-                          [ngModel]="person.age"
-                          (ngModelChange)="onPersonAgeChange(person.index, $event)"
+                          [value]="person.age"
+                          (input)="onPersonAgeChange(person.index, $any($event.target).value)"
                         />
                       </div>
                     </div>
@@ -148,7 +143,7 @@
                 <div class="fw-semibold mb-2">Guilty</div>
                 <ul class="list-group list-group-flush people-role-list">
                   <li class="list-group-item text-muted small" *ngIf="guiltyPeople.length === 0">
-                    No guilty person added.
+                    Unidentified
                   </li>
                   <li
                     class="list-group-item d-flex justify-content-between align-items-center person-list-item"
@@ -162,9 +157,8 @@
                           class="form-control form-control-sm"
                           maxlength="20"
                           placeholder="Enter name"
-                          [name]="'guilty_name_' + person.index"
-                          [ngModel]="person.name"
-                          (ngModelChange)="onPersonNameChange(person.index, $event)"
+                          [value]="person.name"
+                          (input)="onPersonNameChange(person.index, $any($event.target).value)"
                         />
                         <label class="person-edit-label">Age</label>
                         <input
@@ -173,9 +167,8 @@
                           min="0"
                           max="120"
                           placeholder="Age (optional)"
-                          [name]="'guilty_age_' + person.index"
-                          [ngModel]="person.age"
-                          (ngModelChange)="onPersonAgeChange(person.index, $event)"
+                          [value]="person.age"
+                          (input)="onPersonAgeChange(person.index, $any($event.target).value)"
                         />
                       </div>
                     </div>
@@ -210,7 +203,7 @@
                 <div class="fw-semibold mb-2">Victim</div>
                 <ul class="list-group list-group-flush people-role-list">
                   <li class="list-group-item text-muted small" *ngIf="victimPeople.length === 0">
-                    No victim added.
+                    Unidentified
                   </li>
                   <li
                     class="list-group-item d-flex justify-content-between align-items-center person-list-item"
@@ -224,9 +217,8 @@
                           class="form-control form-control-sm"
                           maxlength="20"
                           placeholder="Enter name"
-                          [name]="'victim_name_' + person.index"
-                          [ngModel]="person.name"
-                          (ngModelChange)="onPersonNameChange(person.index, $event)"
+                          [value]="person.name"
+                          (input)="onPersonNameChange(person.index, $any($event.target).value)"
                         />
                         <label class="person-edit-label">Age</label>
                         <input
@@ -235,9 +227,8 @@
                           min="0"
                           max="120"
                           placeholder="Age (optional)"
-                          [name]="'victim_age_' + person.index"
-                          [ngModel]="person.age"
-                          (ngModelChange)="onPersonAgeChange(person.index, $event)"
+                          [value]="person.age"
+                          (input)="onPersonAgeChange(person.index, $any($event.target).value)"
                         />
                       </div>
                     </div>
@@ -274,11 +265,10 @@
         <label class="form-label">Case date</label>
         <input
           type="date"
-          name="case_date"
           placeholder="Select case date"
           class="form-control"
           [class.is-invalid]="errors.case_date"
-          [(ngModel)]="formData.case_date"
+          formControlName="case_date"
           [max]="todayStr"
         />
         <div *ngIf="errors.case_date" class="invalid-feedback">{{ errors.case_date }}</div>
@@ -287,10 +277,9 @@
       <div class="mb-3" *ngIf="user?.isAdmin; else handlerReadonly">
         <label class="form-label">Case handler (assign an officer)</label>
         <select
-          name="case_handler"
           class="form-select"
           [class.is-invalid]="errors.case_handler"
-          [(ngModel)]="formData.case_handler"
+          formControlName="case_handler"
         >
           <option value="">Select officer</option>
           <option *ngFor="let name of officers" [value]="name">{{ name }}</option>
@@ -304,7 +293,7 @@
             type="text"
             class="form-control"
             placeholder="Auto-filled case handler"
-            [value]="formData.case_handler"
+            formControlName="case_handler"
             readonly
           />
         </div>
@@ -313,7 +302,7 @@
       <div class="mb-3">
         <label class="form-label">Status</label>
         <ng-container *ngIf="user?.isAdmin; else statusReadonly">
-          <select name="status" class="form-select" [(ngModel)]="formData.status">
+          <select class="form-select" formControlName="status">
             <option value="">Select status</option>
             <option value="ACTIVE">ACTIVE</option>
             <option value="CLOSE">CLOSE</option>

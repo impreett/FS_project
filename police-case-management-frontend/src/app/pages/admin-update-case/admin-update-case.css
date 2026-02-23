@@ -11,3 +11,8 @@
   height: 1px;
   background-color: #c7ced6;
 }
+
+.search-result-article.search-title-only-card .card-title {
+  margin-bottom: 0 !important;
+  width: 100%;
+}

@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 
 @Component({
   selector: 'app-active-users',
@@ -12,8 +13,13 @@ import { AdminService } from '../../services/admin';
 export class ActiveUsers implements OnInit {
   users: any[] = [];
   loading = true;
+  disableConfirm: { id: string; name: string } | null = null;
+  isDisabling = false;
 
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private feedback: AppFeedbackService
+  ) {}
 
   get cityCount(): number {
     return new Set(this.users.map((u) => (u?.city || '').trim()).filter(Boolean)).size;
@@ -27,26 +33,34 @@ export class ActiveUsers implements OnInit {
       this.users = normalized;
     } catch (err) {
       console.error(err);
-      alert('Failed to fetch active users.');
+      this.feedback.showError('Failed to fetch active users.');
     } finally {
       this.loading = false;
     }
   }
 
-  async handleDisable(userId: string) {
-    if (
-      !window.confirm(
-        'Are you sure you want to disable this user? You can again enable them from the pending users page.'
-      )
-    ) {
-      return;
-    }
+  handleDisable(userId: string, fullname: string) {
+    this.disableConfirm = { id: userId, name: fullname || 'this user' };
+  }
+
+  closeDisableConfirm() {
+    if (this.isDisabling) return;
+    this.disableConfirm = null;
+  }
+
+  async confirmDisable() {
+    if (!this.disableConfirm || this.isDisabling) return;
+    this.isDisabling = true;
     try {
-      await firstValueFrom(this.adminService.disableUser(userId));
-      this.users = this.users.filter((u) => u._id !== userId);
+      await firstValueFrom(this.adminService.disableUser(this.disableConfirm.id));
+      this.users = this.users.filter((u) => u._id !== this.disableConfirm?.id);
+      this.feedback.showMessage('User disabled successfully!', 'success');
     } catch (err) {
       console.error(err);
-      alert('Error disabling user.');
+      this.feedback.showError('Error disabling user.');
+    } finally {
+      this.isDisabling = false;
+      this.disableConfirm = null;
     }
   }
 }

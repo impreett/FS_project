@@ -25,6 +25,17 @@ const userAuth = (req, res, next) => {
     }
 };
 
+const normalizeChangesDone = (value) => {
+    if (Array.isArray(value)) {
+        return value.map((item) => String(item ?? '').trim()).filter(Boolean);
+    }
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed ? [trimmed] : [];
+    }
+    return [];
+};
+
 // List approved cases (exclude removed) with optional search
 router.get('/', async (req, res) => {
     const { field, query } = req.query;
@@ -101,9 +112,14 @@ router.post('/request-update', userAuth, async (req, res) => {
         if (caseDateError) {
             return res.status(400).json({ msg: caseDateError });
         }
+        const changesDone = normalizeChangesDone(normalizedBody.changes_done);
+        if (!changesDone.length) {
+            return res.status(400).json({ msg: 'Add at least one change, and do not leave any change entry blank.' });
+        }
         // Always stamp request time from server, not client payload.
         const updateRequest = new UpdateCase({
             ...normalizedBody,
+            changes_done: changesDone,
             requestedAt: new Date(),
         });
         await updateRequest.save();
@@ -122,9 +138,13 @@ router.put('/:id', adminAuth, async (req, res) => {
         if (caseDateError) {
             return res.status(400).json({ msg: caseDateError });
         }
+        const changesDone = normalizeChangesDone(normalizedBody.changes_done);
+        if (!changesDone.length) {
+            return res.status(400).json({ msg: 'Add at least one change, and do not leave any change entry blank.' });
+        }
         const caseItem = await Case.findOneAndUpdate(
             { _id: req.params.id, is_removed: { $ne: true } },
-            { $set: { ...normalizedBody, updated_on: new Date() } },
+            { $set: { ...normalizedBody, changes_done: changesDone, updated_on: new Date() } },
             { new: true }
         );
         if (!caseItem) {

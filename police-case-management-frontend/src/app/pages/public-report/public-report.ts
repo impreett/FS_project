@@ -1,9 +1,10 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { Footer } from '../../components/footer/footer';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 import { ReportService } from '../../services/report';
 
 type PublicReportErrors = {
@@ -13,23 +14,32 @@ type PublicReportErrors = {
 
 @Component({
   selector: 'app-public-report',
-  imports: [CommonModule, FormsModule, Footer],
+  imports: [CommonModule, ReactiveFormsModule, Footer],
   templateUrl: './public-report.html',
   styleUrl: './public-report.css',
 })
 export class PublicReport {
-  formData = { email: '', reportText: '' };
+  private readonly fb = inject(FormBuilder);
+  publicReportForm = this.fb.nonNullable.group({
+    email: '',
+    reportText: '',
+  });
   errors: PublicReportErrors = {};
 
-  constructor(private reportService: ReportService, private router: Router) {}
+  constructor(
+    private reportService: ReportService,
+    private router: Router,
+    private feedback: AppFeedbackService
+  ) {}
 
   validate() {
+    const formData = this.publicReportForm.getRawValue();
     const next: PublicReportErrors = {};
     const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!this.formData.email) next.email = 'Please enter your email.';
-    else if (!emailRe.test(this.formData.email)) next.email = 'Enter a valid email address.';
-    if (!this.formData.reportText) next.reportText = 'Please describe your issue.';
-    else if ((this.formData.reportText || '').length < 50)
+    if (!formData.email) next.email = 'Please enter your email.';
+    else if (!emailRe.test(formData.email)) next.email = 'Enter a valid email address.';
+    if (!formData.reportText) next.reportText = 'Please describe your issue.';
+    else if ((formData.reportText || '').length < 50)
       next.reportText = 'Report must be at least 50 characters long.';
     this.errors = next;
     return Object.keys(next).length === 0;
@@ -38,11 +48,11 @@ export class PublicReport {
   async onSubmit() {
     if (!this.validate()) return;
     try {
-      await firstValueFrom(this.reportService.submitPublicReport(this.formData));
-      alert('Your report has been submitted successfully.');
+      await firstValueFrom(this.reportService.submitPublicReport(this.publicReportForm.getRawValue()));
+      this.feedback.showMessage('Your report has been submitted successfully.', 'success');
       this.router.navigate(['/login']);
     } catch {
-      alert('Error submitting report. Please try again.');
+      this.feedback.showError('Error submitting report. Please try again.');
     }
   }
 

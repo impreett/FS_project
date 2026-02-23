@@ -1,9 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
+import { AppFeedbackService } from '../../services/app-feedback.service';
+import { SearchMemoryService } from '../../services/search-memory.service';
 import {
   displayApproval as formatApproval,
   displayDate as formatDate,
@@ -12,6 +14,7 @@ import {
   shouldShowCaseField,
   type PersonDisplay,
 } from '../../utils/case-search-display';
+import { highlightCaseSearchText } from '../../utils/case-search-highlight';
 
 type SearchField =
   | 'for-all'
@@ -32,12 +35,9 @@ type SearchField =
   templateUrl: './pending-cases.html',
   styleUrl: './pending-cases.css',
 })
-export class PendingCases implements OnInit, OnDestroy {
+export class PendingCases implements OnInit {
   cases: any[] = [];
   loading = true;
-  successMessage = '';
-  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly successMessageDurationMs = 7000;
   caseConfirm:
     | {
         id: string;
@@ -49,6 +49,7 @@ export class PendingCases implements OnInit, OnDestroy {
   sortOrder: 'latest' | 'oldest' = 'latest';
   searchField: SearchField = 'for-all';
   searchValue = '';
+  private readonly searchStateKey = 'pending-cases';
   caseTypes: string[] = [
     'Homicide (Murder)',
     'Manslaughter',
@@ -94,34 +95,34 @@ export class PendingCases implements OnInit, OnDestroy {
     year: 'numeric',
   });
 
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private feedback: AppFeedbackService,
+    private searchMemory: SearchMemoryService
+  ) {}
 
   async ngOnInit() {
+    this.restoreSearchState();
     try {
       const res = await firstValueFrom(this.adminService.getPendingCases());
       this.cases = res || [];
     } catch (err) {
       console.error(err);
-      alert('Failed to fetch pending cases.');
+      this.feedback.showError('Failed to fetch pending cases.');
     } finally {
       this.loading = false;
     }
   }
 
-  ngOnDestroy() {
-    this.clearSuccessMessageTimer();
-  }
-
-  closeSuccessMessage() {
-    this.clearSuccessMessageTimer();
-    this.successMessage = '';
-  }
-
-  handleApprove(caseItem: any) {
+  handleApprove(caseItem: any, event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
     this.openCaseConfirm(caseItem, 'approve');
   }
 
-  handleDeny(caseItem: any) {
+  handleDeny(caseItem: any, event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
     this.openCaseConfirm(caseItem, 'deny');
   }
 
@@ -147,15 +148,15 @@ export class PendingCases implements OnInit, OnDestroy {
     try {
       if (action === 'approve') {
         await firstValueFrom(this.adminService.approveCase(id));
-        this.showSuccessMessage('Case approved!');
+        this.feedback.showMessage('Case approved!', 'success');
         this.cases = this.cases.filter((c) => c._id !== id);
-        window.scrollTo(0, 0);
       } else {
         await firstValueFrom(this.adminService.denyCase(id));
         this.cases = this.cases.filter((c) => c._id !== id);
+        this.feedback.showMessage('Case denied!', 'success');
       }
     } catch {
-      alert(action === 'approve' ? 'Error approving case.' : 'Error denying case.');
+      this.feedback.showError(action === 'approve' ? 'Error approving case.' : 'Error denying case.');
     } finally {
       this.isSubmittingAction = false;
       this.caseConfirm = null;
@@ -164,15 +165,18 @@ export class PendingCases implements OnInit, OnDestroy {
 
   setSortOrder(order: 'latest' | 'oldest') {
     this.sortOrder = order;
+    this.persistSearchState();
   }
 
   onSearchFieldChange(value: string) {
     this.searchField = (value as SearchField) || 'for-all';
     this.searchValue = '';
+    this.persistSearchState();
   }
 
   onSearchValueChange(value: string) {
     this.searchValue = value || '';
+    this.persistSearchState();
   }
 
   shouldShowField(field: string): boolean {
@@ -196,6 +200,10 @@ export class PendingCases implements OnInit, OnDestroy {
 
   displayApproval(value: unknown): string {
     return formatApproval(value);
+  }
+
+  highlightText(value: unknown, fallback = '', fieldKey?: string): string {
+    return highlightCaseSearchText(value, fallback, fieldKey, this.searchField, this.searchValue);
   }
 
   get officers() {
@@ -260,6 +268,15 @@ export class PendingCases implements OnInit, OnDestroy {
       }
     }
     return groups;
+  }
+
+  trackByGroup(index: number, group: { label: string }): string {
+    return `${group?.label ?? 'unknown'}-${index}`;
+  }
+
+  trackByCase(index: number, caseItem: any): string {
+    const id = caseItem?._id;
+    return typeof id === 'string' && id.trim() ? id : `case-${index}`;
   }
 
   private getWholeCaseSearchText(caseItem: any): string {
@@ -375,19 +392,35 @@ export class PendingCases implements OnInit, OnDestroy {
     return String(value ?? '').toLowerCase().trim();
   }
 
-  private showSuccessMessage(message: string) {
-    this.clearSuccessMessageTimer();
-    this.successMessage = message;
-    this.successMessageTimer = setTimeout(() => {
-      this.successMessage = '';
-      this.successMessageTimer = null;
-    }, this.successMessageDurationMs);
+  private isSearchField(value: string): value is SearchField {
+    return value === 'for-all' || this.searchableFields.includes(value as SearchField);
   }
 
-  private clearSuccessMessageTimer() {
-    if (this.successMessageTimer) {
-      clearTimeout(this.successMessageTimer);
-      this.successMessageTimer = null;
+  private restoreSearchState() {
+    const state = this.searchMemory.load<{
+      sortOrder?: unknown;
+      searchField?: unknown;
+      searchValue?: unknown;
+    }>(this.searchStateKey);
+    if (!state) return;
+
+    if (state.sortOrder === 'latest' || state.sortOrder === 'oldest') {
+      this.sortOrder = state.sortOrder;
     }
+
+    const storedField = String(state.searchField ?? '').trim();
+    if (this.isSearchField(storedField)) {
+      this.searchField = storedField;
+    }
+
+    this.searchValue = typeof state.searchValue === 'string' ? state.searchValue : '';
+  }
+
+  private persistSearchState() {
+    this.searchMemory.save(this.searchStateKey, {
+      sortOrder: this.sortOrder,
+      searchField: this.searchField,
+      searchValue: this.searchValue,
+    });
   }
 }

@@ -12,16 +12,15 @@
       <div class="col-md-8 col-lg-6 mx-auto">
         <div class="card register-form-card shadow">
           <div class="card-body p-4 p-md-5">
-        <form (ngSubmit)="onSubmit()" novalidate>
+        <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
           <div class="mb-3">
             <label class="form-label">Full name</label>
             <input
               type="text"
-              name="fullname"
               class="form-control"
               [class.is-invalid]="errors.fullname"
-              [ngModel]="formData.fullname"
-              (ngModelChange)="onChangeName($event)"
+              formControlName="fullname"
+              (input)="onChangeName($any($event.target).value)"
               placeholder="Enter your full name"
             />
             <div *ngIf="errors.fullname" class="invalid-feedback">{{ errors.fullname }}</div>
@@ -30,10 +29,9 @@
             <label class="form-label">Police ID number</label>
             <input
               type="text"
-              name="police_id"
               class="form-control"
               [class.is-invalid]="errors.police_id"
-              [(ngModel)]="formData.police_id"
+              formControlName="police_id"
               placeholder="Enter your police ID number"
             />
             <div *ngIf="errors.police_id" class="invalid-feedback">{{ errors.police_id }}</div>
@@ -42,10 +40,9 @@
             <label class="form-label">Contact number</label>
             <input
               type="text"
-              name="contact"
               class="form-control"
               [class.is-invalid]="errors.contact"
-              [(ngModel)]="formData.contact"
+              formControlName="contact"
               placeholder="Enter your contact number"
             />
             <div *ngIf="errors.contact" class="invalid-feedback">{{ errors.contact }}</div>
@@ -54,10 +51,9 @@
             <label class="form-label">Email address</label>
             <input
               type="email"
-              name="email"
               class="form-control"
               [class.is-invalid]="errors.email"
-              [(ngModel)]="formData.email"
+              formControlName="email"
               placeholder="Enter your email address"
             />
             <div *ngIf="errors.email" class="invalid-feedback">{{ errors.email }}</div>
@@ -65,10 +61,9 @@
           <div class="mb-3">
             <label class="form-label">City / district</label>
             <select
-              name="city"
               class="form-select"
               [class.is-invalid]="errors.city"
-              [(ngModel)]="formData.city"
+              formControlName="city"
             >
               <option value="">Select your city/district</option>
               <option>Ahmedabad</option>
@@ -111,10 +106,9 @@
             <label class="form-label">Password</label>
             <input
               type="password"
-              name="password"
               class="form-control"
               [class.is-invalid]="errors.password"
-              [(ngModel)]="formData.password"
+              formControlName="password"
               placeholder="Create a password"
             />
             <div *ngIf="errors.password" class="invalid-feedback">{{ errors.password }}</div>
@@ -123,25 +117,58 @@
             <label class="form-label">Confirm password</label>
             <input
               type="password"
-              name="conf_password"
               class="form-control"
               [class.is-invalid]="errors.conf_password"
-              [(ngModel)]="formData.conf_password"
+              formControlName="conf_password"
               placeholder="Confirm your password"
             />
             <div *ngIf="errors.conf_password" class="invalid-feedback">
               {{ errors.conf_password }}
             </div>
           </div>
-          <div class="mb-3 form-check">
-            <input type="checkbox" name="term_of_use" class="form-check-input" required />
-            <label class="form-check-label"
-              >I accept the <a routerLink="/terms">Terms &amp; Conditions</a>.</label
-            >
+          <div class="mb-3 remember-me-field">
+            <label class="remember-me-label" for="termOfUse">
+              <input
+                id="termOfUse"
+                type="checkbox"
+                class="remember-me-checkbox"
+                [class.register-checkbox-invalid]="errors.term_of_use"
+                formControlName="term_of_use"
+                required
+              />
+              <span>I accept the <a routerLink="/terms">Terms &amp; Conditions</a>.</span>
+            </label>
+          </div>
+          <div *ngIf="errors.term_of_use" class="error" style="margin-top: -0.4rem; margin-bottom: 0.8rem">
+            {{ errors.term_of_use }}
           </div>
           <p>Already have an account? <a routerLink="/login">Login here</a>.</p>
-          <button type="submit" class="btn btn-dark w-100 mt-3" [disabled]="loading">
-            Register
+          <button
+            type="submit"
+            class="pending-action-btn pending-check-btn neu-button w-100 mt-3"
+            [disabled]="loading"
+          >
+            <span aria-hidden="true" class="span-mother">
+              <span>R</span>
+              <span>e</span>
+              <span>g</span>
+              <span>i</span>
+              <span>s</span>
+              <span>t</span>
+              <span>e</span>
+              <span>r</span>
+            </span>
+            <span aria-hidden="true" class="span-mother2">
+              <span>R</span>
+              <span>e</span>
+              <span>g</span>
+              <span>i</span>
+              <span>s</span>
+              <span>t</span>
+              <span>e</span>
+              <span>r</span>
+            </span>
+            <span class="visually-hidden">Register</span>
           </button>
         </form>
           </div>
@@ -149,6 +176,35 @@
       </div>
     </div>
   </div>
+  <div
+    *ngIf="successMessage"
+    class="remove-confirm-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="register-success-title"
+    (click)="closeSuccessMessage()"
+  >
+    <div class="remove-confirm-card pending-user-surface register-success-card" (click)="$event.stopPropagation()">
+      <h5 id="register-success-title" class="mb-2">Registration successful</h5>
+      <p class="mb-3">{{ successMessage }}</p>
+      <div class="remove-confirm-actions">
+        <button
+          type="button"
+          class="pending-action-btn pending-check-btn neu-button"
+          (click)="closeSuccessMessage()"
+        >
+          <span aria-hidden="true" class="span-mother">
+            <span>O</span>
+            <span>K</span>
+          </span>
+          <span aria-hidden="true" class="span-mother2">
+            <span>O</span>
+            <span>K</span>
+          </span>
+          <span class="visually-hidden">OK</span>
+        </button>
+      </div>
+    </div>
+  </div>
   <app-footer></app-footer>
 </div>
-

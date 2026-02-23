@@ -31,30 +31,13 @@
       </div>
     </div>
   </div>
-  <div
-    *ngIf="successMessage"
-    class="alert alert-success alert-dismissible fade show text-center app-timed-alert"
-    role="alert"
-  >
-    {{ successMessage }}
-    <button type="button" class="btn-close" (click)="closeSuccessMessage()" aria-label="Close"></button>
-  </div>
-  <div
-    *ngIf="infoMessage"
-    class="alert alert-danger alert-dismissible fade show text-center app-timed-alert"
-    role="alert"
-  >
-    {{ infoMessage }}
-    <button type="button" class="btn-close" (click)="closeInfoMessage()" aria-label="Close"></button>
-  </div>
-
   <div *ngIf="loading">Loading...</div>
 
   <ng-container *ngIf="!loading">
     <ng-container *ngIf="updates.length > 0; else empty">
-      <ng-container *ngFor="let group of groupedUpdates">
+      <ng-container *ngFor="let group of groupedUpdates; trackBy: trackByGroup">
         <h5 class="mb-3 text-secondary month-year-heading">{{ group.label }}</h5>
-        <article *ngFor="let update of group.items" class="card mb-3 shadow-sm">
+        <article *ngFor="let update of group.items; trackBy: trackByUpdate" class="card mb-3 shadow-sm">
           <div class="card-body pending-update-layout">
             <div class="pending-update-meta">
               <h4 class="mb-2 pending-update-title">
@@ -68,11 +51,29 @@
                 <b>Update received:</b>
                 {{ update.requestedAt ? (update.requestedAt | date: 'dd-MM-yyyy HH:mm') : 'N/A' }}
               </p>
+              <div class="pending-update-changes mt-2">
+                <ng-container *ngIf="changesDoneFor(update?.changes_done) as changesDone">
+                  <ng-container *ngIf="changesDone.length; else noChangesDone">
+                    <div class="changes-grid">
+                      <b class="changes-label">Changes:</b>
+                      <div class="changes-values">
+                        <div class="change-line" *ngFor="let item of changesDone">
+                          <span style="white-space: pre-wrap">{{ item }}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </ng-container>
+                </ng-container>
+                <ng-template #noChangesDone>
+                  <p class="mb-0"><b>Changes:</b> <span class="text-muted">N/A</span></p>
+                </ng-template>
+              </div>
             </div>
             <div class="d-flex gap-2 pending-update-actions">
               <button
+                type="button"
                 class="pending-action-btn pending-approve-btn neu-button"
-                (click)="handleApprove(update._id)"
+                (click)="handleApprove(update, $event)"
               >
                 <span class="span-mother" aria-hidden="true">
                   <span>A</span><span>p</span><span>p</span><span>r</span><span>o</span><span>v</span><span>e</span>
@@ -83,8 +84,9 @@
                 <span class="visually-hidden">Approve</span>
               </button>
               <button
+                type="button"
                 class="pending-action-btn pending-reject-btn neu-button"
-                (click)="handleDeny(update._id)"
+                (click)="handleDeny(update, $event)"
               >
                 <span class="span-mother" aria-hidden="true">
                   <span>R</span><span>e</span><span>j</span><span>e</span><span>c</span><span>t</span>
@@ -115,5 +117,50 @@
       <div class="alert alert-info">No pending case updates found.</div>
     </ng-template>
   </ng-container>
-</div>
 
+  <div
+    *ngIf="updateConfirm"
+    class="app-confirm-overlay"
+    role="dialog"
+    aria-modal="true"
+    (click)="closeUpdateConfirm()"
+  >
+    <div class="app-confirm-card pending-user-surface" (click)="$event.stopPropagation()">
+      <h5 class="mb-2">
+        {{ updateConfirm.action === 'approve' ? 'Approve update request?' : 'Reject update request?' }}
+      </h5>
+      <p class="mb-3 app-confirm-text">
+        Are you sure you want to
+        {{ updateConfirm.action === 'approve' ? 'approve' : 'reject' }}
+        the pending update for
+        <b>{{ updateConfirm.title }}</b
+        >?
+      </p>
+      <div class="app-confirm-actions">
+        <button
+          type="button"
+          class="pending-action-btn neu-button"
+          [ngClass]="
+            updateConfirm.action === 'approve' ? 'pending-approve-btn' : 'pending-reject-btn'
+          "
+          [disabled]="isSubmittingAction"
+          (click)="confirmUpdateAction()"
+        >
+          <span class="span-mother" aria-hidden="true"><span>Y</span><span>e</span><span>s</span></span>
+          <span class="span-mother2" aria-hidden="true"><span>Y</span><span>e</span><span>s</span></span>
+          <span class="visually-hidden">Yes</span>
+        </button>
+        <button
+          type="button"
+          class="pending-action-btn pending-check-btn neu-button"
+          [disabled]="isSubmittingAction"
+          (click)="closeUpdateConfirm()"
+        >
+          <span class="span-mother" aria-hidden="true"><span>N</span><span>o</span></span>
+          <span class="span-mother2" aria-hidden="true"><span>N</span><span>o</span></span>
+          <span class="visually-hidden">No</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

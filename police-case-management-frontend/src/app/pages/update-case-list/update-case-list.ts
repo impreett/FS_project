@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { CaseService } from '../../services/case';
+import { SearchMemoryService } from '../../services/search-memory.service';
 import {
   displayApproval as formatApproval,
   displayDate as formatDate,
@@ -12,6 +13,7 @@ import {
   shouldShowCaseField,
   type PersonDisplay,
 } from '../../utils/case-search-display';
+import { highlightCaseSearchText } from '../../utils/case-search-highlight';
 
 type SearchField =
   | 'for-all'
@@ -37,6 +39,7 @@ export class UpdateCaseList implements OnInit {
   sortOrder: 'latest' | 'oldest' = 'latest';
   searchField: SearchField = 'for-all';
   searchValue = '';
+  private readonly searchStateKey = 'update-case-list';
   caseTypes: string[] = [
     'Homicide (Murder)',
     'Manslaughter',
@@ -81,9 +84,13 @@ export class UpdateCaseList implements OnInit {
     year: 'numeric',
   });
 
-  constructor(private caseService: CaseService) {}
+  constructor(
+    private caseService: CaseService,
+    private searchMemory: SearchMemoryService
+  ) {}
 
   async ngOnInit() {
+    this.restoreSearchState();
     try {
       const response = await firstValueFrom(this.caseService.getAssignedCases());
       this.cases = response || [];
@@ -96,15 +103,18 @@ export class UpdateCaseList implements OnInit {
 
   setSortOrder(order: 'latest' | 'oldest') {
     this.sortOrder = order;
+    this.persistSearchState();
   }
 
   onSearchFieldChange(value: string) {
     this.searchField = (value as SearchField) || 'for-all';
     this.searchValue = '';
+    this.persistSearchState();
   }
 
   onSearchValueChange(value: string) {
     this.searchValue = value || '';
+    this.persistSearchState();
   }
 
   shouldShowField(field: string): boolean {
@@ -128,6 +138,10 @@ export class UpdateCaseList implements OnInit {
 
   displayApproval(value: unknown): string {
     return formatApproval(value);
+  }
+
+  highlightText(value: unknown, fallback = '', fieldKey?: string): string {
+    return highlightCaseSearchText(value, fallback, fieldKey, this.searchField, this.searchValue);
   }
 
   get officers() {
@@ -298,5 +312,37 @@ export class UpdateCaseList implements OnInit {
 
   private normalize(value: unknown): string {
     return String(value ?? '').toLowerCase().trim();
+  }
+
+  private isSearchField(value: string): value is SearchField {
+    return value === 'for-all' || this.searchableFields.includes(value as SearchField);
+  }
+
+  private restoreSearchState() {
+    const state = this.searchMemory.load<{
+      sortOrder?: unknown;
+      searchField?: unknown;
+      searchValue?: unknown;
+    }>(this.searchStateKey);
+    if (!state) return;
+
+    if (state.sortOrder === 'latest' || state.sortOrder === 'oldest') {
+      this.sortOrder = state.sortOrder;
+    }
+
+    const storedField = String(state.searchField ?? '').trim();
+    if (this.isSearchField(storedField)) {
+      this.searchField = storedField;
+    }
+
+    this.searchValue = typeof state.searchValue === 'string' ? state.searchValue : '';
+  }
+
+  private persistSearchState() {
+    this.searchMemory.save(this.searchStateKey, {
+      sortOrder: this.sortOrder,
+      searchField: this.searchField,
+      searchValue: this.searchValue,
+    });
   }
 }

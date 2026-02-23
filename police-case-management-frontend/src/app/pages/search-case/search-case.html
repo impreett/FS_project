@@ -1,4 +1,4 @@
-﻿<div class="container mt-4">
+<div class="container mt-4">
   <h2 class="mb-4">Search case</h2>
   <div class="card card-body mb-4 pending-user-surface">
     <div class="row">
@@ -152,7 +152,7 @@
                 </span>
               </ng-container>
             </ng-container>
-            <ng-template #noVictim>No victim added.</ng-template>
+            <ng-template #noVictim>Unidentified</ng-template>
           </span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('suspects')">
@@ -166,7 +166,7 @@
                 </span>
               </ng-container>
             </ng-container>
-            <ng-template #noSuspects>No suspect added.</ng-template>
+            <ng-template #noSuspects>Unidentified</ng-template>
           </span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('guilty_name')">
@@ -180,7 +180,7 @@
                 </span>
               </ng-container>
             </ng-container>
-            <ng-template #noGuilty>No guilty person added.</ng-template>
+            <ng-template #noGuilty>Unidentified</ng-template>
           </span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('case_date')">

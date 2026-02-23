@@ -68,6 +68,10 @@
   word-break: break-word;
 }
 
+.changes-done-list li + li {
+  margin-top: 3px;
+}
+
 @media (max-width: 576px) {
   .people-lines {
     grid-template-columns: minmax(0, 1fr);

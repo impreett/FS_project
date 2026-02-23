@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 
 @Component({
   selector: 'app-pending-users',
@@ -9,12 +10,9 @@ import { AdminService } from '../../services/admin';
   templateUrl: './pending-users.html',
   styleUrl: './pending-users.css',
 })
-export class PendingUsers implements OnInit, OnDestroy {
+export class PendingUsers implements OnInit {
   users: any[] = [];
   loading = true;
-  successMessage = '';
-  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly successMessageDurationMs = 7000;
   userConfirm:
     | {
         id: string;
@@ -24,7 +22,10 @@ export class PendingUsers implements OnInit, OnDestroy {
     | null = null;
   isSubmittingAction = false;
 
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private feedback: AppFeedbackService
+  ) {}
 
   get cityCount(): number {
     return new Set(this.users.map((user) => user.city).filter(Boolean)).size;
@@ -34,22 +35,13 @@ export class PendingUsers implements OnInit, OnDestroy {
     await this.fetchPendingUsers();
   }
 
-  ngOnDestroy() {
-    this.clearSuccessMessageTimer();
-  }
-
-  closeSuccessMessage() {
-    this.clearSuccessMessageTimer();
-    this.successMessage = '';
-  }
-
   async fetchPendingUsers() {
     try {
       const res = await firstValueFrom(this.adminService.getPendingUsers());
       this.users = res || [];
     } catch (err) {
       console.error(err);
-      alert('Failed to fetch pending users. You may not be an admin.');
+      this.feedback.showError('Failed to fetch pending users. You may not be an admin.');
     } finally {
       this.loading = false;
     }
@@ -85,35 +77,20 @@ export class PendingUsers implements OnInit, OnDestroy {
     try {
       if (action === 'approve') {
         await firstValueFrom(this.adminService.approveUser(id));
-        this.showSuccessMessage('User approved!');
+        this.feedback.showMessage('User approved!', 'success');
         this.users = this.users.filter((user) => user._id !== id);
-        window.scrollTo(0, 0);
       } else {
         await firstValueFrom(this.adminService.denyUser(id));
         this.users = this.users.filter((user) => user._id !== id);
+        this.feedback.showMessage('User denied!', 'success');
       }
     } catch (err) {
       console.error(err);
-      alert(action === 'approve' ? 'Error approving user.' : 'Error denying user.');
+      this.feedback.showError(action === 'approve' ? 'Error approving user.' : 'Error denying user.');
     } finally {
       this.isSubmittingAction = false;
       this.userConfirm = null;
     }
   }
 
-  private showSuccessMessage(message: string) {
-    this.clearSuccessMessageTimer();
-    this.successMessage = message;
-    this.successMessageTimer = setTimeout(() => {
-      this.successMessage = '';
-      this.successMessageTimer = null;
-    }, this.successMessageDurationMs);
-  }
-
-  private clearSuccessMessageTimer() {
-    if (this.successMessageTimer) {
-      clearTimeout(this.successMessageTimer);
-      this.successMessageTimer = null;
-    }
-  }
 }

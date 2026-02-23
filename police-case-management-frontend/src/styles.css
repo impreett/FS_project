@@ -892,6 +892,9 @@ a.pending-action-btn.neu-button:visited {
 .pending-action-btn.neu-button .span-mother span,
 .pending-action-btn.neu-button .span-mother2 span {
   display: inline-block;
+  transition-property: transform;
+  transition-duration: 0.2s;
+  transition-timing-function: ease;
 }
 
 .pending-action-btn.neu-button .span-mother span:nth-child(1),

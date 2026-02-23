@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
 import { AdminService } from '../../services/admin';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 import { CaseService } from '../../services/case';
 
 type PersonDisplay = {
@@ -23,13 +24,17 @@ export class CaseDetails implements OnInit, OnDestroy {
   loading = true;
   error: string | null = null;
   user: any = null;
-  successMessage = '';
-  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly successMessageDurationMs = 7000;
+  actionMessage = '';
+  actionMessageType: 'success' | 'danger' | 'info' = 'info';
+  private actionMessageTimer: ReturnType<typeof setTimeout> | null = null;
+  private readonly actionMessageDurationMs = 7000;
   id = '';
+  navigationSource = '';
   victimPeople: PersonDisplay[] = [];
   suspectPeople: PersonDisplay[] = [];
   guiltyPeople: PersonDisplay[] = [];
+  changesDone: string[] = [];
+  private pendingDecisionCompleted = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -37,11 +42,13 @@ export class CaseDetails implements OnInit, OnDestroy {
     private router: Router,
     private auth: AuthService,
     private adminService: AdminService,
-    private caseService: CaseService
+    private caseService: CaseService,
+    private feedback: AppFeedbackService
   ) {}
 
   async ngOnInit() {
     this.id = this.route.snapshot.paramMap.get('id') || '';
+    this.navigationSource = this.route.snapshot.queryParamMap.get('from') || '';
     this.user = this.auth.getUser();
 
     try {
@@ -55,6 +62,7 @@ export class CaseDetails implements OnInit, OnDestroy {
       this.victimPeople = this.parsePeople(this.caseItem?.victim);
       this.suspectPeople = this.parsePeople(this.caseItem?.suspects);
       this.guiltyPeople = this.parsePeople(this.caseItem?.guilty_name);
+      this.changesDone = this.parseChangesDone(this.caseItem?.changes_done);
     } catch {
       this.error = 'Could not fetch case details.';
     } finally {
@@ -63,12 +71,12 @@ export class CaseDetails implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.clearSuccessMessageTimer();
+    this.clearActionMessageTimer();
   }
 
-  closeSuccessMessage() {
-    this.clearSuccessMessageTimer();
-    this.successMessage = '';
+  closeActionMessage() {
+    this.clearActionMessageTimer();
+    this.actionMessage = '';
   }
 
   private normalizeText(value: unknown): string {
@@ -125,6 +133,14 @@ export class CaseDetails implements OnInit, OnDestroy {
       .filter((entry) => !!entry.name);
   }
 
+  private parseChangesDone(value: unknown): string[] {
+    if (Array.isArray(value)) {
+      return value.map((item) => this.normalizeText(item)).filter(Boolean);
+    }
+    const text = this.normalizeText(value);
+    return text ? [text] : [];
+  }
+
   get peopleNameColumnWidth(): string {
     const people = [...this.victimPeople, ...this.suspectPeople, ...this.guiltyPeople];
     const longest = people.reduce((max, person) => {
@@ -144,23 +160,36 @@ export class CaseDetails implements OnInit, OnDestroy {
   async handleApprove() {
     try {
       await firstValueFrom(this.adminService.approveCase(this.id));
-      this.showSuccessMessage('Case approved!');
+      this.showActionMessage('Case approved!', 'success');
       if (this.caseItem) {
         this.caseItem = { ...this.caseItem, isApproved: true };
       }
+      this.pendingDecisionCompleted = true;
       window.scrollTo(0, 0);
     } catch {
-      alert('Error approving case.');
+      this.showActionMessage('Error approving case.', 'danger');
+      window.scrollTo(0, 0);
     }
   }
 
   async handleDeny() {
-    if (!window.confirm('Are you sure you want to deny this case?')) return;
+    const confirmed = await this.feedback.confirm({
+      title: 'Deny case?',
+      message: 'Are you sure you want to deny this case?',
+      confirmLabel: 'Yes',
+      cancelLabel: 'No',
+      confirmTone: 'reject',
+      cancelTone: 'check',
+    });
+    if (!confirmed) return;
     try {
       await firstValueFrom(this.adminService.denyCase(this.id));
-      window.history.back();
+      this.pendingDecisionCompleted = true;
+      this.showActionMessage('Case denied!', 'success');
+      window.scrollTo(0, 0);
     } catch {
-      alert('Error denying case.');
+      this.showActionMessage('Error denying case.', 'danger');
+      window.scrollTo(0, 0);
     }
   }
 
@@ -172,19 +201,88 @@ export class CaseDetails implements OnInit, OnDestroy {
     this.router.navigateByUrl('/');
   }
 
-  private showSuccessMessage(message: string) {
-    this.clearSuccessMessageTimer();
-    this.successMessage = message;
-    this.successMessageTimer = setTimeout(() => {
-      this.successMessage = '';
-      this.successMessageTimer = null;
-    }, this.successMessageDurationMs);
+  private showActionMessage(message: string, type: 'success' | 'danger' | 'info' = 'info') {
+    this.clearActionMessageTimer();
+    this.actionMessageType = type;
+    this.actionMessage = message;
+    this.actionMessageTimer = setTimeout(() => {
+      this.actionMessage = '';
+      this.actionMessageTimer = null;
+    }, this.actionMessageDurationMs);
   }
 
-  private clearSuccessMessageTimer() {
-    if (this.successMessageTimer) {
-      clearTimeout(this.successMessageTimer);
-      this.successMessageTimer = null;
+  private clearActionMessageTimer() {
+    if (this.actionMessageTimer) {
+      clearTimeout(this.actionMessageTimer);
+      this.actionMessageTimer = null;
+    }
+  }
+
+  get showPendingDecisionActions(): boolean {
+    return (
+      Boolean(this.user?.isAdmin) &&
+      this.navigationSource === 'admin-pending-cases' &&
+      Boolean(this.caseItem) &&
+      !Boolean(this.caseItem?.isApproved) &&
+      !this.pendingDecisionCompleted
+    );
+  }
+
+  get showRemoveAction(): boolean {
+    return (
+      Boolean(this.user?.isAdmin) &&
+      this.navigationSource === 'admin-remove-case' &&
+      Boolean(this.caseItem) &&
+      !Boolean(this.caseItem?.is_removed)
+    );
+  }
+
+  get showRestoreAction(): boolean {
+    return (
+      Boolean(this.user?.isAdmin) &&
+      this.navigationSource === 'admin-removed-cases' &&
+      Boolean(this.caseItem) &&
+      Boolean(this.caseItem?.is_removed)
+    );
+  }
+
+  async handleRemoveFromCaseDetails() {
+    const confirmed = await this.feedback.confirm({
+      title: 'Remove case?',
+      message: 'Are you sure you want to remove',
+      subject: String(this.caseItem?.case_title || 'this case'),
+      messageSuffix: '?',
+      confirmLabel: 'Yes',
+      cancelLabel: 'No',
+      confirmTone: 'approve',
+      cancelTone: 'check',
+    });
+    if (!confirmed) return;
+
+    try {
+      await firstValueFrom(this.caseService.removeCase(this.id));
+      this.showActionMessage('Case removed successfully!', 'success');
+      if (this.caseItem) {
+        this.caseItem = { ...this.caseItem, is_removed: true };
+      }
+      window.scrollTo(0, 0);
+    } catch {
+      this.showActionMessage('Error removing case.', 'danger');
+      window.scrollTo(0, 0);
+    }
+  }
+
+  async handleRestoreFromCaseDetails() {
+    try {
+      await firstValueFrom(this.caseService.restoreCase(this.id));
+      this.showActionMessage('Case restored successfully!', 'success');
+      if (this.caseItem) {
+        this.caseItem = { ...this.caseItem, is_removed: false };
+      }
+      window.scrollTo(0, 0);
+    } catch {
+      this.showActionMessage('Error restoring case.', 'danger');
+      window.scrollTo(0, 0);
     }
   }
 }

@@ -1,15 +1,17 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 import { CaseService } from '../../services/case';
 
 type AdminUpdateFormErrors = {
   case_title?: string;
   case_type?: string;
   case_description?: string;
+  changes_done?: string;
   involvedPeople?: string;
   case_date?: string;
   status?: string;
@@ -32,12 +34,21 @@ type RoleListItem = {
 
 @Component({
   selector: 'app-admin-update-form',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './admin-update-form.html',
   styleUrl: './admin-update-form.css',
 })
 export class AdminUpdateForm implements OnInit {
-  formData: any = {};
+  private readonly fb = inject(FormBuilder);
+  adminUpdateCaseForm = this.fb.nonNullable.group({
+    case_title: '',
+    case_type: '',
+    case_description: '',
+    changes_done: this.fb.nonNullable.array([this.fb.nonNullable.control('')]),
+    case_date: '',
+    status: '',
+    case_handler: '',
+  });
   involvedPeople: InvolvedPerson[] = [];
   officers: string[] = [];
   loading = true;
@@ -49,7 +60,8 @@ export class AdminUpdateForm implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private adminService: AdminService,
-    private caseService: CaseService
+    private caseService: CaseService,
+    private feedback: AppFeedbackService
   ) {}
 
   async ngOnInit() {
@@ -57,7 +69,24 @@ export class AdminUpdateForm implements OnInit {
     try {
       const caseRes = await firstValueFrom(this.caseService.getCaseById(this.id));
       const formattedDate = new Date(caseRes.case_date).toISOString().split('T')[0];
-      this.formData = { ...caseRes, case_date: formattedDate };
+      this.adminUpdateCaseForm.patchValue({
+        case_title: caseRes?.case_title || '',
+        case_type: caseRes?.case_type || '',
+        case_description: caseRes?.case_description || '',
+        case_date: formattedDate || '',
+        status: caseRes?.status || '',
+        case_handler: caseRes?.case_handler || '',
+      });
+      const existingChangesDone = this.normalizeChangesDone(caseRes?.changes_done);
+      const changesDoneArray = this.adminUpdateCaseForm.controls.changes_done;
+      changesDoneArray.clear();
+      if (existingChangesDone.length) {
+        for (const change of existingChangesDone) {
+          changesDoneArray.push(this.fb.nonNullable.control(change));
+        }
+      } else {
+        changesDoneArray.push(this.fb.nonNullable.control(''));
+      }
       this.involvedPeople = [
         ...this.parsePeopleField(caseRes?.suspects, 'suspects'),
         ...this.parsePeopleField(caseRes?.guilty_name, 'guilty_name'),
@@ -73,24 +102,23 @@ export class AdminUpdateForm implements OnInit {
       this.officers = names;
     } catch (err) {
       console.error(err);
-      alert('Failed to load data. You may not be authorized.');
+      this.feedback.showError('Failed to load data. You may not be authorized.');
     } finally {
       this.loading = false;
     }
   }
 
-  onChange(name: string, value: string) {
-    if (name === 'case_date') {
-      const clamped = value && value > this.todayStr ? this.todayStr : value;
-      this.formData = { ...this.formData, [name]: clamped };
-      return;
-    }
-    this.formData = { ...this.formData, [name]: value };
-  }
-
   private normalizeText(value: unknown): string {
     if (value === null || value === undefined) return '';
     return String(value).trim();
+  }
+
+  private normalizeChangesDone(value: unknown): string[] {
+    if (Array.isArray(value)) {
+      return value.map((item) => this.normalizeText(item)).filter(Boolean);
+    }
+    const text = this.normalizeText(value);
+    return text ? [text] : [];
   }
 
   private parsePeopleField(value: unknown, role: Exclude<PersonRole, ''>): InvolvedPerson[] {
@@ -202,6 +230,19 @@ export class AdminUpdateForm implements OnInit {
     this.involvedPeople[index].age = numeric > 120 ? '120' : trimmed;
   }
 
+  get changesDoneControls() {
+    return this.adminUpdateCaseForm.controls.changes_done.controls;
+  }
+
+  addChangeDone() {
+    this.adminUpdateCaseForm.controls.changes_done.push(this.fb.nonNullable.control(''));
+  }
+
+  removeChangeDone(index: number) {
+    if (this.adminUpdateCaseForm.controls.changes_done.length <= 1) return;
+    this.adminUpdateCaseForm.controls.changes_done.removeAt(index);
+  }
+
   private buildPeoplePayload() {
     const grouped: {
       suspects: Array<{ name: string; age: number | null }>;
@@ -232,21 +273,26 @@ export class AdminUpdateForm implements OnInit {
   }
 
   validate() {
+    const formData = this.adminUpdateCaseForm.getRawValue();
     const errs: AdminUpdateFormErrors = {};
     const nameRegex = /^[A-Za-z ]+$/;
+    const changesDone = (formData.changes_done || []).map((item) => this.normalizeText(item));
 
-    if (!this.formData.case_title || (this.formData.case_title || '').length < 5) {
-      errs.case_title = !this.formData.case_title
+    if (!formData.case_title || (formData.case_title || '').length < 5) {
+      errs.case_title = !formData.case_title
         ? 'Please enter the case title.'
         : 'Case title must be at least 5 characters.';
     }
-    if (!this.formData.case_type) {
+    if (!formData.case_type) {
       errs.case_type = 'Please select a case type.';
     }
-    if (!this.formData.case_description || (this.formData.case_description || '').length < 20) {
-      errs.case_description = !this.formData.case_description
+    if (!formData.case_description || (formData.case_description || '').length < 20) {
+      errs.case_description = !formData.case_description
         ? 'Please provide a description.'
         : 'Description must be at least 20 characters.';
+    }
+    if (!changesDone.length || changesDone.some((item) => !item)) {
+      errs.changes_done = 'Add at least one change, and do not leave any change entry blank.';
     }
     if (this.involvedPeople.length > 0) {
       for (const person of this.involvedPeople) {
@@ -263,15 +309,15 @@ export class AdminUpdateForm implements OnInit {
         }
       }
     }
-    if (!this.formData.case_date) {
+    if (!formData.case_date) {
       errs.case_date = 'Please select a case date.';
-    } else if (this.formData.case_date > this.todayStr) {
+    } else if (formData.case_date > this.todayStr) {
       errs.case_date = 'Case date cannot be in the future.';
     }
-    if (!this.formData.status) {
+    if (!formData.status) {
       errs.status = 'Please select a case status.';
     }
-    if (!this.formData.case_handler) {
+    if (!formData.case_handler) {
       errs.case_handler = 'Please select a case handler.';
     }
 
@@ -282,13 +328,17 @@ export class AdminUpdateForm implements OnInit {
   async onSubmit() {
     try {
       if (!this.validate()) return;
+      const { ...cleanFormData } = this.adminUpdateCaseForm.getRawValue();
+      const changes_done = (cleanFormData.changes_done || [])
+        .map((item) => this.normalizeText(item))
+        .filter(Boolean);
       const peoplePayload = this.buildPeoplePayload();
-      const payload = { ...this.formData, ...peoplePayload };
+      const payload = { ...cleanFormData, changes_done, ...peoplePayload };
       await firstValueFrom(this.caseService.updateCase(this.id, payload));
-      alert('Case updated successfully!');
+      this.feedback.showMessage('Case updated successfully!', 'success');
       this.router.navigate(['/admin/update-case']);
     } catch {
-      alert('Error updating case.');
+      this.feedback.showError('Error updating case.');
     }
   }
 }

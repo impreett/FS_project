@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnDestroy, OnInit, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 import { CaseService } from '../../services/case';
 
 type AddCaseErrors = {
@@ -31,21 +32,22 @@ type RoleListItem = {
 
 @Component({
   selector: 'app-add-case',
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './add-case.html',
   styleUrl: './add-case.css',
 })
 export class AddCase implements OnInit, OnDestroy {
   user: any = null;
   officers: string[] = [];
-  formData: any = {
+  private readonly fb = inject(FormBuilder);
+  addCaseForm = this.fb.nonNullable.group({
     case_title: '',
     case_type: '',
     case_description: '',
     case_date: '',
     status: 'ACTIVE',
     case_handler: '',
-  };
+  });
   involvedPeople: InvolvedPerson[] = [];
   errors: AddCaseErrors = {};
   successMessage = '';
@@ -53,7 +55,11 @@ export class AddCase implements OnInit, OnDestroy {
   private readonly successMessageDurationMs = 7000;
   todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
 
-  constructor(private auth: AuthService, private caseService: CaseService) {}
+  constructor(
+    private auth: AuthService,
+    private caseService: CaseService,
+    private feedback: AppFeedbackService
+  ) {}
 
   private normalizeText(value: unknown): string {
     if (value === null || value === undefined) return '';
@@ -70,7 +76,7 @@ export class AddCase implements OnInit, OnDestroy {
         console.error('Failed to fetch officers');
       }
     } else if (this.user) {
-      this.formData.case_handler = this.user.fullname;
+      this.addCaseForm.patchValue({ case_handler: this.user.fullname || '' });
     }
   }
 
@@ -168,31 +174,30 @@ export class AddCase implements OnInit, OnDestroy {
   }
 
   validate() {
+    const formData = this.addCaseForm.getRawValue();
     const tempErrors: AddCaseErrors = {};
     const nameRegex = /^[A-Za-z ]+$/;
 
-    if (!this.formData.case_title || this.formData.case_title.length < 5) {
+    if (!formData.case_title || formData.case_title.length < 5) {
       tempErrors.case_title = 'Title must be at least 5 characters.';
     }
-    if (!this.formData.case_type) {
+    if (!formData.case_type) {
       tempErrors.case_type = 'Please select a case type.';
     }
-    if (!this.formData.case_description || this.formData.case_description.length < 20) {
+    if (!formData.case_description || formData.case_description.length < 20) {
       tempErrors.case_description = 'Description must be at least 20 characters.';
     }
-    const caseDateValue = String(this.formData.case_date || '');
+    const caseDateValue = String(formData.case_date || '');
     if (!caseDateValue) {
       tempErrors.case_date = 'Case date is required.';
     } else if (caseDateValue > this.todayStr) {
       tempErrors.case_date = 'Case date cannot be in the future.';
     }
-    if (this.user?.isAdmin && !this.formData.case_handler) {
+    if (this.user?.isAdmin && !formData.case_handler) {
       tempErrors.case_handler = 'Please select a case handler.';
     }
 
-    if (this.involvedPeople.length === 0) {
-      tempErrors.involvedPeople = 'Add at least one person with name and role.';
-    } else {
+    if (this.involvedPeople.length > 0) {
       for (const person of this.involvedPeople) {
         const name = this.normalizeText(person.name);
         const ageText = this.normalizeText(person.age);
@@ -218,28 +223,29 @@ export class AddCase implements OnInit, OnDestroy {
   async onSubmit() {
     if (!this.validate()) return;
     try {
+      const formData = this.addCaseForm.getRawValue();
       const peoplePayload = this.buildPeoplePayload();
       const payload = {
-        ...this.formData,
+        ...formData,
         ...peoplePayload,
         isApproved: !!this.user?.isAdmin,
       };
       await firstValueFrom(this.caseService.addCase(payload));
       this.showSuccessMessage('Case added successfully!');
-      this.formData = {
+      this.addCaseForm.reset({
         case_title: '',
         case_type: '',
         case_description: '',
         case_date: '',
         status: 'ACTIVE',
         case_handler: this.user?.isAdmin ? '' : this.user?.fullname || '',
-      };
+      });
       this.involvedPeople = [];
       window.scrollTo(0, 0);
     } catch (err: any) {
       console.error('Error details:', err?.error || err);
       this.successMessage = '';
-      alert('Error adding case: ' + (err?.error?.msg || err?.message || err));
+      this.feedback.showError('Error adding case: ' + (err?.error?.msg || err?.message || err));
     }
   }
 

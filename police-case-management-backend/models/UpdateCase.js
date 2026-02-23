@@ -14,6 +14,7 @@ const updateCaseSchema = new mongoose.Schema({
     case_title: { type: String, required: true },
     case_type: { type: String, required: true },
     case_description: { type: String, default: '' },
+    changes_done: { type: [String], default: [] },
     suspects: { type: [personSchema], default: [] },
     victim: { type: [personSchema], default: [] },
     guilty_name: { type: [personSchema], default: [] },

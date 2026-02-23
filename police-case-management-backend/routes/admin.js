@@ -14,6 +14,17 @@ const {
 } = require('../utils/people');
 const { validateCaseDateNotFuture } = require('../utils/caseDate');
 
+const normalizeChangesDone = (value) => {
+    if (Array.isArray(value)) {
+        return value.map((item) => String(item ?? '').trim()).filter(Boolean);
+    }
+    if (typeof value === 'string') {
+        const trimmed = value.trim();
+        return trimmed ? [trimmed] : [];
+    }
+    return [];
+};
+
 // User management
 router.get('/pending-users', adminAuth, async (req, res) => {
     try {
@@ -120,14 +131,15 @@ router.put('/approve-update/:updateId', adminAuth, async (req, res) => {
         if (!updateRequest) {
             return res.status(404).json({ msg: 'Update request not found' });
         }
-        const { _id, __v, originalCaseId, ...updatedData } = updateRequest.toObject();
+        const { _id, __v, originalCaseId, changes_done, ...updatedData } = updateRequest.toObject();
         const normalizedData = normalizeCasePeoplePayload(updatedData);
+        const normalizedChangesDone = normalizeChangesDone(changes_done);
         const caseDateError = validateCaseDateNotFuture(normalizedData.case_date);
         if (caseDateError) {
             return res.status(400).json({ msg: caseDateError });
         }
         await Case.findByIdAndUpdate(originalCaseId, {
-            $set: { ...normalizedData, updated_on: new Date() }
+            $set: { ...normalizedData, changes_done: normalizedChangesDone, updated_on: new Date() }
         });
         await UpdateCase.findByIdAndDelete(req.params.updateId);
         res.json({ msg: 'Update approved and applied successfully!' });

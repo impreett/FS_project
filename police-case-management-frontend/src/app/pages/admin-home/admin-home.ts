@@ -3,6 +3,7 @@ import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild }
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 
 @Component({
   selector: 'app-admin-home',
@@ -22,14 +23,17 @@ export class AdminHome implements OnInit, AfterViewInit {
     year: 'numeric',
   });
 
-  constructor(private adminService: AdminService) {}
+  constructor(
+    private adminService: AdminService,
+    private feedback: AppFeedbackService
+  ) {}
 
   async ngOnInit() {
     try {
       const res = await firstValueFrom(this.adminService.getAllCases());
       this.cases = res || [];
     } catch {
-      alert('Failed to fetch cases. You may not be an admin.');
+      this.feedback.showError('Failed to fetch cases. You may not be an admin.');
     } finally {
       this.loading = false;
       setTimeout(() => this.syncFilterTabMetrics());

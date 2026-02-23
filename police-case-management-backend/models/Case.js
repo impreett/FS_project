@@ -13,6 +13,7 @@ const caseSchema = new mongoose.Schema({
     case_title: { type: String, required: true },            /* Title of the case */
     case_type: { type: String, required: true },             /* Category or type classification */
     case_description: { type: String, default: '' },         /* Detailed case description */
+    changes_done: { type: [String], default: [] },           /* Latest approved update change notes */
     suspects: { type: [personSchema], default: [] },         /* List of suspects as structured entries */
     victim: { type: [personSchema], default: [] },           /* Victim entries as structured entries */
     guilty_name: { type: [personSchema], default: [] },      /* Guilty party entries as structured entries */

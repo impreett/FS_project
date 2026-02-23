@@ -1,14 +1,16 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { Component, OnInit, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { CaseService } from '../../services/case';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 
 type UpdateFormErrors = {
   case_title?: string;
   case_type?: string;
   case_description?: string;
+  changes_done?: string;
   involvedPeople?: string;
   case_date?: string;
   status?: string;
@@ -30,7 +32,7 @@ type RoleListItem = {
 
 @Component({
   selector: 'app-update-form',
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink],
   templateUrl: './update-form.html',
   styleUrl: './update-form.css',
 })
@@ -38,7 +40,18 @@ export class UpdateForm implements OnInit {
   id = '';
   loading = true;
   error = '';
-  formData: any = {};
+  submitMessageTitle = '';
+  submitMessage = '';
+  private readonly fb = inject(FormBuilder);
+  updateCaseForm = this.fb.nonNullable.group({
+    case_title: '',
+    case_type: '',
+    case_description: '',
+    changes_done: this.fb.nonNullable.array([this.fb.nonNullable.control('')]),
+    case_date: '',
+    status: '',
+    case_handler: '',
+  });
   involvedPeople: InvolvedPerson[] = [];
   errors: UpdateFormErrors = {};
   todayStr = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().split('T')[0];
@@ -46,7 +59,8 @@ export class UpdateForm implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private caseService: CaseService
+    private caseService: CaseService,
+    private feedback: AppFeedbackService
   ) {}
 
   async ngOnInit() {
@@ -54,7 +68,14 @@ export class UpdateForm implements OnInit {
     try {
       const caseRes = await firstValueFrom(this.caseService.getCaseById(this.id));
       const formattedDate = new Date(caseRes.case_date).toISOString().split('T')[0];
-      this.formData = { ...caseRes, case_date: formattedDate };
+      this.updateCaseForm.patchValue({
+        case_title: caseRes?.case_title || '',
+        case_type: caseRes?.case_type || '',
+        case_description: caseRes?.case_description || '',
+        case_date: formattedDate || '',
+        status: caseRes?.status || '',
+        case_handler: caseRes?.case_handler || '',
+      });
       this.involvedPeople = [
         ...this.parsePeopleField(caseRes?.suspects, 'suspects'),
         ...this.parsePeopleField(caseRes?.guilty_name, 'guilty_name'),
@@ -181,6 +202,19 @@ export class UpdateForm implements OnInit {
     this.involvedPeople[index].age = numeric > 120 ? '120' : trimmed;
   }
 
+  get changesDoneControls() {
+    return this.updateCaseForm.controls.changes_done.controls;
+  }
+
+  addChangeDone() {
+    this.updateCaseForm.controls.changes_done.push(this.fb.nonNullable.control(''));
+  }
+
+  removeChangeDone(index: number) {
+    if (this.updateCaseForm.controls.changes_done.length <= 1) return;
+    this.updateCaseForm.controls.changes_done.removeAt(index);
+  }
+
   private buildPeoplePayload() {
     const grouped: {
       suspects: Array<{ name: string; age: number | null }>;
@@ -211,21 +245,26 @@ export class UpdateForm implements OnInit {
   }
 
   validate() {
+    const formData = this.updateCaseForm.getRawValue();
     const errs: UpdateFormErrors = {};
     const nameRegex = /^[A-Za-z ]+$/;
+    const changesDone = (formData.changes_done || []).map((item) => this.normalizeText(item));
 
-    if (!this.formData.case_title || (this.formData.case_title || '').length < 5) {
-      errs.case_title = !this.formData.case_title
+    if (!formData.case_title || (formData.case_title || '').length < 5) {
+      errs.case_title = !formData.case_title
         ? 'Please enter the case title.'
         : 'Case title must be at least 5 characters.';
     }
-    if (!this.formData.case_type) {
+    if (!formData.case_type) {
       errs.case_type = 'Please select a case type.';
     }
-    if (!this.formData.case_description || (this.formData.case_description || '').length < 20) {
-      errs.case_description = !this.formData.case_description
+    if (!formData.case_description || (formData.case_description || '').length < 20) {
+      errs.case_description = !formData.case_description
         ? 'Please provide a description.'
         : 'Description must be at least 20 characters.';
+    }
+    if (!changesDone.length || changesDone.some((item) => !item)) {
+      errs.changes_done = 'Add at least one change, and do not leave any change entry blank.';
     }
     if (this.involvedPeople.length > 0) {
       for (const person of this.involvedPeople) {
@@ -242,12 +281,12 @@ export class UpdateForm implements OnInit {
         }
       }
     }
-    if (!this.formData.case_date) {
+    if (!formData.case_date) {
       errs.case_date = 'Please select a case date.';
-    } else if (this.formData.case_date > this.todayStr) {
+    } else if (formData.case_date > this.todayStr) {
       errs.case_date = 'Case date cannot be in the future.';
     }
-    if (!this.formData.status) {
+    if (!formData.status) {
       errs.status = 'Please select a case status.';
     }
 
@@ -258,19 +297,30 @@ export class UpdateForm implements OnInit {
   async onSubmit() {
     try {
       if (!this.validate()) return;
-      const { _id, __v, isApproved, is_removed, createdAt, updatedAt, ...cleanFormData } =
-        this.formData || {};
+      const { ...cleanFormData } = this.updateCaseForm.getRawValue();
+      const changes_done = (cleanFormData.changes_done || [])
+        .map((item) => this.normalizeText(item))
+        .filter(Boolean);
       const peoplePayload = this.buildPeoplePayload();
       const updateRequestData = {
         ...cleanFormData,
+        changes_done,
         ...peoplePayload,
         originalCaseId: this.id,
       };
       await firstValueFrom(this.caseService.requestUpdate(updateRequestData));
-      alert('Update request submitted successfully!');
-      this.router.navigate(['/update']);
+      this.submitMessageTitle = 'Update request submitted';
+      this.submitMessage = 'Update request submitted successfully.';
     } catch (err: any) {
-      alert('Error submitting update request: ' + (err?.error?.error || err?.error?.msg || err?.message));
+      this.feedback.showError(
+        'Error submitting update request: ' + (err?.error?.error || err?.error?.msg || err?.message)
+      );
     }
+  }
+
+  closeSubmitMessage() {
+    this.submitMessageTitle = '';
+    this.submitMessage = '';
+    this.router.navigate(['/update']);
   }
 }

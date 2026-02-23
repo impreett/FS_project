@@ -4,7 +4,9 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 import { CaseService } from '../../services/case';
+import { SearchMemoryService } from '../../services/search-memory.service';
 import {
   displayApproval as formatApproval,
   displayDate as formatDate,
@@ -13,6 +15,7 @@ import {
   shouldShowCaseField,
   type PersonDisplay,
 } from '../../utils/case-search-display';
+import { highlightCaseSearchText } from '../../utils/case-search-highlight';
 
 type SearchField =
   | 'for-all'
@@ -36,13 +39,17 @@ type SearchField =
 export class AdminRemoveCase implements OnInit {
   cases: any[] = [];
   loading = true;
-  message = '';
-  messageType: 'success' | 'danger' | 'info' = 'info';
-  removeConfirm: { id: string; title: string } | null = null;
   isRemoving = false;
+  removeConfirm:
+    | {
+        id: string;
+        title: string;
+      }
+    | null = null;
   sortOrder: 'latest' | 'oldest' = 'latest';
   searchField: SearchField = 'for-all';
   searchValue = '';
+  private readonly searchStateKey = 'admin-remove-case';
   caseTypes: string[] = [
     'Homicide (Murder)',
     'Manslaughter',
@@ -88,23 +95,35 @@ export class AdminRemoveCase implements OnInit {
     year: 'numeric',
   });
 
-  constructor(private adminService: AdminService, private caseService: CaseService) {}
+  constructor(
+    private adminService: AdminService,
+    private caseService: CaseService,
+    private feedback: AppFeedbackService,
+    private searchMemory: SearchMemoryService
+  ) {}
 
   async ngOnInit() {
+    this.restoreSearchState();
     try {
       const res = await firstValueFrom(this.adminService.getAllCases());
       this.cases = res || [];
     } catch {
-      this.message = 'Failed to fetch cases.';
-      this.messageType = 'danger';
+      this.feedback.showError('Failed to fetch cases.');
     } finally {
       this.loading = false;
     }
   }
 
-  openRemoveConfirm(caseItem: any) {
+  async handleRemove(caseItem: any, event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
     const id = String(caseItem?._id ?? '');
-    if (!id) return;
+    if (!id) {
+      this.feedback.showError('Case ID is missing. Please refresh and try again.');
+      return;
+    }
+    if (this.isRemoving) return;
+
     this.removeConfirm = {
       id,
       title: String(caseItem?.case_title ?? 'this case'),
@@ -116,18 +135,16 @@ export class AdminRemoveCase implements OnInit {
     this.removeConfirm = null;
   }
 
-  async confirmRemove() {
+  async confirmRemoveCase() {
     if (!this.removeConfirm || this.isRemoving) return;
     this.isRemoving = true;
+    const { id } = this.removeConfirm;
     try {
-      await firstValueFrom(this.caseService.removeCase(this.removeConfirm.id));
-      this.message = 'Case removed successfully!';
-      this.messageType = 'success';
-      this.cases = this.cases.filter((c) => c._id !== this.removeConfirm?.id);
-      window.scrollTo(0, 0);
+      await firstValueFrom(this.caseService.removeCase(id));
+      this.cases = this.cases.filter((c) => c._id !== id);
+      this.feedback.showMessage('Case removed successfully!', 'success');
     } catch {
-      this.message = 'Error removing case.';
-      this.messageType = 'danger';
+      this.feedback.showError('Error removing case.');
     } finally {
       this.isRemoving = false;
       this.removeConfirm = null;
@@ -136,15 +153,18 @@ export class AdminRemoveCase implements OnInit {
 
   setSortOrder(order: 'latest' | 'oldest') {
     this.sortOrder = order;
+    this.persistSearchState();
   }
 
   onSearchFieldChange(value: string) {
     this.searchField = (value as SearchField) || 'for-all';
     this.searchValue = '';
+    this.persistSearchState();
   }
 
   onSearchValueChange(value: string) {
     this.searchValue = value || '';
+    this.persistSearchState();
   }
 
   shouldShowField(field: string): boolean {
@@ -168,6 +188,10 @@ export class AdminRemoveCase implements OnInit {
 
   displayApproval(value: unknown): string {
     return formatApproval(value);
+  }
+
+  highlightText(value: unknown, fallback = '', fieldKey?: string): string {
+    return highlightCaseSearchText(value, fallback, fieldKey, this.searchField, this.searchValue);
   }
 
   get officers() {
@@ -232,6 +256,15 @@ export class AdminRemoveCase implements OnInit {
       }
     }
     return groups;
+  }
+
+  trackByGroup(index: number, group: { label: string }): string {
+    return `${group?.label ?? 'unknown'}-${index}`;
+  }
+
+  trackByCase(index: number, caseItem: any): string {
+    const id = caseItem?._id;
+    return typeof id === 'string' && id.trim() ? id : `case-${index}`;
   }
 
   private getWholeCaseSearchText(caseItem: any): string {
@@ -346,4 +379,37 @@ export class AdminRemoveCase implements OnInit {
   private normalize(value: unknown): string {
     return String(value ?? '').toLowerCase().trim();
   }
+
+  private isSearchField(value: string): value is SearchField {
+    return value === 'for-all' || this.searchableFields.includes(value as SearchField);
+  }
+
+  private restoreSearchState() {
+    const state = this.searchMemory.load<{
+      sortOrder?: unknown;
+      searchField?: unknown;
+      searchValue?: unknown;
+    }>(this.searchStateKey);
+    if (!state) return;
+
+    if (state.sortOrder === 'latest' || state.sortOrder === 'oldest') {
+      this.sortOrder = state.sortOrder;
+    }
+
+    const storedField = String(state.searchField ?? '').trim();
+    if (this.isSearchField(storedField)) {
+      this.searchField = storedField;
+    }
+
+    this.searchValue = typeof state.searchValue === 'string' ? state.searchValue : '';
+  }
+
+  private persistSearchState() {
+    this.searchMemory.save(this.searchStateKey, {
+      sortOrder: this.sortOrder,
+      searchField: this.searchField,
+      searchValue: this.searchValue,
+    });
+  }
+
 }

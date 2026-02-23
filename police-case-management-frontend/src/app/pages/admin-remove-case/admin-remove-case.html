@@ -1,4 +1,4 @@
-﻿<div class="container mt-4" style="margin-bottom: 30px">
+<div class="container mt-4" style="margin-bottom: 30px">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <h2 class="mb-0">Remove cases</h2>
     <div class="d-flex justify-content-end align-items-center gap-2" *ngIf="cases.length > 1">
@@ -122,44 +122,36 @@
     </div>
   </div>
 
-  <div
-    *ngIf="message"
-    class="alert"
-    [ngClass]="{
-      'alert-success': messageType === 'success',
-      'alert-danger': messageType === 'danger',
-      'alert-info': messageType === 'info'
-    }"
-  >
-    {{ message }}
-  </div>
   <div *ngIf="loading">Loading cases...</div>
   <div *ngIf="!loading && groupedCases.length === 0" class="alert alert-info">No cases found.</div>
   <ng-container *ngIf="!loading">
-    <ng-container *ngFor="let group of groupedCases">
+    <ng-container *ngFor="let group of groupedCases; trackBy: trackByGroup">
       <h5 class="mb-3 text-secondary month-year-heading">{{ group.label }}</h5>
-      <article *ngFor="let caseItem of group.items" class="case-details-card search-result-article">
+      <article *ngFor="let caseItem of group.items; trackBy: trackByCase" class="case-details-card search-result-article">
         <h3 class="mb-4 search-result-title">
           <ng-container *ngIf="searchField !== 'for-all'; else removeTitlePlain">
-            <a [routerLink]="['/case', caseItem._id]" class="result-title-link">{{
-              caseItem.case_title
-            }}</a>
+            <a
+              [routerLink]="['/case', caseItem._id]"
+              [queryParams]="{ from: 'admin-remove-case' }"
+              class="result-title-link"
+              [innerHTML]="highlightText(caseItem.case_title, 'Untitled', 'case_title')"
+            ></a>
           </ng-container>
           <ng-template #removeTitlePlain>
-            <span>{{ caseItem.case_title }}</span>
+            <span [innerHTML]="highlightText(caseItem.case_title, 'Untitled', 'case_title')"></span>
           </ng-template>
         </h3>
         <p class="detail-row" *ngIf="shouldShowField('case_id')">
           <span class="detail-label"><b>Case ID:</b></span>
-          <span class="detail-value">{{ caseItem._id || 'N/A' }}</span>
+          <span class="detail-value" [innerHTML]="highlightText(caseItem._id, 'N/A')"></span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('case_type')">
           <span class="detail-label"><b>Type:</b></span>
-          <span class="detail-value">{{ caseItem.case_type || 'N/A' }}</span>
+          <span class="detail-value" [innerHTML]="highlightText(caseItem.case_type, 'N/A', 'case_type')"></span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('case_handler')">
           <span class="detail-label"><b>Handler:</b></span>
-          <span class="detail-value">{{ caseItem.case_handler || 'N/A' }}</span>
+          <span class="detail-value" [innerHTML]="highlightText(caseItem.case_handler, 'N/A', 'case_handler')"></span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('victim')">
           <span class="detail-label"><b>Victim:</b></span>
@@ -167,12 +159,12 @@
             <ng-container *ngIf="peopleForCaseField(caseItem, 'victim') as victimPeople">
               <ng-container *ngIf="victimPeople.length; else noVictim">
                 <span class="person-line" *ngFor="let person of victimPeople">
-                  <span class="person-name-part">Name: {{ person.name }}</span>
-                  <span class="person-age-part">Age: {{ person.age }}</span>
+                  <span class="person-name-part" [innerHTML]="highlightText('Name: ' + person.name, '', 'victim')"></span>
+                  <span class="person-age-part" [innerHTML]="highlightText('Age: ' + person.age, '', 'victim')"></span>
                 </span>
               </ng-container>
             </ng-container>
-            <ng-template #noVictim>No victim added.</ng-template>
+            <ng-template #noVictim>Unidentified</ng-template>
           </span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('suspects')">
@@ -181,12 +173,12 @@
             <ng-container *ngIf="peopleForCaseField(caseItem, 'suspects') as suspectPeople">
               <ng-container *ngIf="suspectPeople.length; else noSuspects">
                 <span class="person-line" *ngFor="let person of suspectPeople">
-                  <span class="person-name-part">Name: {{ person.name }}</span>
-                  <span class="person-age-part">Age: {{ person.age }}</span>
+                  <span class="person-name-part" [innerHTML]="highlightText('Name: ' + person.name, '', 'suspects')"></span>
+                  <span class="person-age-part" [innerHTML]="highlightText('Age: ' + person.age, '', 'suspects')"></span>
                 </span>
               </ng-container>
             </ng-container>
-            <ng-template #noSuspects>No suspect added.</ng-template>
+            <ng-template #noSuspects>Unidentified</ng-template>
           </span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('guilty_name')">
@@ -195,21 +187,21 @@
             <ng-container *ngIf="peopleForCaseField(caseItem, 'guilty_name') as guiltyPeople">
               <ng-container *ngIf="guiltyPeople.length; else noGuilty">
                 <span class="person-line" *ngFor="let person of guiltyPeople">
-                  <span class="person-name-part">Name: {{ person.name }}</span>
-                  <span class="person-age-part">Age: {{ person.age }}</span>
+                  <span class="person-name-part" [innerHTML]="highlightText('Name: ' + person.name, '', 'guilty_name')"></span>
+                  <span class="person-age-part" [innerHTML]="highlightText('Age: ' + person.age, '', 'guilty_name')"></span>
                 </span>
               </ng-container>
             </ng-container>
-            <ng-template #noGuilty>No guilty person added.</ng-template>
+            <ng-template #noGuilty>Unidentified</ng-template>
           </span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('case_date')">
           <span class="detail-label"><b>Date:</b></span>
-          <span class="detail-value">{{ displayDate(caseItem.case_date) }}</span>
+          <span class="detail-value" [innerHTML]="highlightText(displayDate(caseItem.case_date), 'N/A', 'case_date')"></span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('status')">
           <span class="detail-label"><b>Status:</b></span>
-          <span class="detail-value">{{ caseItem.status || 'N/A' }}</span>
+          <span class="detail-value" [innerHTML]="highlightText(caseItem.status, 'N/A', 'status')"></span>
         </p>
         <p class="detail-row" *ngIf="shouldShowField('isApproved')">
           <span class="detail-label"><b>Approval:</b></span>
@@ -217,18 +209,23 @@
             class="detail-value"
             [class.text-success]="caseItem.isApproved"
             [class.text-danger]="!caseItem.isApproved"
-            >{{ displayApproval(caseItem.isApproved) }}</span
-          >
+            [innerHTML]="highlightText(displayApproval(caseItem.isApproved), 'N/A', 'isApproved')"
+          ></span>
         </p>
         <p class="detail-row desc-row" *ngIf="shouldShowField('case_description')">
           <span class="detail-label"><b>Description:</b></span>
           <span class="detail-value desc-value-bg">
-            <span style="white-space: pre-wrap">{{ caseItem.case_description || 'N/A' }}</span>
+            <span
+              style="white-space: pre-wrap"
+              [innerHTML]="highlightText(caseItem.case_description, 'N/A', 'case_description')"
+            ></span>
           </span>
         </p>
         <button
+          type="button"
           class="pending-action-btn pending-reject-btn neu-button mt-3"
-          (click)="openRemoveConfirm(caseItem)"
+          [disabled]="isRemoving"
+          (click)="handleRemove(caseItem, $event)"
         >
           <span class="span-mother" aria-hidden="true">
             <span>R</span><span>e</span><span>m</span><span>o</span><span>v</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
@@ -244,32 +241,26 @@
 
   <div
     *ngIf="removeConfirm"
-    class="remove-confirm-overlay"
+    class="app-confirm-overlay"
     role="dialog"
     aria-modal="true"
-    aria-labelledby="remove-confirm-title"
     (click)="closeRemoveConfirm()"
   >
-    <div class="remove-confirm-card pending-user-surface" (click)="$event.stopPropagation()">
-      <h5 id="remove-confirm-title" class="mb-2">Remove case?</h5>
-      <p class="mb-3">
-        Are you sure you want to remove
-        <b>{{ removeConfirm.title }}</b
+    <div class="app-confirm-card pending-user-surface" (click)="$event.stopPropagation()">
+      <h5 class="mb-2">Remove case?</h5>
+      <p class="mb-3 app-confirm-text">
+        Are you sure you want to remove <b>{{ removeConfirm.title }}</b
         >?
       </p>
-      <div class="remove-confirm-actions">
+      <div class="app-confirm-actions">
         <button
           type="button"
           class="pending-action-btn pending-approve-btn neu-button"
           [disabled]="isRemoving"
-          (click)="confirmRemove()"
+          (click)="confirmRemoveCase()"
         >
-          <span class="span-mother" aria-hidden="true">
-            <span>Y</span><span>e</span><span>s</span>
-          </span>
-          <span class="span-mother2" aria-hidden="true">
-            <span>Y</span><span>e</span><span>s</span>
-          </span>
+          <span class="span-mother" aria-hidden="true"><span>Y</span><span>e</span><span>s</span></span>
+          <span class="span-mother2" aria-hidden="true"><span>Y</span><span>e</span><span>s</span></span>
           <span class="visually-hidden">Yes</span>
         </button>
         <button
@@ -278,12 +269,8 @@
           [disabled]="isRemoving"
           (click)="closeRemoveConfirm()"
         >
-          <span class="span-mother" aria-hidden="true">
-            <span>N</span><span>o</span>
-          </span>
-          <span class="span-mother2" aria-hidden="true">
-            <span>N</span><span>o</span>
-          </span>
+          <span class="span-mother" aria-hidden="true"><span>N</span><span>o</span></span>
+          <span class="span-mother2" aria-hidden="true"><span>N</span><span>o</span></span>
           <span class="visually-hidden">No</span>
         </button>
       </div>

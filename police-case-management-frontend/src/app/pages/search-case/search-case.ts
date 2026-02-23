@@ -6,6 +6,20 @@ import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../services/auth';
 import { AdminService } from '../../services/admin';
 import { CaseService } from '../../services/case';
+import { SearchMemoryService } from '../../services/search-memory.service';
+
+type SearchField =
+  | 'for-all'
+  | 'case_title'
+  | 'case_type'
+  | 'case_description'
+  | 'suspects'
+  | 'victim'
+  | 'guilty_name'
+  | 'case_date'
+  | 'case_handler'
+  | 'status'
+  | 'isApproved';
 
 type PersonDisplay = {
   name: string;
@@ -21,20 +35,23 @@ type PersonDisplay = {
 export class SearchCase implements OnInit {
   cases: any[] = [];
   loading = false;
-  searchField = 'for-all';
+  searchField: SearchField = 'for-all';
   searchQuery = '';
   officers: string[] = [];
   user: any = null;
   todayStr = new Date().toISOString().split('T')[0];
+  private readonly searchStateKey = 'search-case';
 
   constructor(
     private auth: AuthService,
     private adminService: AdminService,
-    private caseService: CaseService
+    private caseService: CaseService,
+    private searchMemory: SearchMemoryService
   ) {}
 
   async ngOnInit() {
     this.user = this.auth.getUser();
+    this.restoreSearchState();
     try {
       const res = await firstValueFrom(this.caseService.getOfficers());
       this.officers = (res || []).map((o: any) => o.fullname || o);
@@ -73,13 +90,15 @@ export class SearchCase implements OnInit {
   }
 
   onSearchFieldChange(value: string) {
-    this.searchField = value;
+    this.searchField = this.isSearchField(value) ? value : 'for-all';
     this.searchQuery = '';
+    this.persistSearchState();
     this.fetchCases();
   }
 
   onSearchQueryChange(value: string) {
     this.searchQuery = value;
+    this.persistSearchState();
     this.fetchCases();
   }
 
@@ -316,5 +335,42 @@ export class SearchCase implements OnInit {
       .replace(/>/g, '&gt;')
       .replace(/"/g, '&quot;')
       .replace(/'/g, '&#39;');
+  }
+
+  private isSearchField(value: string): value is SearchField {
+    const allowed: SearchField[] = [
+      'for-all',
+      'case_title',
+      'case_type',
+      'case_description',
+      'suspects',
+      'victim',
+      'guilty_name',
+      'case_date',
+      'case_handler',
+      'status',
+      'isApproved',
+    ];
+    return allowed.includes(value as SearchField);
+  }
+
+  private restoreSearchState() {
+    const state = this.searchMemory.load<{ searchField?: unknown; searchQuery?: unknown }>(
+      this.searchStateKey
+    );
+    if (!state) return;
+
+    const storedField = String(state.searchField ?? '').trim();
+    const resolvedField = this.isSearchField(storedField) ? storedField : 'for-all';
+    const isAdminOnlyField = resolvedField === 'isApproved';
+    this.searchField = isAdminOnlyField && !this.user?.isAdmin ? 'for-all' : resolvedField;
+    this.searchQuery = typeof state.searchQuery === 'string' ? state.searchQuery : '';
+  }
+
+  private persistSearchState() {
+    this.searchMemory.save(this.searchStateKey, {
+      searchField: this.searchField,
+      searchQuery: this.searchQuery,
+    });
   }
 }

@@ -50,8 +50,26 @@
               </div>
 
               <p>Don't have an account? <a routerLink="/register">Register here</a>.</p>
-              <button type="submit" class="btn btn-dark w-100 mt-3" [disabled]="loading">
-                Login
+              <button
+                type="submit"
+                class="pending-action-btn pending-check-btn neu-button w-100 mt-3"
+                [disabled]="loading"
+              >
+                <span aria-hidden="true" class="span-mother">
+                  <span>L</span>
+                  <span>o</span>
+                  <span>g</span>
+                  <span>i</span>
+                  <span>n</span>
+                </span>
+                <span aria-hidden="true" class="span-mother2">
+                  <span>L</span>
+                  <span>o</span>
+                  <span>g</span>
+                  <span>i</span>
+                  <span>n</span>
+                </span>
+                <span class="visually-hidden">Login</span>
               </button>
             </form>
           </div>

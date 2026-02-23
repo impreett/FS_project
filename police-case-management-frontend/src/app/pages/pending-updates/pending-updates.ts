@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 import { CaseService } from '../../services/case';
 
 @Component({
@@ -11,38 +12,34 @@ import { CaseService } from '../../services/case';
   templateUrl: './pending-updates.html',
   styleUrl: './pending-updates.css',
 })
-export class PendingUpdates implements OnInit, OnDestroy {
+export class PendingUpdates implements OnInit {
   updates: any[] = [];
   originals: Record<string, any> = {};
   loading = true;
-  successMessage = '';
-  infoMessage = '';
-  private alertTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly alertDurationMs = 7000;
+  updateConfirm:
+    | {
+        id: string;
+        title: string;
+        action: 'approve' | 'reject';
+      }
+    | null = null;
+  isSubmittingAction = false;
   sortOrder: 'latest' | 'oldest' = 'latest';
   private readonly monthYearFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'short',
     year: 'numeric',
   });
 
-  constructor(private adminService: AdminService, private caseService: CaseService) {}
+  constructor(
+    private adminService: AdminService,
+    private caseService: CaseService,
+    private route: ActivatedRoute,
+    private feedback: AppFeedbackService
+  ) {}
 
   async ngOnInit() {
+    this.applyActionMessageFromQuery();
     await this.fetchPendingUpdates();
-  }
-
-  ngOnDestroy() {
-    this.clearAlertTimer();
-  }
-
-  closeSuccessMessage() {
-    this.clearAlertTimer();
-    this.successMessage = '';
-  }
-
-  closeInfoMessage() {
-    this.clearAlertTimer();
-    this.infoMessage = '';
   }
 
   async fetchPendingUpdates() {
@@ -69,32 +66,32 @@ export class PendingUpdates implements OnInit, OnDestroy {
         this.originals = {};
       }
     } catch {
-      alert('Failed to fetch pending updates.');
+      this.feedback.showError('Failed to fetch pending updates.');
     } finally {
       this.loading = false;
     }
   }
 
-  async handleApprove(updateId: string) {
-    try {
-      await firstValueFrom(this.adminService.approveUpdate(updateId));
-      this.showSuccessMessage('Update approved and applied successfully!');
-      this.updates = this.updates.filter((u) => u._id !== updateId);
-      window.scrollTo(0, 0);
-    } catch {
-      alert('Error approving update.');
+  async handleApprove(update: any, event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
+    const updateId = String(update?._id ?? '').trim();
+    if (!updateId) {
+      this.feedback.showError('Update ID is missing. Please refresh and try again.');
+      return;
     }
+    this.openUpdateConfirm(update, 'approve');
   }
 
-  async handleDeny(updateId: string) {
-    try {
-      await firstValueFrom(this.adminService.denyUpdate(updateId));
-      this.showInfoMessage('Update request cancelled successfully!');
-      this.updates = this.updates.filter((u) => u._id !== updateId);
-      window.scrollTo(0, 0);
-    } catch {
-      alert('Error denying update.');
+  async handleDeny(update: any, event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
+    const updateId = String(update?._id ?? '').trim();
+    if (!updateId) {
+      this.feedback.showError('Update ID is missing. Please refresh and try again.');
+      return;
     }
+    this.openUpdateConfirm(update, 'reject');
   }
 
   setSortOrder(order: 'latest' | 'oldest') {
@@ -127,34 +124,86 @@ export class PendingUpdates implements OnInit, OnDestroy {
     return groups;
   }
 
-  private showSuccessMessage(message: string) {
-    this.successMessage = message;
-    this.infoMessage = '';
-    this.startAlertTimer(() => {
-      this.successMessage = '';
-    });
+  trackByGroup(index: number, group: { label: string }): string {
+    return `${group?.label ?? 'unknown'}-${index}`;
   }
 
-  private showInfoMessage(message: string) {
-    this.infoMessage = message;
-    this.successMessage = '';
-    this.startAlertTimer(() => {
-      this.infoMessage = '';
-    });
+  trackByUpdate(index: number, updateItem: any): string {
+    const id = updateItem?._id;
+    return typeof id === 'string' && id.trim() ? id : `update-${index}`;
   }
 
-  private startAlertTimer(onExpire: () => void) {
-    this.clearAlertTimer();
-    this.alertTimer = setTimeout(() => {
-      onExpire();
-      this.alertTimer = null;
-    }, this.alertDurationMs);
-  }
-
-  private clearAlertTimer() {
-    if (this.alertTimer) {
-      clearTimeout(this.alertTimer);
-      this.alertTimer = null;
+  changesDoneFor(value: unknown): string[] {
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => this.normalizeText(item))
+        .filter((item) => !!item);
     }
+    const text = this.normalizeText(value);
+    if (!text) return [];
+    return [text];
+  }
+
+  private normalizeText(value: unknown): string {
+    if (value === null || value === undefined) return '';
+    return String(value).trim();
+  }
+
+  private applyActionMessageFromQuery() {
+    const action = this.route.snapshot.queryParamMap.get('action');
+    if (action === 'approved') {
+      this.feedback.showMessage('Update approved and applied successfully!', 'success');
+    } else if (action === 'rejected') {
+      this.feedback.showMessage('Update request cancelled successfully!', 'danger');
+    } else {
+      return;
+    }
+    this.clearActionQueryParamWithoutNavigation();
+  }
+
+  private openUpdateConfirm(update: any, action: 'approve' | 'reject') {
+    const id = String(update?._id ?? '').trim();
+    if (!id) return;
+    this.updateConfirm = {
+      id,
+      action,
+      title: String(
+        update?.case_title || this.originals[update?.originalCaseId]?.case_title || 'this update request'
+      ),
+    };
+  }
+
+  closeUpdateConfirm() {
+    if (this.isSubmittingAction) return;
+    this.updateConfirm = null;
+  }
+
+  async confirmUpdateAction() {
+    if (!this.updateConfirm || this.isSubmittingAction) return;
+    this.isSubmittingAction = true;
+    const { id, action } = this.updateConfirm;
+    try {
+      if (action === 'approve') {
+        await firstValueFrom(this.adminService.approveUpdate(id));
+        this.feedback.showMessage('Update approved and applied successfully!', 'success');
+      } else {
+        await firstValueFrom(this.adminService.denyUpdate(id));
+        this.feedback.showMessage('Update request cancelled successfully!', 'danger');
+      }
+      this.updates = this.updates.filter((u) => u._id !== id);
+    } catch {
+      this.feedback.showError(action === 'approve' ? 'Error approving update.' : 'Error denying update.');
+    } finally {
+      this.isSubmittingAction = false;
+      this.updateConfirm = null;
+    }
+  }
+
+  private clearActionQueryParamWithoutNavigation() {
+    if (typeof window === 'undefined') return;
+    const currentUrl = new URL(window.location.href);
+    currentUrl.searchParams.delete('action');
+    const next = `${currentUrl.pathname}${currentUrl.search}${currentUrl.hash}`;
+    window.history.replaceState(window.history.state, '', next);
   }
 }

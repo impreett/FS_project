@@ -30,6 +30,25 @@
   font-weight: 600;
 }
 
+.pending-update-changes .changes-grid {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  column-gap: 6px;
+  align-items: start;
+}
+
+.pending-update-changes .changes-values {
+  min-width: 0;
+}
+
+.pending-update-changes .change-line {
+  word-break: break-word;
+}
+
+.pending-update-changes .change-line + .change-line {
+  margin-top: 2px;
+}
+
 .month-year-heading {
   display: flex;
   align-items: center;

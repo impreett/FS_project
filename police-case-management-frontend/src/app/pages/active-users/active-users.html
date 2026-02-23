@@ -2,18 +2,12 @@
   <section class="active-users-hero">
     <div>
       <h2 class="mb-1">Active users</h2>
-      <p class="active-users-subtitle mb-0">
-        Manage approved officers currently allowed to access the system.
-      </p>
+      
     </div>
     <div class="active-users-metrics">
       <article class="metric-card">
         <span class="metric-label">Total active</span>
         <span class="metric-value">{{ users.length }}</span>
-      </article>
-      <article class="metric-card">
-        <span class="metric-label">Cities covered</span>
-        <span class="metric-value">{{ cityCount }}</span>
       </article>
     </div>
   </section>
@@ -39,7 +33,7 @@
         <div class="active-user-actions">
           <button
             class="pending-action-btn pending-reject-btn neu-button active-user-disable-btn"
-            (click)="handleDisable(user._id)"
+            (click)="handleDisable(user._id, user.fullname)"
           >
             <span class="span-mother" aria-hidden="true">
               <span>D</span><span>i</span><span>s</span><span>a</span><span>b</span><span>l</span><span>e</span>
@@ -53,4 +47,26 @@
       </article>
     </div>
   </ng-container>
+
+  <div *ngIf="disableConfirm" class="app-confirm-overlay" role="dialog" aria-modal="true" (click)="closeDisableConfirm()">
+    <div class="app-confirm-card pending-user-surface" (click)="$event.stopPropagation()">
+      <h5 class="mb-2">Disable user?</h5>
+      <p class="mb-3 app-confirm-text">
+        Are you sure you want to disable <b>{{ disableConfirm.name }}</b
+        >? You can enable them again from the pending users page.
+      </p>
+      <div class="app-confirm-actions">
+        <button type="button" class="pending-action-btn pending-approve-btn neu-button" [disabled]="isDisabling" (click)="confirmDisable()">
+          <span class="span-mother" aria-hidden="true"><span>Y</span><span>e</span><span>s</span></span>
+          <span class="span-mother2" aria-hidden="true"><span>Y</span><span>e</span><span>s</span></span>
+          <span class="visually-hidden">Yes</span>
+        </button>
+        <button type="button" class="pending-action-btn pending-check-btn neu-button" [disabled]="isDisabling" (click)="closeDisableConfirm()">
+          <span class="span-mother" aria-hidden="true"><span>N</span><span>o</span></span>
+          <span class="span-mother2" aria-hidden="true"><span>N</span><span>o</span></span>
+          <span class="visually-hidden">No</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>

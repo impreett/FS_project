@@ -24,8 +24,28 @@
   vertical-align: top;
 }
 
+.pending-update-actions {
+  width: 100%;
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px !important;
+}
+
+.pending-update-actions > .pending-action-btn {
+  width: 100%;
+  min-width: 0;
+}
+
 @media (max-width: 576px) {
   .people-lines {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pending-update-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .pending-update-actions > .pending-action-btn {
+    width: 100%;
   }
 }

@@ -1,7 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ReportService } from '../../services/report';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 
 @Component({
   selector: 'app-view-reports',
@@ -9,21 +10,21 @@ import { ReportService } from '../../services/report';
   templateUrl: './view-reports.html',
   styleUrl: './view-reports.css',
 })
-export class ViewReports implements OnInit, OnDestroy {
+export class ViewReports implements OnInit {
   reports: any[] = [];
   loading = true;
   sortOrder: 'latest' | 'oldest' = 'latest';
-  successMessage = '';
   readConfirm: { id: string; from: string } | null = null;
   isMarkingRead = false;
-  private successMessageTimer: ReturnType<typeof setTimeout> | null = null;
-  private readonly successMessageDurationMs = 7000;
   private readonly monthYearFormatter = new Intl.DateTimeFormat('en-US', {
     month: 'short',
     year: 'numeric',
   });
 
-  constructor(private reportService: ReportService) {}
+  constructor(
+    private reportService: ReportService,
+    private feedback: AppFeedbackService
+  ) {}
 
   async ngOnInit() {
     try {
@@ -36,22 +37,15 @@ export class ViewReports implements OnInit, OnDestroy {
     }
   }
 
-  handleMarkAsRead(reportId: string, from: string) {
+  handleMarkAsRead(reportId: string, from: string, event?: Event) {
+    event?.preventDefault();
+    event?.stopPropagation();
     this.readConfirm = { id: reportId, from: from || 'this sender' };
-  }
-
-  ngOnDestroy() {
-    this.clearSuccessMessageTimer();
   }
 
   closeReadConfirm() {
     if (this.isMarkingRead) return;
     this.readConfirm = null;
-  }
-
-  closeSuccessMessage() {
-    this.clearSuccessMessageTimer();
-    this.successMessage = '';
   }
 
   async confirmMarkAsRead() {
@@ -61,10 +55,10 @@ export class ViewReports implements OnInit, OnDestroy {
     try {
       await firstValueFrom(this.reportService.deleteReport(this.readConfirm.id));
       this.reports = this.reports.filter((report) => report._id !== this.readConfirm?.id);
-      this.showSuccessMessage(`Report from ${sender} marked as read!`);
+      this.feedback.showMessage(`Report from ${sender} marked as read!`, 'success');
     } catch (err) {
       console.error(err);
-      alert('Error removing report.');
+      this.feedback.showError('Error removing report.');
     } finally {
       this.isMarkingRead = false;
       this.readConfirm = null;
@@ -73,22 +67,6 @@ export class ViewReports implements OnInit, OnDestroy {
 
   setSortOrder(order: 'latest' | 'oldest') {
     this.sortOrder = order;
-  }
-
-  private showSuccessMessage(message: string) {
-    this.clearSuccessMessageTimer();
-    this.successMessage = message;
-    this.successMessageTimer = setTimeout(() => {
-      this.successMessage = '';
-      this.successMessageTimer = null;
-    }, this.successMessageDurationMs);
-  }
-
-  private clearSuccessMessageTimer() {
-    if (this.successMessageTimer) {
-      clearTimeout(this.successMessageTimer);
-      this.successMessageTimer = null;
-    }
   }
 
   private getReportTime(report: any) {
@@ -120,4 +98,14 @@ export class ViewReports implements OnInit, OnDestroy {
     }
     return groups;
   }
+
+  trackByGroup(index: number, group: { label: string }): string {
+    return `${group?.label ?? 'unknown'}-${index}`;
+  }
+
+  trackByReport(index: number, report: any): string {
+    const id = report?._id;
+    return typeof id === 'string' && id.trim() ? id : `report-${index}`;
+  }
+
 }

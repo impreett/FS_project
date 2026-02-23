@@ -1,4 +1,4 @@
-﻿<div class="container mt-4">
+<div class="container mt-4">
   <div *ngIf="loading">Loading details...</div>
   <div *ngIf="error" class="text-danger">{{ error }}</div>
   <div *ngIf="!loading && !error && !caseItem">Case not found.</div>
@@ -23,12 +23,17 @@
 
     <ng-container *ngIf="user?.isAdmin; else clientView">
       <div
-        *ngIf="successMessage"
-        class="alert alert-success alert-dismissible fade show text-center app-timed-alert"
+        *ngIf="actionMessage"
+        class="alert alert-dismissible fade show text-center app-timed-alert"
+        [ngClass]="{
+          'alert-success': actionMessageType === 'success',
+          'alert-danger': actionMessageType === 'danger',
+          'alert-info': actionMessageType === 'info'
+        }"
         role="alert"
       >
-        {{ successMessage }}
-        <button type="button" class="btn-close" (click)="closeSuccessMessage()" aria-label="Close"></button>
+        {{ actionMessage }}
+        <button type="button" class="btn-close" (click)="closeActionMessage()" aria-label="Close"></button>
       </div>
       <article
         class="case-details-card"
@@ -73,8 +78,18 @@
             <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
           </span>
         </p>
+        <p class="detail-row desc-row" *ngIf="changesDone.length">
+          <span class="detail-label"><b>Changes done:</b></span>
+          <span class="detail-value desc-value-bg">
+            <ul class="changes-done-list mb-0 ps-3">
+              <li *ngFor="let change of changesDone">
+                <span style="white-space: pre-wrap">{{ change }}</span>
+              </li>
+            </ul>
+          </span>
+        </p>
 
-        <div *ngIf="!caseItem.isApproved" class="case-admin-actions">
+        <div *ngIf="showPendingDecisionActions" class="case-admin-actions">
           <button class="pending-action-btn pending-approve-btn neu-button" (click)="handleApprove()">
             <span class="span-mother" aria-hidden="true">
               <span>A</span><span>p</span><span>p</span><span>r</span><span>o</span><span>v</span><span>e</span>
@@ -92,6 +107,34 @@
               <span>D</span><span>e</span><span>n</span><span>y</span>
             </span>
             <span class="visually-hidden">Deny</span>
+          </button>
+        </div>
+        <div *ngIf="showRemoveAction || showRestoreAction" class="case-admin-actions">
+          <button
+            *ngIf="showRemoveAction"
+            class="pending-action-btn pending-reject-btn neu-button"
+            (click)="handleRemoveFromCaseDetails()"
+          >
+            <span class="span-mother" aria-hidden="true">
+              <span>R</span><span>e</span><span>m</span><span>o</span><span>v</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>R</span><span>e</span><span>m</span><span>o</span><span>v</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+            </span>
+            <span class="visually-hidden">Remove case</span>
+          </button>
+          <button
+            *ngIf="showRestoreAction"
+            class="pending-action-btn pending-approve-btn neu-button"
+            (click)="handleRestoreFromCaseDetails()"
+          >
+            <span class="span-mother" aria-hidden="true">
+              <span>R</span><span>e</span><span>s</span><span>t</span><span>o</span><span>r</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+            </span>
+            <span class="span-mother2" aria-hidden="true">
+              <span>R</span><span>e</span><span>s</span><span>t</span><span>o</span><span>r</span><span>e</span><span>&nbsp;</span><span>c</span><span>a</span><span>s</span><span>e</span>
+            </span>
+            <span class="visually-hidden">Restore case</span>
           </button>
         </div>
       </article>
@@ -137,6 +180,16 @@
             <span style="white-space: pre-wrap">{{ caseItem.case_description }}</span>
           </span>
         </p>
+        <p class="detail-row desc-row" *ngIf="changesDone.length">
+          <span class="detail-label"><b>Changes done:</b></span>
+          <span class="detail-value desc-value-bg">
+            <ul class="changes-done-list mb-0 ps-3">
+              <li *ngFor="let change of changesDone">
+                <span style="white-space: pre-wrap">{{ change }}</span>
+              </li>
+            </ul>
+          </span>
+        </p>
       </article>
     </ng-template>
 
@@ -150,7 +203,7 @@
               <span class="person-age-part">Age: {{ person.age }}</span>
             </span>
           </ng-container>
-          <ng-template #noVictim>No victim added.</ng-template>
+          <ng-template #noVictim>Unidentified</ng-template>
         </span>
       </p>
       <p class="detail-row">
@@ -162,7 +215,7 @@
               <span class="person-age-part">Age: {{ person.age }}</span>
             </span>
           </ng-container>
-          <ng-template #noSuspect>No suspect added.</ng-template>
+          <ng-template #noSuspect>Unidentified</ng-template>
         </span>
       </p>
       <p class="detail-row">
@@ -174,7 +227,7 @@
               <span class="person-age-part">Age: {{ person.age }}</span>
             </span>
           </ng-container>
-          <ng-template #noGuilty>No guilty person added.</ng-template>
+          <ng-template #noGuilty>Unidentified</ng-template>
         </span>
       </p>
     </ng-template>

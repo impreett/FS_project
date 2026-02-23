@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AdminService } from '../../services/admin';
+import { AppFeedbackService } from '../../services/app-feedback.service';
 import { CaseService } from '../../services/case';
 
 @Component({
@@ -16,18 +17,22 @@ export class CheckSideBySide implements OnInit {
   error = '';
   update: any = null;
   original: any = null;
+  actionLoading = false;
+  private updateId = '';
 
   private peopleCache = new Map<string, { name: string; age: string }[]>();
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private adminService: AdminService,
-    private caseService: CaseService
+    private caseService: CaseService,
+    private feedback: AppFeedbackService
   ) {}
 
   async ngOnInit() {
-    const updateId = this.route.snapshot.paramMap.get('updateId') || '';
-    if (!updateId) {
+    this.updateId = this.route.snapshot.paramMap.get('updateId') || '';
+    if (!this.updateId) {
       this.error = 'Invalid update id.';
       this.loading = false;
       return;
@@ -35,7 +40,7 @@ export class CheckSideBySide implements OnInit {
 
     try {
       const updates = await firstValueFrom(this.adminService.getPendingUpdates());
-      const found = (updates || []).find((item: any) => item?._id === updateId);
+      const found = (updates || []).find((item: any) => item?._id === this.updateId);
       if (!found) {
         this.error = 'Pending update not found.';
         return;
@@ -52,6 +57,30 @@ export class CheckSideBySide implements OnInit {
       this.error = 'Failed to load side-by-side details.';
     } finally {
       this.loading = false;
+    }
+  }
+
+  async handleApprove() {
+    if (!this.updateId || this.actionLoading) return;
+    this.actionLoading = true;
+    try {
+      await firstValueFrom(this.adminService.approveUpdate(this.updateId));
+      this.router.navigate(['/admin/pending-updates'], { queryParams: { action: 'approved' } });
+    } catch {
+      this.feedback.showError('Error approving update.');
+      this.actionLoading = false;
+    }
+  }
+
+  async handleReject() {
+    if (!this.updateId || this.actionLoading) return;
+    this.actionLoading = true;
+    try {
+      await firstValueFrom(this.adminService.denyUpdate(this.updateId));
+      this.router.navigate(['/admin/pending-updates'], { queryParams: { action: 'rejected' } });
+    } catch {
+      this.feedback.showError('Error denying update.');
+      this.actionLoading = false;
     }
   }
 
@@ -130,5 +159,16 @@ export class CheckSideBySide implements OnInit {
     }, 10);
 
     return `${longest}ch`;
+  }
+
+  changesDoneFor(value: unknown): string[] {
+    if (Array.isArray(value)) {
+      return value
+        .map((item) => this.normalizeText(item))
+        .filter((item) => !!item);
+    }
+    const text = this.normalizeText(value);
+    if (!text) return [];
+    return [text];
   }
 }

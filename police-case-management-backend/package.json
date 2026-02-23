@@ -10,7 +10,9 @@
     "data:import": "node seeder -i",
     "data:delete": "node seeder -d",
     "seed:feature": "node scripts/seed-feature-data.js",
-    "seed:feature:preview": "node scripts/seed-feature-data.js --preview"
+    "seed:feature:preview": "node scripts/seed-feature-data.js --preview",
+    "seed:feature:full": "node scripts/seed-feature-data.js --users 20 --cases 50 --updates 25 --reports 20",
+    "seed:feature:full:preview": "node scripts/seed-feature-data.js --preview --users 20 --cases 50 --updates 25 --reports 20"
   },
   "keywords": [],
   "author": "",

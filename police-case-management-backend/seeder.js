@@ -1,6 +1,9 @@
 ﻿const fs = require('fs');
 const mongoose = require('mongoose');
-/* Database seeder script for MongoDB - uses plaintext passwords for development speed */
+const bcrypt = require('bcryptjs');
+/* Database seeder script for MongoDB */
+
+const BCRYPT_SALT_ROUNDS = Number(process.env.BCRYPT_SALT_ROUNDS || 10);
 
 /* Import required data models */
 const User = require('./models/User');
@@ -74,10 +77,10 @@ const importData = async () => {
         const usersToCreate = [];
         const parsedUsers = parseSqlInsert(sqlFile, 'police_registration');
         for (const userRow of parsedUsers) {
-            /* Using plaintext password from SQL dump for development simplicity */
+            const hashedPassword = await bcrypt.hash(String(userRow[5] ?? ''), BCRYPT_SALT_ROUNDS);
             usersToCreate.push({
                 fullname: userRow[0], police_id: userRow[1], contact: userRow[2],
-                email: userRow[3], city: userRow[4], password: userRow[5],
+                email: userRow[3], city: userRow[4], password: hashedPassword,
                 isAdmin: userRow[6] === "b'1'", isApproved: userRow[7] === "b'1'",
             });
         }

@@ -1,4 +1,4 @@
-﻿<div class="container mt-4" style="margin-bottom: 30px">
+<div class="container mt-4" style="margin-bottom: 30px">
   <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-4">
     <h2 class="mb-0">Pending cases</h2>
     <div class="d-flex justify-content-end align-items-center gap-2" *ngIf="cases.length > 1">
@@ -122,43 +122,41 @@
     </div>
   </div>
 
-  <div
-    *ngIf="successMessage"
-    class="alert alert-success alert-dismissible fade show text-center app-timed-alert"
-    role="alert"
-  >
-    {{ successMessage }}
-    <button type="button" class="btn-close" (click)="closeSuccessMessage()" aria-label="Close"></button>
-  </div>
   <div *ngIf="loading">Loading...</div>
   <ng-container *ngIf="!loading">
     <ng-container *ngIf="groupedCases.length > 0; else empty">
-      <ng-container *ngFor="let group of groupedCases">
+      <ng-container *ngFor="let group of groupedCases; trackBy: trackByGroup">
         <h5 class="mb-3 text-secondary month-year-heading">{{ group.label }}</h5>
-        <article *ngFor="let caseItem of group.items" class="case-details-card search-result-article">
+        <article
+          *ngFor="let caseItem of group.items; trackBy: trackByCase"
+          class="case-details-card search-result-article"
+        >
           <div class="pending-case-layout">
             <div class="pending-case-meta">
               <h3 class="mb-4 search-result-title">
                 <ng-container *ngIf="searchField !== 'for-all'; else pendingTitlePlain">
-                  <a [routerLink]="['/case', caseItem._id]" class="result-title-link">
-                    {{ caseItem.case_title }}
-                  </a>
+                  <a
+                    [routerLink]="['/case', caseItem._id]"
+                    [queryParams]="{ from: 'admin-pending-cases' }"
+                    class="result-title-link"
+                    [innerHTML]="highlightText(caseItem.case_title, 'Untitled', 'case_title')"
+                  ></a>
                 </ng-container>
                 <ng-template #pendingTitlePlain>
-                  <span>{{ caseItem.case_title }}</span>
+                  <span [innerHTML]="highlightText(caseItem.case_title, 'Untitled', 'case_title')"></span>
                 </ng-template>
               </h3>
               <p class="detail-row" *ngIf="shouldShowField('case_id')">
                 <span class="detail-label"><b>Case ID:</b></span>
-                <span class="detail-value">{{ caseItem._id || 'N/A' }}</span>
+                <span class="detail-value" [innerHTML]="highlightText(caseItem._id, 'N/A')"></span>
               </p>
               <p class="detail-row" *ngIf="shouldShowField('case_type')">
                 <span class="detail-label"><b>Type:</b></span>
-                <span class="detail-value">{{ caseItem.case_type || 'N/A' }}</span>
+                <span class="detail-value" [innerHTML]="highlightText(caseItem.case_type, 'N/A', 'case_type')"></span>
               </p>
               <p class="detail-row" *ngIf="shouldShowField('case_handler')">
                 <span class="detail-label"><b>Handler:</b></span>
-                <span class="detail-value">{{ caseItem.case_handler || 'N/A' }}</span>
+                <span class="detail-value" [innerHTML]="highlightText(caseItem.case_handler, 'N/A', 'case_handler')"></span>
               </p>
               <p class="detail-row" *ngIf="shouldShowField('victim')">
                 <span class="detail-label"><b>Victim:</b></span>
@@ -166,12 +164,12 @@
                   <ng-container *ngIf="peopleForCaseField(caseItem, 'victim') as victimPeople">
                     <ng-container *ngIf="victimPeople.length; else noVictim">
                       <span class="person-line" *ngFor="let person of victimPeople">
-                        <span class="person-name-part">Name: {{ person.name }}</span>
-                        <span class="person-age-part">Age: {{ person.age }}</span>
+                        <span class="person-name-part" [innerHTML]="highlightText('Name: ' + person.name, '', 'victim')"></span>
+                        <span class="person-age-part" [innerHTML]="highlightText('Age: ' + person.age, '', 'victim')"></span>
                       </span>
                     </ng-container>
                   </ng-container>
-                  <ng-template #noVictim>No victim added.</ng-template>
+                  <ng-template #noVictim>Unidentified</ng-template>
                 </span>
               </p>
               <p class="detail-row" *ngIf="shouldShowField('suspects')">
@@ -180,12 +178,12 @@
                   <ng-container *ngIf="peopleForCaseField(caseItem, 'suspects') as suspectPeople">
                     <ng-container *ngIf="suspectPeople.length; else noSuspects">
                       <span class="person-line" *ngFor="let person of suspectPeople">
-                        <span class="person-name-part">Name: {{ person.name }}</span>
-                        <span class="person-age-part">Age: {{ person.age }}</span>
+                        <span class="person-name-part" [innerHTML]="highlightText('Name: ' + person.name, '', 'suspects')"></span>
+                        <span class="person-age-part" [innerHTML]="highlightText('Age: ' + person.age, '', 'suspects')"></span>
                       </span>
                     </ng-container>
                   </ng-container>
-                  <ng-template #noSuspects>No suspect added.</ng-template>
+                  <ng-template #noSuspects>Unidentified</ng-template>
                 </span>
               </p>
               <p class="detail-row" *ngIf="shouldShowField('guilty_name')">
@@ -194,21 +192,21 @@
                   <ng-container *ngIf="peopleForCaseField(caseItem, 'guilty_name') as guiltyPeople">
                     <ng-container *ngIf="guiltyPeople.length; else noGuilty">
                       <span class="person-line" *ngFor="let person of guiltyPeople">
-                        <span class="person-name-part">Name: {{ person.name }}</span>
-                        <span class="person-age-part">Age: {{ person.age }}</span>
+                        <span class="person-name-part" [innerHTML]="highlightText('Name: ' + person.name, '', 'guilty_name')"></span>
+                        <span class="person-age-part" [innerHTML]="highlightText('Age: ' + person.age, '', 'guilty_name')"></span>
                       </span>
                     </ng-container>
                   </ng-container>
-                  <ng-template #noGuilty>No guilty person added.</ng-template>
+                  <ng-template #noGuilty>Unidentified</ng-template>
                 </span>
               </p>
               <p class="detail-row" *ngIf="shouldShowField('case_date')">
                 <span class="detail-label"><b>Date:</b></span>
-                <span class="detail-value">{{ displayDate(caseItem.case_date) }}</span>
+                <span class="detail-value" [innerHTML]="highlightText(displayDate(caseItem.case_date), 'N/A', 'case_date')"></span>
               </p>
               <p class="detail-row" *ngIf="shouldShowField('status')">
                 <span class="detail-label"><b>Status:</b></span>
-                <span class="detail-value">{{ caseItem.status || 'N/A' }}</span>
+                <span class="detail-value" [innerHTML]="highlightText(caseItem.status, 'N/A', 'status')"></span>
               </p>
               <p class="detail-row" *ngIf="shouldShowField('isApproved')">
                 <span class="detail-label"><b>Approval:</b></span>
@@ -216,20 +214,24 @@
                   class="detail-value"
                   [class.text-success]="caseItem.isApproved"
                   [class.text-danger]="!caseItem.isApproved"
-                  >{{ displayApproval(caseItem.isApproved) }}</span
-                >
+                  [innerHTML]="highlightText(displayApproval(caseItem.isApproved), 'N/A', 'isApproved')"
+                ></span>
               </p>
               <p class="detail-row desc-row mb-0" *ngIf="shouldShowField('case_description')">
                 <span class="detail-label"><b>Description:</b></span>
                 <span class="detail-value desc-value-bg">
-                  <span style="white-space: pre-wrap">{{ caseItem.case_description || 'N/A' }}</span>
+                  <span
+                    style="white-space: pre-wrap"
+                    [innerHTML]="highlightText(caseItem.case_description, 'N/A', 'case_description')"
+                  ></span>
                 </span>
               </p>
             </div>
             <div class="d-flex gap-2 pending-case-actions">
               <button
+                type="button"
                 class="pending-action-btn pending-approve-btn neu-button"
-                (click)="handleApprove(caseItem)"
+                (click)="handleApprove(caseItem, $event)"
               >
                 <span class="span-mother" aria-hidden="true">
                   <span>A</span><span>p</span><span>p</span><span>r</span><span>o</span><span>v</span><span>e</span>
@@ -240,8 +242,9 @@
                 <span class="visually-hidden">Approve</span>
               </button>
               <button
+                type="button"
                 class="pending-action-btn pending-reject-btn neu-button"
-                (click)="handleDeny(caseItem)"
+                (click)="handleDeny(caseItem, $event)"
               >
                 <span class="span-mother" aria-hidden="true">
                   <span>D</span><span>e</span><span>n</span><span>y</span>
